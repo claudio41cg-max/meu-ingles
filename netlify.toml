@@ -1,0 +1,8 @@
+[functions]
+  directory = "netlify/functions"
+  node_bundler = "esbuild"
+
+[[headers]]
+  for = "/.netlify/functions/xai-session"
+  [headers.values]
+    Cache-Control = "no-store"
