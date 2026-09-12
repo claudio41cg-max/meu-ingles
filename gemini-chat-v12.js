@@ -1,14 +1,4 @@
-(function(){
-  const CHAT='https://meu-ingles-claudio.netlify.app/api/groq-chat';
-  let history=[];
-  function st(){try{return state}catch(e){return {level:'A1',teacher:'media',scenario:'Livre'}}}
-  async function ask(text){const s=st();const r=await fetch(CHAT,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({mode:'conversation',message:text,level:s.level||'A1',personality:s.teacher||'media',scenario:s.scenario||'Livre',history:history.slice(-8)})});if(!r.ok)throw new Error('chat '+r.status);return r.json()}
-  function setState(kind){try{if(typeof liveSetMascotState==='function')liveSetMascotState(kind)}catch(e){};const btn=document.getElementById('liveMicBtn');if(btn)btn.classList.toggle('listening',kind==='listening')}
-  window.liveVoiceChat=async function(){
-    let rec=null;try{rec=await prep()}catch(e){}if(!rec)return;const heard=document.getElementById('liveLastHeard'),reply=document.getElementById('liveLastReply'),hint=document.getElementById('liveHint'),badge=document.getElementById('liveAiState');setState('listening');if(hint)hint.textContent='Pode falar. Eu tô ouvindo.';
-    rec.onresult=async e=>{const text=e.results[0][0].transcript;if(heard)heard.textContent=text;setState('thinking');if(hint)hint.textContent='Pensando na sua resposta…';try{const d=await ask(text);history.push({role:'user',content:text},{role:'assistant',content:[d.reply_pt,d.reply_en].filter(Boolean).join(' ')});if(reply)reply.textContent=[d.reply_pt,d.reply_en].filter(Boolean).join(' • ');if(badge){badge.className='aiState connected';badge.textContent='🧠 IA conectada · voz Gemini'};if(hint)hint.textContent='Respondendo por voz…';if(window.GEMINI_TTS){await GEMINI_TTS.speakBoth(d.reply_pt||'',d.reply_en||'')}else if(typeof liveSpeakPt==='function'){liveSpeakPt(d.reply_pt||'')}setState('idle');if(hint)hint.textContent='Pode continuar falando quando quiser.'}catch(err){console.warn(err);setState('idle');if(reply)reply.textContent='A IA não respondeu agora. Tente novamente em alguns segundos.';if(badge){badge.className='aiState pending';badge.textContent='⚠️ IA temporariamente indisponível'};if(hint)hint.textContent='Tente novamente.'}};
-    rec.onerror=()=>{setState('idle');if(hint)hint.textContent='Não consegui entender. Tente de novo.'};rec.onend=()=>{const btn=document.getElementById('liveMicBtn');if(btn)btn.classList.remove('listening')};try{rec.start()}catch(e){setState('idle')}
-  };
-  async function paint(){const badge=document.getElementById('liveAiState');if(!badge)return;let voice=false;try{voice=window.GEMINI_TTS&&await GEMINI_TTS.status()}catch(e){};badge.className='aiState '+(voice?'connected':'pending');badge.textContent=voice?'🧠 Groq + voz natural Gemini conectados':'🧠 IA conectada · voz natural verificando…'}
-  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',()=>setTimeout(paint,420));else setTimeout(paint,420);
-})();
+/* Arquivo mantido apenas por compatibilidade com versões antigas do cache.
+   A conversa principal agora é controlada por coach-v11.js + /api/groq-chat,
+   evitando dois controladores de microfone disputando a mesma tela. */
+window.MEU_INGLES_CHAT_COMPAT=true;
