@@ -1,0 +1,19 @@
+{
+  "name": "Meu Inglês",
+  "short_name": "Meu Inglês",
+  "description": "Curso de inglês com voz, missões e professor com personalidade.",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#07111d",
+  "theme_color": "#07111d",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}
