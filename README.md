@@ -1,3 +1,3 @@
 # Meu Inglês
 
-Aplicativo PWA de curso de inglês com aulas, missões, prática por voz e professor com personalidade.
+App PWA de curso de inglês com níveis A1 a C2, treino por voz e professor com estilos de reação.
