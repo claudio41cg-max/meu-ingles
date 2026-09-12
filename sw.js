@@ -1,5 +1,5 @@
-const CACHE='meu-ingles-v6';
-const ASSETS=['./','./index.html','./manifest.webmanifest','./icon.svg','./upgrade-v6.js'];
+const CACHE='meu-ingles-v7';
+const ASSETS=['./','./index.html','./manifest.webmanifest','./icon.svg','./upgrade-v6.js','./live-v7.css','./live-config.js','./live-v7.js'];
 self.addEventListener('install',event=>event.waitUntil(caches.open(CACHE).then(cache=>cache.addAll(ASSETS))).then(()=>self.skipWaiting()));
 self.addEventListener('activate',event=>event.waitUntil(caches.keys().then(keys=>Promise.all(keys.filter(key=>key!==CACHE).map(key=>caches.delete(key)))).then(()=>self.clients.claim())));
 async function injectUpgrade(response){
@@ -7,6 +7,9 @@ async function injectUpgrade(response){
   if(!type.includes('text/html')) return response;
   let text=await response.text();
   if(!text.includes('upgrade-v6.js')) text=text.replace('</body>','<script src="./upgrade-v6.js?v=6"></script></body>');
+  if(!text.includes('live-v7.css')) text=text.replace('</head>','<link rel="stylesheet" href="./live-v7.css?v=7"></head>');
+  if(!text.includes('live-config.js')) text=text.replace('</body>','<script src="./live-config.js?v=7"></script></body>');
+  if(!text.includes('live-v7.js')) text=text.replace('</body>','<script src="./live-v7.js?v=7"></script></body>');
   const headers=new Headers(response.headers);
   headers.set('content-type','text/html; charset=utf-8');
   return new Response(text,{status:response.status,statusText:response.statusText,headers});
