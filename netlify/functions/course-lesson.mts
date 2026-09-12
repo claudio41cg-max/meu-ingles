@@ -17,6 +17,17 @@ function cleanJson(text: string) {
   return JSON.parse(String(text || "").replace(/^```json\s*/i, "").replace(/^```\s*/i, "").replace(/\s*```$/i, "").trim());
 }
 
+function safeStrings(value: any): any {
+  if (typeof value === "string") return value.replace(/'/g, "’");
+  if (Array.isArray(value)) return value.map(safeStrings);
+  if (value && typeof value === "object") {
+    const out: Record<string, any> = {};
+    for (const [k, v] of Object.entries(value)) out[k] = safeStrings(v);
+    return out;
+  }
+  return value;
+}
+
 export default async (req: Request) => {
   const origin = req.headers.get("origin");
   const h = cors(origin);
@@ -67,7 +78,7 @@ export default async (req: Request) => {
       return new Response(JSON.stringify({ error: upstream.status === 429 ? "rate_limit" : "upstream_error", detail }), { status: upstream.status === 429 ? 429 : 502, headers: h });
     }
     const data: any = await upstream.json();
-    const parsed = cleanJson(data?.choices?.[0]?.message?.content || "{}");
+    const parsed = safeStrings(cleanJson(data?.choices?.[0]?.message?.content || "{}"));
     return new Response(JSON.stringify({ ...parsed, provider: "GroqCloud", model: MODEL }), { status: 200, headers: h });
   } catch {
     return new Response(JSON.stringify({ error: "course_generation_failed" }), { status: 502, headers: h });
