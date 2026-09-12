@@ -6,3 +6,8 @@
   for = "/.netlify/functions/xai-session"
   [headers.values]
     Cache-Control = "no-store"
+
+[[headers]]
+  for = "/api/groq-chat"
+  [headers.values]
+    Cache-Control = "no-store"
