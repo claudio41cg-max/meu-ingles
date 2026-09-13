@@ -128,6 +128,30 @@ async function callGenerateContent25(apiKey: string, instruction: string, voice:
   };
 }
 
+async function generateTts(apiKey: string, instruction: string, voice: string, lang: string) {
+  const errors: string[] = [];
+
+  try {
+    return await callInteractions(PRIMARY_MODEL, apiKey, instruction, voice);
+  } catch (e) {
+    errors.push(String(e));
+  }
+
+  try {
+    return await callInteractions(FALLBACK_MODEL, apiKey, instruction, voice);
+  } catch (e) {
+    errors.push(String(e));
+  }
+
+  try {
+    return await callGenerateContent25(apiKey, instruction, voice, lang);
+  } catch (e) {
+    errors.push(String(e));
+  }
+
+  throw new Error(JSON.stringify(errors.slice(-3)));
+}
+
 export default async (req: Request) => {
   const origin = req.headers.get("origin");
   const h = headers(origin);
@@ -142,14 +166,55 @@ export default async (req: Request) => {
   const apiKey = getKey();
 
   if (req.method === "GET") {
-    return new Response(JSON.stringify({
-      ok: true,
-      provider: "Gemini",
-      models: [PRIMARY_MODEL, FALLBACK_MODEL],
-      key_configured: !!apiKey,
-      tts_api: "interactions-first",
-      default_voice: "Puck"
-    }), { status: 200, headers: h });
+    const url = new URL(req.url);
+    const diagnostic = url.searchParams.get("diagnostic") === "1";
+
+    if (!diagnostic) {
+      return new Response(JSON.stringify({
+        ok: true,
+        provider: "Gemini",
+        models: [PRIMARY_MODEL, FALLBACK_MODEL],
+        key_configured: !!apiKey,
+        tts_api: "interactions-first",
+        default_voice: "Puck"
+      }), { status: 200, headers: h });
+    }
+
+    if (!apiKey) {
+      return new Response(JSON.stringify({
+        ok: false,
+        diagnostic: true,
+        error: "gemini_not_configured"
+      }), { status: 503, headers: h });
+    }
+
+    const instruction = "Speak only this sentence in natural American English: Hello, this is a Gemini voice test.";
+
+    try {
+      const out = await generateTts(apiKey, instruction, "Puck", "en-US");
+      return new Response(JSON.stringify({
+        ok: true,
+        diagnostic: true,
+        provider: "Gemini",
+        model: out.model,
+        protocol: out.protocol,
+        voice: "Puck",
+        sample_rate: out.sample_rate,
+        audio_received: !!out.audio
+      }), { status: 200, headers: h });
+    } catch (e) {
+      let details: any = String(e);
+      try {
+        const raw = String(e).replace(/^Error:\s*/, "");
+        details = JSON.parse(raw);
+      } catch {}
+      return new Response(JSON.stringify({
+        ok: false,
+        diagnostic: true,
+        error: "gemini_tts_diagnostic_failed",
+        details
+      }), { status: 502, headers: h });
+    }
   }
 
   if (req.method !== "POST") {
@@ -184,42 +249,28 @@ export default async (req: Request) => {
     ? `Fale apenas em português brasileiro. Soe como uma pessoa conversando cara a cara, com ritmo natural, pequenas pausas e entonação espontânea. Não use voz de locutor, assistente virtual ou robô. ${style}\n\nDiga somente isto: ${text}`
     : `Speak only in natural American English for a complete beginner. Use clear pronunciation, warm human rhythm and small natural pauses. Do not sound like an announcer, screen reader or robot. ${style}\n\nSay only this: ${text}`;
 
-  const errors: string[] = [];
-
   try {
-    const out = await callInteractions(PRIMARY_MODEL, apiKey, instruction, voice);
-    return new Response(JSON.stringify({ ok: true, ...out, provider: "Gemini", voice }), {
+    const out = await generateTts(apiKey, instruction, voice, lang);
+    return new Response(JSON.stringify({
+      ok: true,
+      ...out,
+      provider: "Gemini",
+      voice
+    }), {
       status: 200,
       headers: h
     });
   } catch (e) {
-    errors.push(String(e));
+    let details: any = String(e);
+    try {
+      const raw = String(e).replace(/^Error:\s*/, "");
+      details = JSON.parse(raw);
+    } catch {}
+    return new Response(JSON.stringify({
+      error: "gemini_tts_error",
+      details
+    }), { status: 502, headers: h });
   }
-
-  try {
-    const out = await callInteractions(FALLBACK_MODEL, apiKey, instruction, voice);
-    return new Response(JSON.stringify({ ok: true, ...out, provider: "Gemini", voice }), {
-      status: 200,
-      headers: h
-    });
-  } catch (e) {
-    errors.push(String(e));
-  }
-
-  try {
-    const out = await callGenerateContent25(apiKey, instruction, voice, lang);
-    return new Response(JSON.stringify({ ok: true, ...out, provider: "Gemini", voice }), {
-      status: 200,
-      headers: h
-    });
-  } catch (e) {
-    errors.push(String(e));
-  }
-
-  return new Response(JSON.stringify({
-    error: "gemini_tts_error",
-    details: errors.slice(-3)
-  }), { status: 502, headers: h });
 };
 
 export const config = { path: "/api/gemini-tts" };
