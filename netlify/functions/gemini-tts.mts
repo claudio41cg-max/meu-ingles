@@ -107,7 +107,7 @@ async function callGenerateContent25(apiKey: string, instruction: string, voice:
   });
 
   const text = await r.text();
-  if (!r.ok) throw new Error(`${FALLBACK_MODEL}_generateContent_${r.status}:${text.slice(0,180)}`);
+  if (!r.ok) throw new Error(`${FALLBACK_MODEL}_generateContent_${r.status}:${text.slice(0,300)}`);
 
   let data: any;
   try {
@@ -132,12 +132,16 @@ async function callGenerateContent25(apiKey: string, instruction: string, voice:
 async function generateTts(apiKey: string, instruction: string, voice: string, lang: string) {
   const errors: string[] = [];
 
+  // Este foi o caminho que já passou no diagnóstico real do app.
+  // Usamos primeiro o Gemini 2.5 Flash TTS via generateContent para não gastar
+  // uma tentativa no 3.1 preview, que está retornando 429 neste projeto.
   try {
-    return await callInteractions(PRIMARY_MODEL, apiKey, instruction, voice);
+    return await callGenerateContent25(apiKey, instruction, voice, lang);
   } catch (e) {
     errors.push(String(e));
   }
 
+  // Mantém a API de Interactions apenas como contingência.
   try {
     return await callInteractions(FALLBACK_MODEL, apiKey, instruction, voice);
   } catch (e) {
@@ -145,7 +149,7 @@ async function generateTts(apiKey: string, instruction: string, voice: string, l
   }
 
   try {
-    return await callGenerateContent25(apiKey, instruction, voice, lang);
+    return await callInteractions(PRIMARY_MODEL, apiKey, instruction, voice);
   } catch (e) {
     errors.push(String(e));
   }
@@ -174,9 +178,9 @@ export default async (req: Request) => {
       return new Response(JSON.stringify({
         ok: true,
         provider: "Gemini",
-        models: [PRIMARY_MODEL, FALLBACK_MODEL],
+        models: [FALLBACK_MODEL, PRIMARY_MODEL],
         key_configured: !!apiKey,
-        tts_api: "interactions-first",
+        tts_api: "generateContent-first",
         default_voice: "Puck"
       }), { status: 200, headers: h });
     }
