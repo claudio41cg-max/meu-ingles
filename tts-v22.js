@@ -13,9 +13,9 @@ function readState(){try{return JSON.parse(localStorage.getItem(KEY)||'{}')||{}}
 function currentVoice(){return readState().voice||'Aoede'}
 function status(text,ok){
   const el=document.querySelector('#geminiVoiceStatus');
-  if(!el)return;
-  el.textContent=text;
-  el.style.borderColor=ok===true?'#2fbf71':ok===false?'#d9534f':'';
+  if(el){el.textContent=text;el.style.borderColor=ok===true?'#2fbf71':ok===false?'#d9534f':''}
+  const warn=document.querySelector('#a15Voice');
+  if(warn&&ok===false)warn.textContent=text;
 }
 function ensurePlayer(){
   if(player)return player;
@@ -50,9 +50,9 @@ async function unlock(){
     const p=a.play();
     if(p&&p.then)await p;
     a.pause();a.currentTime=0;URL.revokeObjectURL(url);unlocked=true;return true;
-  }catch(e){return false}
+  }catch(e){status('⚠️ Áudio do navegador bloqueado: toque novamente em Testar voz.',false);return false}
 }
-['pointerdown','touchstart','mousedown'].forEach(type=>document.addEventListener(type,()=>{unlock().catch(()=>{})},{capture:true,passive:true,once:false}));
+['pointerdown','touchstart','mousedown'].forEach(type=>document.addEventListener(type,()=>{unlock().catch(()=>{})},{capture:true,passive:true}));
 
 async function geminiSpeak(text,lang='pt-BR',voice=currentVoice()){
   text=String(text||'').trim();
@@ -60,6 +60,7 @@ async function geminiSpeak(text,lang='pt-BR',voice=currentVoice()){
   speaking=true;
   const a=ensurePlayer();
   try{
+    await unlock();
     status('🎙️ Gerando voz natural do Gemini…');
     const r=await fetch(TTS,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({text,lang,voice,style:lang.startsWith('en')?'Natural American English, warm, human and conversational.':'Português brasileiro natural, humano, expressivo e conversacional.'})});
     const raw=await r.text();
@@ -72,14 +73,15 @@ async function geminiSpeak(text,lang='pt-BR',voice=currentVoice()){
     a.src=currentUrl;
     a.currentTime=0;
     document.querySelectorAll('.bot').forEach(b=>b.classList.add('speaking'));
+    const ended=new Promise((resolve,reject)=>{a.onended=resolve;a.onerror=()=>reject(new Error('Falha ao reproduzir WAV Gemini'))});
     const p=a.play();
     if(p&&p.then)await p;
-    await new Promise((resolve,reject)=>{a.onended=resolve;a.onerror=()=>reject(new Error('Falha ao reproduzir WAV Gemini'))});
+    await ended;
     status(`✅ Gemini TTS ativo · ${d.voice||voice} · ${d.model||'voz natural'}`,true);
     return true;
   }catch(e){
     console.error('Gemini TTS frontend',e);
-    status('❌ Gemini TTS: '+String(e&&e.message||e).slice(0,160),false);
+    status('❌ '+String(e&&e.message||e).slice(0,180),false);
     return false;
   }finally{
     speaking=false;
@@ -92,13 +94,12 @@ window.stableSpeakEnglish=enc=>geminiSpeak(decodeURIComponent(String(enc||'')),'
 window.geminiSpeak=geminiSpeak;
 
 try{
-  const nativeSpeak=window.speechSynthesis&&window.speechSynthesis.speak?.bind(window.speechSynthesis);
-  if(window.speechSynthesis&&nativeSpeak){
+  if(window.speechSynthesis&&typeof window.speechSynthesis.speak==='function'){
     window.speechSynthesis.speak=(utterance)=>{
       const text=utterance?.text||'';
       const lang=utterance?.lang||'pt-BR';
       try{utterance?.onstart?.(new Event('start'))}catch{}
-      geminiSpeak(text,lang,currentVoice()).then(()=>{try{utterance?.onend?.(new Event('end'))}catch{}});
+      geminiSpeak(text,lang,currentVoice()).then(ok=>{if(!ok)status('❌ A voz Gemini falhou. A voz robótica do Android foi desativada para mostrar o erro real.',false);try{utterance?.onend?.(new Event('end'))}catch{}});
     };
   }
 }catch(e){}
