@@ -1,0 +1,58 @@
+/* Home v26 — conversa integrada no próprio card do robô */
+#home .homeModes{display:none!important}
+#home .homeConversationChoice .ico{font-size:34px}
+#home .homeConversationChoice[data-home-conversation="module"] .ico{font-size:31px}
+#home .homeStartConversation{margin-top:16px}
+#chat{display:none!important}
+
+.homeTalkCard{position:relative;overflow:hidden}
+.homeTalkCard .homeConversationTop{align-items:center}
+.homeTalkCard .teacherTypesBtn{white-space:nowrap}
+.homeTalkCard .homeRobotStage{height:270px;margin:2px 0 10px;display:grid;place-items:center;position:relative}
+.homeTalkCard .homeRobotStage:before{content:"";position:absolute;width:245px;height:245px;border-radius:50%;background:radial-gradient(circle,rgba(0,243,255,.18),rgba(0,132,255,.07) 48%,transparent 72%);filter:blur(2px)}
+.homeTalkCard .homeRobot{width:min(82%,320px);height:255px;object-fit:contain;position:relative;z-index:1;transform-origin:50% 70%;animation:robotFloat 3s ease-in-out infinite}
+.homeTalkCard.robot-listening .homeRobot{animation:robotListen .75s ease-in-out infinite alternate}
+.homeTalkCard.robot-thinking .homeRobot{animation:robotThink 1s ease-in-out infinite}
+.homeTalkCard.robot-speaking .homeRobot{animation:robotSpeak .42s ease-in-out infinite alternate;filter:drop-shadow(0 0 16px rgba(0,243,255,.65))}
+.homeTalkCard.robot-happy .homeRobot{animation:robotHappy .5s ease 2}
+.homeTalkCard.robot-oops .homeRobot{animation:robotOops .32s ease 3}
+.homeTalkCard.robot-angry .homeRobot{animation:robotAngry .26s ease 4;filter:drop-shadow(0 0 18px rgba(255,78,96,.5))}
+@keyframes robotFloat{0%,100%{transform:translateY(0) rotate(-1deg)}50%{transform:translateY(-8px) rotate(1deg)}}
+@keyframes robotListen{from{transform:translateY(-2px) scale(1)}to{transform:translateY(-8px) scale(1.035)}}
+@keyframes robotThink{0%,100%{transform:rotate(-2deg) translateY(0)}50%{transform:rotate(3deg) translateY(-5px)}}
+@keyframes robotSpeak{from{transform:translateY(-3px) scale(1.01)}to{transform:translateY(-9px) scale(1.045)}}
+@keyframes robotHappy{0%,100%{transform:scale(1)}50%{transform:scale(1.08) rotate(2deg)}}
+@keyframes robotOops{0%,100%{transform:translateX(0)}50%{transform:translateX(-7px) rotate(-2deg)}}
+@keyframes robotAngry{0%,100%{transform:translateX(0) rotate(0)}25%{transform:translateX(-7px) rotate(-2deg)}75%{transform:translateX(7px) rotate(2deg)}}
+
+.homeInlineChat{display:none;margin-top:14px;border-top:1px solid #23465e;padding-top:14px}
+.homeTalkCard.chat-open .homeInlineChat{display:block}
+.homeTalkCard.chat-open .homeConversationChoices,.homeTalkCard.chat-open .homeStartConversation{display:none}
+.homeTalkCard.chat-open .homeRobotStage{height:235px}
+.homeTalkCard.chat-open .homeRobot{height:225px}
+.homeChatHead{display:flex;justify-content:space-between;gap:10px;align-items:center;margin-bottom:10px}
+.homeChatHead b{font-size:18px;color:#dff7ff}
+.homeChatClose{border:1px solid #31536c;background:#10273a;color:#d9efff;border-radius:999px;padding:8px 13px;font-weight:850}
+.homeChatBox{max-height:290px;overflow:auto;display:grid;gap:10px;padding:4px 1px 10px;scrollbar-width:thin}
+.homeChatMsg{max-width:88%;padding:13px 15px;border-radius:18px;font-size:17px;line-height:1.35;white-space:pre-wrap}
+.homeChatMsg.bot{justify-self:start;background:#102b40;border:1px solid #2a5572;color:#edf9ff;border-bottom-left-radius:6px}
+.homeChatMsg.user{justify-self:end;background:#137bd5;color:white;border-bottom-right-radius:6px}
+.homeChatHint{font-size:13px;color:#8fb4ca;text-align:center;margin:2px 0 10px}
+.homeChatControls{display:grid;grid-template-columns:58px 1fr 52px;gap:8px;align-items:center}
+.homeChatMic,.homeChatSend{height:52px;border:0;border-radius:16px;font-size:24px;font-weight:900;color:white;background:#117fd4}
+.homeChatMic.listening{background:#15bd70;box-shadow:0 0 0 8px rgba(21,189,112,.12)}
+.homeChatInput{height:52px;border-radius:16px;border:1px solid #31536c;background:#0b1d2c;color:white;padding:0 14px;font-size:17px;min-width:0}
+.homeChatInput::placeholder{color:#6f91a8}
+.homeTopicPill{display:inline-flex;align-items:center;gap:7px;padding:7px 10px;border-radius:999px;background:#0c2b42;border:1px solid #27536f;color:#bfeaff;font-size:13px;font-weight:800;margin-bottom:10px}
+
+#home .quickCard.goalOnly{grid-template-columns:auto 1fr auto;align-items:center;text-align:left}
+#home .goalCopy{min-width:0}
+#home .goalCopy small{font-size:17px!important;line-height:1.2;white-space:nowrap}
+
+@media(max-width:390px){
+ .homeTalkCard .homeConversationTop h2{font-size:27px}
+ .homeTalkCard .teacherTypesBtn{font-size:12px;padding:9px 10px}
+ .homeTalkCard .homeRobotStage{height:235px}
+ .homeTalkCard .homeRobot{height:220px}
+ .homeChatMsg{font-size:16px}
+}
