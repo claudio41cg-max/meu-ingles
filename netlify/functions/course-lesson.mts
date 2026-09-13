@@ -27,7 +27,7 @@ function lessonPrompt(body: any) {
   const canDo=String(body?.can_do||"").slice(0,300);
   const lessonType=String(body?.lesson_type||"Vocabulário e compreensão").slice(0,100);
   const lessonNumber=Math.max(1,Math.min(8,Number(body?.lesson_number||1)||1));
-  return `Você é um autor de curso de inglês para brasileiros. Crie UMA aula original, para celular, pedagogicamente completa. Nunca copie material de cursos, livros ou sites. Nível ${level}. Módulo: ${moduleTitle}. Aula ${lessonNumber}/8. Tipo: ${lessonType}. Gramática: ${grammar}. Vocabulário: ${vocabulary}. Objetivo: ${canDo}.\nInclua explicação simples em português, exemplos em inglês com tradução, vocabulário prático, atividade guiada, pergunta oral, leitura curta quando fizer sentido e tarefa final. A1/A2 usam mais português; B1/B2 equilibram; C1/C2 priorizam inglês natural e nuance.\nRetorne SOMENTE JSON: {"title":"...","goal_pt":"...","explanation_pt":"...","examples":[{"en":"...","pt":"..."}],"vocabulary":[{"en":"...","pt":"..."}],"practice_steps":["..."],"speaking_prompt_en":"...","speaking_help_pt":"...","model_answer_en":"...","mini_reading_en":"...","mini_reading_question_pt":"...","final_task_pt":"..."}. Use 3 a 5 exemplos, 5 a 8 palavras e 3 a 5 passos.`;
+  return `Você é um autor de curso de inglês para brasileiros e trabalha junto com uma professora IA conversacional. Crie UMA aula original, para celular, pedagogicamente completa. Nunca copie material de cursos, livros ou sites. Nível ${level}. Módulo: ${moduleTitle}. Aula ${lessonNumber}/8. Tipo: ${lessonType}. Gramática: ${grammar}. Vocabulário: ${vocabulary}. Objetivo: ${canDo}.\nA aula será usada num formato híbrido: explicação curta, vocabulário, escolha de tradução, escuta, montagem de frase, repetição oral e conversa final com IA. Por isso forneça exemplos e vocabulário que funcionem bem nesses exercícios. A1/A2 usam mais português; B1/B2 equilibram; C1/C2 priorizam inglês natural e nuance.\nRetorne SOMENTE JSON: {"title":"...","goal_pt":"...","explanation_pt":"...","examples":[{"en":"...","pt":"..."}],"vocabulary":[{"en":"...","pt":"..."}],"practice_steps":["..."],"speaking_prompt_en":"...","speaking_help_pt":"...","model_answer_en":"...","mini_reading_en":"...","mini_reading_question_pt":"...","final_task_pt":"..."}. Use 3 a 5 exemplos claros, 6 a 8 palavras úteis e 3 a 5 passos.`;
 }
 async function callGroq(apiKey:string,prompt:string) {
   const r=await fetch("https://api.groq.com/openai/v1/chat/completions",{
@@ -54,14 +54,14 @@ export default async(req:Request)=>{
   const origin=req.headers.get("origin"), headers=cors(origin);
   const groqKey=env("GROQ_API_KEY"), geminiKey=env("GEMINI_API_KEY")||env("GEMINI_API_kEY");
   if(req.method==="OPTIONS") return new Response(null,{status:ALLOWED_ORIGINS.has(origin||"")?204:403,headers});
-  if(req.method==="GET") return new Response(JSON.stringify({ok:true,key_configured:!!(groqKey||geminiKey),groq_configured:!!groqKey,gemini_configured:!!geminiKey}),{status:200,headers});
+  if(req.method==="GET") return new Response(JSON.stringify({ok:true,key_configured:!!(groqKey||geminiKey),groq_configured:!!groqKey,gemini_configured:!!geminiKey,provider:"Gemini + Groq fallback"}),{status:200,headers});
   if(req.method!=="POST") return new Response(JSON.stringify({error:"method_not_allowed"}),{status:405,headers});
   if(!ALLOWED_ORIGINS.has(origin||"")) return new Response(JSON.stringify({error:"origin_not_allowed"}),{status:403,headers});
   let body:any; try{body=await req.json()}catch{return new Response(JSON.stringify({error:"invalid_json"}),{status:400,headers})}
   const prompt=lessonPrompt(body);
   let out:any=null,provider="";
-  if(groqKey){try{out=await callGroq(groqKey,prompt);provider="GroqCloud"}catch(e){console.warn(String(e))}}
-  if(!out&&geminiKey){try{out=await callGemini(geminiKey,prompt);provider="Gemini"}catch(e){console.warn(String(e))}}
+  if(geminiKey){try{out=await callGemini(geminiKey,prompt);provider="Gemini"}catch(e){console.warn(String(e))}}
+  if(!out&&groqKey){try{out=await callGroq(groqKey,prompt);provider="GroqCloud"}catch(e){console.warn(String(e))}}
   if(!out) return new Response(JSON.stringify({error:"course_generation_failed"}),{status:502,headers});
   return new Response(JSON.stringify({...out,provider}),{status:200,headers});
 };
