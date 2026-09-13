@@ -27,7 +27,8 @@ function headers(origin: string | null) {
 
 function getKey() {
   try {
-    return Netlify.env.get("GEMINI_API_KEY") || Netlify.env.get("GEMINI_API_kEY") || "";
+    const raw = Netlify.env.get("GEMINI_API_KEY") || Netlify.env.get("GEMINI_API_kEY") || "";
+    return String(raw).trim();
   } catch {
     return "";
   }
