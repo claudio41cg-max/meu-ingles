@@ -6,6 +6,14 @@ const ALLOWED_ORIGINS = new Set([
 const PRIMARY_MODEL = "gemini-3.1-flash-tts-preview";
 const FALLBACK_MODEL = "gemini-2.5-flash-preview-tts";
 
+const SUPPORTED_VOICES = new Set([
+  "Zephyr", "Puck", "Charon", "Kore", "Fenrir", "Leda", "Orus", "Aoede",
+  "Callirrhoe", "Autonoe", "Enceladus", "Iapetus", "Umbriel", "Algieba",
+  "Despina", "Erinome", "Algenib", "Rasalgethi", "Laomedeia", "Achernar",
+  "Alnilam", "Schedar", "Gacrux", "Pulcherrima", "Achird", "Zubenelgenubi",
+  "Vindemiatrix", "Sadachbia", "Sadaltager", "Sulafat"
+]);
+
 function headers(origin: string | null) {
   return {
     "Content-Type": "application/json; charset=utf-8",
@@ -25,6 +33,11 @@ function getKey() {
   }
 }
 
+function normalizeVoice(value: unknown) {
+  const voice = String(value || "Puck").trim();
+  return SUPPORTED_VOICES.has(voice) ? voice : "Puck";
+}
+
 function sampleRateFromMime(mime: string) {
   const m = String(mime || "").match(/rate=(\d+)/i);
   return m ? Number(m[1]) || 24000 : 24000;
@@ -34,8 +47,9 @@ function extractInteractionAudio(data: any) {
   const out = data?.output_audio || data?.outputAudio || data?.interaction?.output_audio || data?.interaction?.outputAudio;
   const audio = out?.data || out?.audio?.data || "";
   const mime = out?.mime_type || out?.mimeType || out?.audio?.mime_type || out?.audio?.mimeType || "audio/L16;codec=pcm;rate=24000";
+  const sampleRate = Number(out?.sample_rate || out?.sampleRate || out?.audio?.sample_rate || out?.audio?.sampleRate) || sampleRateFromMime(mime);
   if (!audio) throw new Error("interaction_no_audio");
-  return { audio, mime, sample_rate: sampleRateFromMime(mime) };
+  return { audio, mime, sample_rate: sampleRate };
 }
 
 async function callInteractions(model: string, apiKey: string, instruction: string, voice: string) {
@@ -54,14 +68,21 @@ async function callInteractions(model: string, apiKey: string, instruction: stri
       }
     })
   });
+
   const text = await r.text();
   if (!r.ok) throw new Error(`${model}_interactions_${r.status}:${text.slice(0,180)}`);
+
   let data: any;
-  try { data = JSON.parse(text); } catch { throw new Error(`${model}_interactions_invalid_json`); }
+  try {
+    data = JSON.parse(text);
+  } catch {
+    throw new Error(`${model}_interactions_invalid_json`);
+  }
+
   return { ...extractInteractionAudio(data), model, protocol: "interactions" };
 }
 
-async function callGenerateContent25(apiKey: string, instruction: string, voice: string) {
+async function callGenerateContent25(apiKey: string, instruction: string, voice: string, lang: string) {
   const r = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${FALLBACK_MODEL}:generateContent`, {
     method: "POST",
     headers: {
@@ -73,17 +94,30 @@ async function callGenerateContent25(apiKey: string, instruction: string, voice:
       generationConfig: {
         responseModalities: ["AUDIO"],
         speechConfig: {
-          voiceConfig: { prebuiltVoiceConfig: { voiceName: voice } }
+          languageCode: lang,
+          voiceConfig: {
+            prebuiltVoiceConfig: {
+              voiceName: voice
+            }
+          }
         }
       }
     })
   });
+
   const text = await r.text();
   if (!r.ok) throw new Error(`${FALLBACK_MODEL}_generateContent_${r.status}:${text.slice(0,180)}`);
+
   let data: any;
-  try { data = JSON.parse(text); } catch { throw new Error(`${FALLBACK_MODEL}_generateContent_invalid_json`); }
+  try {
+    data = JSON.parse(text);
+  } catch {
+    throw new Error(`${FALLBACK_MODEL}_generateContent_invalid_json`);
+  }
+
   const part = data?.candidates?.[0]?.content?.parts?.find((p: any) => p?.inlineData?.data);
   if (!part?.inlineData?.data) throw new Error(`${FALLBACK_MODEL}_generateContent_no_audio`);
+
   const mime = part.inlineData.mimeType || "audio/L16;codec=pcm;rate=24000";
   return {
     audio: part.inlineData.data,
@@ -99,7 +133,10 @@ export default async (req: Request) => {
   const h = headers(origin);
 
   if (req.method === "OPTIONS") {
-    return new Response(null, { status: ALLOWED_ORIGINS.has(origin || "") ? 204 : 403, headers: h });
+    return new Response(null, {
+      status: ALLOWED_ORIGINS.has(origin || "") ? 204 : 403,
+      headers: h
+    });
   }
 
   const apiKey = getKey();
@@ -110,27 +147,33 @@ export default async (req: Request) => {
       provider: "Gemini",
       models: [PRIMARY_MODEL, FALLBACK_MODEL],
       key_configured: !!apiKey,
-      tts_api: "interactions-first"
+      tts_api: "interactions-first",
+      default_voice: "Puck"
     }), { status: 200, headers: h });
   }
 
   if (req.method !== "POST") {
     return new Response(JSON.stringify({ error: "method_not_allowed" }), { status: 405, headers: h });
   }
+
   if (!ALLOWED_ORIGINS.has(origin || "")) {
     return new Response(JSON.stringify({ error: "origin_not_allowed" }), { status: 403, headers: h });
   }
+
   if (!apiKey) {
     return new Response(JSON.stringify({ error: "gemini_not_configured" }), { status: 503, headers: h });
   }
 
   let body: any;
-  try { body = await req.json(); }
-  catch { return new Response(JSON.stringify({ error: "invalid_json" }), { status: 400, headers: h }); }
+  try {
+    body = await req.json();
+  } catch {
+    return new Response(JSON.stringify({ error: "invalid_json" }), { status: 400, headers: h });
+  }
 
   const text = String(body?.text || "").trim().slice(0, 2000);
   const lang = String(body?.lang || "pt-BR").toLowerCase().startsWith("en") ? "en-US" : "pt-BR";
-  const voice = String(body?.voice || "Achird").slice(0, 40);
+  const voice = normalizeVoice(body?.voice);
   const style = String(body?.style || "natural").slice(0, 320);
 
   if (!text) {
@@ -139,27 +182,36 @@ export default async (req: Request) => {
 
   const instruction = lang === "pt-BR"
     ? `Fale apenas em português brasileiro. Soe como uma pessoa conversando cara a cara, com ritmo natural, pequenas pausas e entonação espontânea. Não use voz de locutor, assistente virtual ou robô. ${style}\n\nDiga somente isto: ${text}`
-    : `Speak only in natural American English for a complete beginner. Use clear pronunciation, warm human rhythm and small natural pauses. Do not sound like an announcer or robot. ${style}\n\nSay only this: ${text}`;
+    : `Speak only in natural American English for a complete beginner. Use clear pronunciation, warm human rhythm and small natural pauses. Do not sound like an announcer, screen reader or robot. ${style}\n\nSay only this: ${text}`;
 
   const errors: string[] = [];
 
   try {
     const out = await callInteractions(PRIMARY_MODEL, apiKey, instruction, voice);
-    return new Response(JSON.stringify({ ok: true, ...out, provider: "Gemini" }), { status: 200, headers: h });
+    return new Response(JSON.stringify({ ok: true, ...out, provider: "Gemini", voice }), {
+      status: 200,
+      headers: h
+    });
   } catch (e) {
     errors.push(String(e));
   }
 
   try {
     const out = await callInteractions(FALLBACK_MODEL, apiKey, instruction, voice);
-    return new Response(JSON.stringify({ ok: true, ...out, provider: "Gemini" }), { status: 200, headers: h });
+    return new Response(JSON.stringify({ ok: true, ...out, provider: "Gemini", voice }), {
+      status: 200,
+      headers: h
+    });
   } catch (e) {
     errors.push(String(e));
   }
 
   try {
-    const out = await callGenerateContent25(apiKey, instruction, voice);
-    return new Response(JSON.stringify({ ok: true, ...out, provider: "Gemini" }), { status: 200, headers: h });
+    const out = await callGenerateContent25(apiKey, instruction, voice, lang);
+    return new Response(JSON.stringify({ ok: true, ...out, provider: "Gemini", voice }), {
+      status: 200,
+      headers: h
+    });
   } catch (e) {
     errors.push(String(e));
   }
