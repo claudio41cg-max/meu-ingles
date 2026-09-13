@@ -34,9 +34,9 @@ function levelRule(level: string) {
   return rules[level] || rules.A1;
 }
 function personalityPrompt(mode: string, streak: number) {
-  if (mode === "pesada") return `Modo HARD 18+. Professor brasileiro engraçado, impaciente e espontâneo. Pode usar palavrões quando combinarem com a situação. Intensidade conforme sequência de erros: ${streak}. 0-1 zoeira leve, 2 aperta, 3 irritado e engraçado, 4+ hard de verdade. Nunca ataque características pessoais, nunca ameace e nunca humilhe cruelmente. Se acertar, comemore.`;
-  if (mode === "media") return "Modo DOIDEIRA. Seja brasileiro, brincalhão, provocador e variado. Pode tirar onda do erro e usar gírias, sem humilhar.";
-  return "Modo TRANQUILO. Seja paciente, caloroso, direto e sem palavrões.";
+  if (mode === "pesada") return `Modo HARD 18+. Professora brasileira engraçada, impaciente e espontânea. Pode usar palavrões quando combinarem com a situação. Intensidade conforme sequência de erros: ${streak}. 0-1 zoeira leve, 2 aperta, 3 irritada e engraçada, 4+ hard de verdade. Nunca ataque características pessoais, nunca ameace e nunca humilhe cruelmente. Se acertar, comemore. Varie as frases para não parecer resposta pronta.`;
+  if (mode === "media") return "Modo DOIDEIRA. Seja brasileira, brincalhona, provocadora e variada. Pode tirar onda do erro e usar gírias, sem humilhar. Nunca repita sempre a mesma reação.";
+  return "Modo TRANQUILO. Seja paciente, calorosa, direta e sem palavrões. Corrija com clareza e incentive sem elogiar erro.";
 }
 function makeSystem(body: any) {
   const mode = String(body?.mode || "conversation");
@@ -51,9 +51,9 @@ function makeSystem(body: any) {
     const score = Math.max(0, Math.min(100, Number(body?.score || 0) || 0));
     const passed = body?.passed === true;
     const lesson = String(body?.lesson || "treino de fala").slice(0,150);
-    task = `\nTAREFA: ${lesson}. Frase esperada: "${target}". Reconhecimento ouviu: "${heard}". Compatibilidade textual: ${score}%. Resultado técnico: ${passed ? "passou" : "ainda não passou"}. Erros seguidos: ${streak}. Se não passou, NÃO elogie como acerto; explique curto e peça para repetir a frase correta. Se passou, comemore e avance. Não finja avaliar fonética sem áudio.`;
+    task = `\nTAREFA: ${lesson}. Resposta esperada: "${target}". Aluno respondeu: "${heard}". Compatibilidade: ${score}%. Resultado técnico: ${passed ? "passou" : "ainda não passou"}. Erros seguidos: ${streak}. Se não passou, NÃO elogie como acerto; explique curto e peça para tentar novamente. Se passou, comemore e avance. Se for fala reconhecida pelo navegador, não finja avaliar fonética que não recebeu.`;
   }
-  return `Você é a professora de inglês do aplicativo Meu Inglês. O aluno se chama Cláudio. Sua missão é ENSINAR inglês.\n${levelRule(level)}\n${personalityPrompt(personality, streak)}\nSituação: ${scenario}.${task}\n\nRegras obrigatórias: responda em português brasileiro para explicar, corrigir e brincar; use inglês nos exemplos e exercícios; se o aluno disser "não sei", algo sem relação ou demonstrar dúvida, não diga que acertou; varie as reações; mantenha a resposta curta; retorne SOMENTE JSON válido no formato {"verdict":"correct|almost|wrong|help|conversation","reply_pt":"...","reply_en":"..."}.`;
+  return `Você é a professora de inglês do aplicativo Meu Inglês. O aluno se chama Cláudio. Sua missão principal é ENSINAR inglês de verdade, não apenas conversar.\n${levelRule(level)}\n${personalityPrompt(personality, streak)}\nSituação: ${scenario}.${task}\n\nRegras obrigatórias: responda em português brasileiro para explicar, corrigir e brincar; use inglês nos exemplos e exercícios; se o aluno disser "não sei", algo sem relação ou demonstrar dúvida, não diga que acertou; responda ao conteúdo real que ele falou; varie as reações; mantenha a resposta curta e útil; retorne SOMENTE JSON válido no formato {"verdict":"correct|almost|wrong|help|conversation","reply_pt":"...","reply_en":"..."}.`;
 }
 async function callGroq(apiKey: string, system: string, messages: any[], personality: string) {
   const r = await fetch(GROQ_URL, {
@@ -100,7 +100,7 @@ export default async (req: Request) => {
       key_configured:!!(groqKey||geminiKey),
       groq_configured:!!groqKey,
       gemini_configured:!!geminiKey,
-      provider:"GroqCloud + Gemini fallback"
+      provider:"Gemini + Groq fallback"
     }),{status:200,headers});
   }
   if (req.method !== "POST") return new Response(JSON.stringify({error:"method_not_allowed"}),{status:405,headers});
@@ -115,8 +115,8 @@ export default async (req: Request) => {
   const system = makeSystem(body);
   const personality = String(body?.personality || "leve");
   let parsed: any = null, provider = "";
-  if (groqKey) { try { parsed = await callGroq(groqKey,system,messages,personality); provider="GroqCloud"; } catch(e) { console.warn("Groq fallback",String(e)); } }
-  if (!parsed && geminiKey) { try { parsed = await callGemini(geminiKey,system,messages,personality); provider="Gemini"; } catch(e) { console.warn("Gemini fallback",String(e)); } }
+  if (geminiKey) { try { parsed = await callGemini(geminiKey,system,messages,personality); provider="Gemini"; } catch(e) { console.warn("Gemini fallback",String(e)); } }
+  if (!parsed && groqKey) { try { parsed = await callGroq(groqKey,system,messages,personality); provider="GroqCloud"; } catch(e) { console.warn("Groq fallback",String(e)); } }
   if (!parsed) return new Response(JSON.stringify({error:"all_ai_providers_failed"}),{status:502,headers});
   return new Response(JSON.stringify({
     verdict:String(parsed.verdict||"conversation").slice(0,20),
