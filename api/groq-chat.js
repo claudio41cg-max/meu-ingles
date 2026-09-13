@@ -66,6 +66,7 @@ function lessonFeedback(body) {
     verdict: passed ? 'correct' : 'wrong',
     reply_pt: pick(bank[key]),
     reply_en: '',
+    emotion: passed ? 'happy' : mode === 'pesada' ? 'angry' : 'oops',
     provider: 'FastLessonFeedback'
   };
 }
@@ -73,27 +74,44 @@ function lessonFeedback(body) {
 function systemPrompt(body) {
   const level = clean(body?.level || 'A1', 10).toUpperCase();
   const mode = clean(body?.personality || 'media', 20);
-  const scenario = clean(body?.scenario || 'Livre', 120);
+  const scenario = clean(body?.scenario || 'Livre', 220);
+  const conversationMode = clean(body?.conversation_mode || 'free', 20);
+  const topic = clean(body?.learning_topic || scenario || 'conversa geral', 180);
+  const turn = Math.max(0, Math.min(80, Number(body?.turn || 0) || 0));
+  const errors = Math.max(0, Math.min(20, Number(body?.error_streak || 0) || 0));
+  const difficulty = Math.min(5, 1 + Math.floor(turn / 3));
 
   const levelRule = level === 'A1'
-    ? 'O aluno é iniciante A1. Use inglês muito simples e explique em português quando necessário.'
-    : `Adapte a conversa ao nível ${level}.`;
+    ? 'O aluno é iniciante A1. Comece com inglês muito simples, frases curtas, repetição e ajuda em português. Só aumente o inglês quando ele estiver conseguindo acompanhar.'
+    : `Adapte a conversa ao nível ${level}, começando abaixo do limite do aluno e aumentando aos poucos.`;
 
-  const personality = mode === 'pesada'
-    ? 'Modo HARD 18+: seja brasileiro, adulto, impaciente, engraçado e espontâneo. Use palavrões naturalmente quando couber. Não seja excessivamente educado, formal ou motivacional. Nunca humilhe de forma cruel, nunca ameace e nunca ataque características pessoais.'
-    : mode === 'media'
-      ? 'Modo DOIDEIRA: seja brincalhão, provocador, informal e variado, sem humilhar.'
-      : 'Modo TRANQUILO: seja paciente, claro, curto e sem palavrões.';
+  let personality = '';
+  if (mode === 'pesada') {
+    const hardIntensity = errors >= 4
+      ? 'Ele já errou várias vezes: fique bem mais impaciente, explosivo e engraçado, use palavrões fortes e cobre atenção. Pode falar coisas como “porra”, “cacete”, “caralho”, “acorda”, mas xingue a situação/erro, não ataque a dignidade do aluno e não ameace.'
+      : errors >= 2
+        ? 'Ele começou a errar em sequência: aumente a pressão e a zoeira, fique claramente impaciente e use palavrões com naturalidade.'
+        : 'No começo seja sinistro e provocador, mas ainda controlado. Use palavrão leve ou médio quando combinar, sem começar no máximo.';
+    personality = `Modo HARD 18+: professor brasileiro adulto, intenso, imprevisível, engraçado e humano. Não seja excessivamente educado nem motivacional. ${hardIntensity}`;
+  } else if (mode === 'media') {
+    personality = 'Modo DOIDEIRA: professor brasileiro brincalhão, provocador, espontâneo e expressivo. Tire onda dos erros, varie o humor, mas sem humilhar.';
+  } else {
+    personality = 'Modo TRANQUILO: professor paciente, humano, acolhedor e claro. Corrija sem pressão e explique com calma.';
+  }
 
-  return `Você é o professor de inglês do aplicativo Meu Inglês. O aluno se chama Cláudio. ${levelRule}\n${personality}\nCenário atual: ${scenario}.\nResponda ao que o aluno realmente disse, sem inventar que ele acertou. Mantenha continuidade com a conversa. Seja curto. Use português para explicar e inglês apenas quando fizer sentido. Retorne SOMENTE JSON válido no formato {"verdict":"conversation|correct|almost|wrong|help","reply_pt":"...","reply_en":"..."}.`;
+  const teaching = conversationMode === 'module'
+    ? `A conversa é um treino oral do conteúdo do módulo “${topic}”. Fique dentro desse módulo. Faça perguntas e microdesafios relacionados ao que normalmente se aprende nesse tema. Não puxe assunto de módulos futuros sem o aluno pedir.`
+    : `A conversa livre é sobre “${topic}”. Transforme esse assunto em prática de inglês útil para o aluno, sem virar papo aleatório demais.`;
+
+  return `Você é o professor de inglês por voz do aplicativo Meu Inglês. O aluno se chama Cláudio.\n${levelRule}\n${personality}\n${teaching}\nCenário: ${scenario}.\nTurno da conversa: ${turn}. Dificuldade planejada: ${difficulty}/5. Erros seguidos: ${errors}.\n\nMÉTODO OBRIGATÓRIO:\n1. Faça UMA pergunta curta por vez.\n2. Comece muito fácil e aumente gradualmente a dificuldade quando o aluno acertar.\n3. Reaproveite palavras e estruturas anteriores para criar repetição inteligente.\n4. Se a resposta estiver errada ou incompleta, corrija curto, dê um modelo simples e peça nova tentativa parecida antes de avançar.\n5. Se acertar, reaja conforme a personalidade e avance só um passo de dificuldade.\n6. Em A1, prefira perguntas que possam ser respondidas com 1 a 5 palavras no começo.\n7. Use português para explicação curta e inglês para a pergunta/exemplo.\n8. Não invente mudança de assunto; mantenha continuidade com o tema escolhido.\n9. Soe humano e emocional, variando reação e ritmo.\n10. Nunca transforme um erro em acerto.\n\nRetorne SOMENTE JSON válido no formato {"verdict":"conversation|correct|almost|wrong|help","reply_pt":"...","reply_en":"...","emotion":"neutral|happy|oops|angry|thinking"}.`;
 }
 
 async function callGemini(apiKey, body) {
   const history = Array.isArray(body?.history)
-    ? body.history.slice(-8).filter(x => x && (x.role === 'user' || x.role === 'assistant'))
+    ? body.history.slice(-10).filter(x => x && (x.role === 'user' || x.role === 'assistant'))
     : [];
   const message = clean(body?.message || body?.heard || '', 1600);
-  const transcript = history.map(x => `${x.role === 'assistant' ? 'PROFESSOR' : 'ALUNO'}: ${clean(x.content, 800)}`).join('\n');
+  const transcript = history.map(x => `${x.role === 'assistant' ? 'PROFESSOR' : 'ALUNO'}: ${clean(x.content, 900)}`).join('\n');
   const prompt = `${systemPrompt(body)}\n\nCONVERSA RECENTE:\n${transcript}\nALUNO: ${message}\n\nResponda agora somente com o JSON exigido.`;
 
   const r = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent`, {
@@ -105,8 +123,8 @@ async function callGemini(apiKey, body) {
     body: JSON.stringify({
       contents: [{ parts: [{ text: prompt }] }],
       generationConfig: {
-        temperature: body?.personality === 'pesada' ? 0.9 : 0.72,
-        maxOutputTokens: 140,
+        temperature: body?.personality === 'pesada' ? 0.92 : body?.personality === 'media' ? 0.82 : 0.68,
+        maxOutputTokens: 180,
         responseMimeType: 'application/json',
         thinkingConfig: { thinkingBudget: 0 }
       }
@@ -125,7 +143,7 @@ async function callGemini(apiKey, body) {
 export default async function handler(req, res) {
   const origin = cors(req, res);
   if (req.method === 'OPTIONS') return res.status(ALLOWED_ORIGINS.has(origin) ? 204 : 403).end();
-  if (req.method === 'GET') return res.status(200).json({ ok: true, provider: 'Gemini', model: GEMINI_MODEL, fast_lesson_feedback: true });
+  if (req.method === 'GET') return res.status(200).json({ ok: true, provider: 'Gemini', model: GEMINI_MODEL, guided_conversation: true, fast_lesson_feedback: true });
   if (req.method !== 'POST') return res.status(405).json({ error: 'method_not_allowed' });
   if (!ALLOWED_ORIGINS.has(origin)) return res.status(403).json({ error: 'origin_not_allowed' });
 
@@ -146,6 +164,7 @@ export default async function handler(req, res) {
       verdict: clean(parsed?.verdict || 'conversation', 20),
       reply_pt: clean(parsed?.reply_pt || 'Vamos continuar.', 1000),
       reply_en: clean(parsed?.reply_en || '', 500),
+      emotion: clean(parsed?.emotion || 'neutral', 20),
       provider: 'Gemini'
     });
   } catch (error) {
