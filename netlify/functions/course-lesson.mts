@@ -19,6 +19,14 @@ function env(name: string) { try { return Netlify.env.get(name) || ""; } catch {
 function cleanJson(text: string) {
   return JSON.parse(String(text||"").replace(/^```json\s*/i,"").replace(/^```\s*/i,"").replace(/\s*```$/i,"").trim() || "{}");
 }
+function pedagogyRule(level:string,moduleTitle:string,lessonNumber:number){
+  if(level==="A1"){
+    const firstModule=/primeiros contatos/i.test(moduleTitle);
+    return `REGRAS A1 OBRIGATÓRIAS: trate o aluno como iniciante real. Introduza no máximo 2 a 4 palavras novas por aula. Reaproveite palavras já vistas várias vezes em exercícios diferentes antes de aumentar a frase. Prefira substantivos e ações concretas do cotidiano. Frases novas devem ter normalmente 1 a 4 palavras; só aumente quando a estrutura já tiver sido repetida. Evite frases abstratas e genéricas como "practice this topic", "real conversation" ou "this is useful". A explicação em português deve ter no máximo 2 frases curtas. Os exemplos devem parecer algo que uma pessoa realmente falaria. ${firstModule&&lessonNumber>=4?'Neste primeiro módulo, considere já familiares: coffee/café, water/água, milk/leite, please/por favor e a estrutura I want. Reutilize esse vocabulário antes de acrescentar novidade.':''}`;
+  }
+  if(level==="A2")return "REGRAS A2: introduza poucas estruturas novas por aula, reutilize vocabulário conhecido e mantenha exemplos curtos e cotidianos.";
+  return "Aumente a complexidade gradualmente e recicle vocabulário anterior antes de introduzir muita novidade.";
+}
 function lessonPrompt(body: any) {
   const level=String(body?.level||"A1").toUpperCase().slice(0,2);
   const moduleTitle=String(body?.module_title||"Fundamentos").slice(0,120);
@@ -27,13 +35,14 @@ function lessonPrompt(body: any) {
   const canDo=String(body?.can_do||"").slice(0,300);
   const lessonType=String(body?.lesson_type||"Vocabulário e compreensão").slice(0,100);
   const lessonNumber=Math.max(1,Math.min(8,Number(body?.lesson_number||1)||1));
-  return `Você é um autor de curso de inglês para brasileiros e trabalha junto com uma professora IA conversacional. Crie UMA aula original, para celular, pedagogicamente completa. Nunca copie material de cursos, livros ou sites. Nível ${level}. Módulo: ${moduleTitle}. Aula ${lessonNumber}/8. Tipo: ${lessonType}. Gramática: ${grammar}. Vocabulário: ${vocabulary}. Objetivo: ${canDo}.\nA aula será usada num formato híbrido: explicação curta, vocabulário, escolha de tradução, escuta, montagem de frase, repetição oral e conversa final com IA. Por isso forneça exemplos e vocabulário que funcionem bem nesses exercícios. A1/A2 usam mais português; B1/B2 equilibram; C1/C2 priorizam inglês natural e nuance.\nRetorne SOMENTE JSON: {"title":"...","goal_pt":"...","explanation_pt":"...","examples":[{"en":"...","pt":"..."}],"vocabulary":[{"en":"...","pt":"..."}],"practice_steps":["..."],"speaking_prompt_en":"...","speaking_help_pt":"...","model_answer_en":"...","mini_reading_en":"...","mini_reading_question_pt":"...","final_task_pt":"..."}. Use 3 a 5 exemplos claros, 6 a 8 palavras úteis e 3 a 5 passos.`;
+  const pedagogy=pedagogyRule(level,moduleTitle,lessonNumber);
+  return `Você é um autor de curso de inglês para brasileiros e trabalha junto com uma professora IA conversacional. Crie UMA aula original para celular. Nunca copie material de cursos, livros ou sites. Nível ${level}. Módulo: ${moduleTitle}. Aula ${lessonNumber}/8. Tipo: ${lessonType}. Gramática: ${grammar}. Vocabulário: ${vocabulary}. Objetivo: ${canDo}.\n${pedagogy}\nA aula será usada num formato híbrido: explicação mínima, vocabulário, escolha de tradução, escuta, montagem de frase curta, repetição oral e conversa final com IA. O aluno deve ver as mesmas palavras reaparecendo em formatos diferentes. A1/A2 usam mais português; B1/B2 equilibram; C1/C2 priorizam inglês natural e nuance.\nRetorne SOMENTE JSON: {"title":"...","goal_pt":"...","explanation_pt":"...","examples":[{"en":"...","pt":"..."}],"vocabulary":[{"en":"...","pt":"..."}],"practice_steps":["..."],"speaking_prompt_en":"...","speaking_help_pt":"...","model_answer_en":"...","mini_reading_en":"...","mini_reading_question_pt":"...","final_task_pt":"..."}. Para A1, use 3 exemplos muito curtos e 3 a 5 itens de vocabulário; para os demais níveis, use 3 a 5 exemplos e 5 a 8 itens.`;
 }
 async function callGroq(apiKey:string,prompt:string) {
   const r=await fetch("https://api.groq.com/openai/v1/chat/completions",{
     method:"POST",
     headers:{"Authorization":`Bearer ${apiKey}`,"Content-Type":"application/json"},
-    body:JSON.stringify({model:GROQ_MODEL,messages:[{role:"system",content:prompt},{role:"user",content:"Crie a aula agora."}],temperature:.72,max_completion_tokens:1600,reasoning_effort:"medium",response_format:{type:"json_object"}})
+    body:JSON.stringify({model:GROQ_MODEL,messages:[{role:"system",content:prompt},{role:"user",content:"Crie a aula agora."}],temperature:.62,max_completion_tokens:1600,reasoning_effort:"medium",response_format:{type:"json_object"}})
   });
   if(!r.ok) throw new Error(`groq_${r.status}`);
   const d:any=await r.json();
@@ -43,7 +52,7 @@ async function callGemini(apiKey:string,prompt:string) {
   const r=await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent`,{
     method:"POST",
     headers:{"x-goog-api-key":apiKey,"Content-Type":"application/json"},
-    body:JSON.stringify({contents:[{parts:[{text:prompt+"\nCrie a aula agora."}]}],generationConfig:{temperature:.72,responseMimeType:"application/json"}})
+    body:JSON.stringify({contents:[{parts:[{text:prompt+"\nCrie a aula agora."}]}],generationConfig:{temperature:.62,responseMimeType:"application/json"}})
   });
   if(!r.ok) throw new Error(`gemini_${r.status}`);
   const d:any=await r.json();
