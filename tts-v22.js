@@ -1,0 +1,105 @@
+(()=>{
+'use strict';
+
+const API=location.hostname.endsWith('github.io')?'https://meu-ingles-claudio.netlify.app':'';
+const TTS=API+'/api/gemini-tts';
+const KEY='meuInglesStableV2';
+let player=null;
+let currentUrl='';
+let unlocked=false;
+let speaking=false;
+
+function readState(){try{return JSON.parse(localStorage.getItem(KEY)||'{}')||{}}catch{return {}}}
+function currentVoice(){return readState().voice||'Aoede'}
+function status(text,ok){
+  const el=document.querySelector('#geminiVoiceStatus');
+  if(!el)return;
+  el.textContent=text;
+  el.style.borderColor=ok===true?'#2fbf71':ok===false?'#d9534f':'';
+}
+function ensurePlayer(){
+  if(player)return player;
+  player=document.createElement('audio');
+  player.preload='auto';
+  player.playsInline=true;
+  player.style.display='none';
+  document.body.appendChild(player);
+  return player;
+}
+function makeSilentWav(){
+  const rate=8000,samples=80,dataLen=samples*2,buf=new ArrayBuffer(44+dataLen),v=new DataView(buf);
+  const w=(o,s)=>{for(let i=0;i<s.length;i++)v.setUint8(o+i,s.charCodeAt(i))};
+  w(0,'RIFF');v.setUint32(4,36+dataLen,true);w(8,'WAVE');w(12,'fmt ');v.setUint32(16,16,true);v.setUint16(20,1,true);v.setUint16(22,1,true);v.setUint32(24,rate,true);v.setUint32(28,rate*2,true);v.setUint16(32,2,true);v.setUint16(34,16,true);w(36,'data');v.setUint32(40,dataLen,true);
+  return new Blob([buf],{type:'audio/wav'});
+}
+function pcmToWavBlob(b64,rate){
+  const bin=atob(String(b64||''));
+  const pcm=new Uint8Array(bin.length);
+  for(let i=0;i<bin.length;i++)pcm[i]=bin.charCodeAt(i);
+  const dataLen=pcm.length,buf=new ArrayBuffer(44+dataLen),v=new DataView(buf),u=new Uint8Array(buf);
+  const w=(o,s)=>{for(let i=0;i<s.length;i++)v.setUint8(o+i,s.charCodeAt(i))};
+  w(0,'RIFF');v.setUint32(4,36+dataLen,true);w(8,'WAVE');w(12,'fmt ');v.setUint32(16,16,true);v.setUint16(20,1,true);v.setUint16(22,1,true);v.setUint32(24,rate,true);v.setUint32(28,rate*2,true);v.setUint16(32,2,true);v.setUint16(34,16,true);w(36,'data');v.setUint32(40,dataLen,true);u.set(pcm,44);
+  return new Blob([buf],{type:'audio/wav'});
+}
+async function unlock(){
+  if(unlocked)return true;
+  const a=ensurePlayer();
+  try{
+    const url=URL.createObjectURL(makeSilentWav());
+    a.src=url;
+    const p=a.play();
+    if(p&&p.then)await p;
+    a.pause();a.currentTime=0;URL.revokeObjectURL(url);unlocked=true;return true;
+  }catch(e){return false}
+}
+['pointerdown','touchstart','mousedown'].forEach(type=>document.addEventListener(type,()=>{unlock().catch(()=>{})},{capture:true,passive:true,once:false}));
+
+async function geminiSpeak(text,lang='pt-BR',voice=currentVoice()){
+  text=String(text||'').trim();
+  if(!text||speaking)return false;
+  speaking=true;
+  const a=ensurePlayer();
+  try{
+    status('🎙️ Gerando voz natural do Gemini…');
+    const r=await fetch(TTS,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({text,lang,voice,style:lang.startsWith('en')?'Natural American English, warm, human and conversational.':'Português brasileiro natural, humano, expressivo e conversacional.'})});
+    const raw=await r.text();
+    if(!r.ok)throw new Error('HTTP '+r.status+' '+raw.slice(0,120));
+    let d;try{d=JSON.parse(raw)}catch{throw new Error('Resposta TTS inválida')}
+    if(!d.audio)throw new Error('Gemini não devolveu áudio');
+    const blob=pcmToWavBlob(d.audio,Number(d.sample_rate)||24000);
+    if(currentUrl)URL.revokeObjectURL(currentUrl);
+    currentUrl=URL.createObjectURL(blob);
+    a.src=currentUrl;
+    a.currentTime=0;
+    document.querySelectorAll('.bot').forEach(b=>b.classList.add('speaking'));
+    const p=a.play();
+    if(p&&p.then)await p;
+    await new Promise((resolve,reject)=>{a.onended=resolve;a.onerror=()=>reject(new Error('Falha ao reproduzir WAV Gemini'))});
+    status(`✅ Gemini TTS ativo · ${d.voice||voice} · ${d.model||'voz natural'}`,true);
+    return true;
+  }catch(e){
+    console.error('Gemini TTS frontend',e);
+    status('❌ Gemini TTS: '+String(e&&e.message||e).slice(0,160),false);
+    return false;
+  }finally{
+    speaking=false;
+    document.querySelectorAll('.bot').forEach(b=>b.classList.remove('speaking'));
+  }
+}
+
+window.previewStableVoice=()=>geminiSpeak('Oi, Cláudio. Essa é a minha voz. Bora aprender inglês de um jeito que não dá sono?','pt-BR',currentVoice());
+window.stableSpeakEnglish=enc=>geminiSpeak(decodeURIComponent(String(enc||'')),'en-US',currentVoice());
+window.geminiSpeak=geminiSpeak;
+
+try{
+  const nativeSpeak=window.speechSynthesis&&window.speechSynthesis.speak?.bind(window.speechSynthesis);
+  if(window.speechSynthesis&&nativeSpeak){
+    window.speechSynthesis.speak=(utterance)=>{
+      const text=utterance?.text||'';
+      const lang=utterance?.lang||'pt-BR';
+      try{utterance?.onstart?.(new Event('start'))}catch{}
+      geminiSpeak(text,lang,currentVoice()).then(()=>{try{utterance?.onend?.(new Event('end'))}catch{}});
+    };
+  }
+}catch(e){}
+})();
