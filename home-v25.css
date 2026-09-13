@@ -1,0 +1,55 @@
+/* Tela inicial v25: mais limpa, conversa no centro e robô SVG */
+#home .hero{padding:14px 18px 10px;background:transparent;border:none;box-shadow:none}
+#home .hero>div.eyebrow,#home .hero>p,#home .hero>.courseBar,#home .hero>.courseProgressText,#home .hero>.stats{display:none!important}
+#home .hero h1{margin:0;font-size:30px;line-height:1.1}
+
+#home .professorPanel{padding:18px!important;overflow:hidden;position:relative;background:linear-gradient(180deg,#0d263b 0%,#0a1e31 100%);border:1px solid #22527a}
+.homeConversationTop{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.homeConversationTop h2{margin:0;font-size:28px}
+.teacherTypesBtn{border:1px solid #3b6f96;background:#153b59;color:#fff;border-radius:999px;padding:10px 13px;font-weight:900;white-space:nowrap}
+.homeConversationIntro{margin:7px 0 2px;color:#9fb9ce;font-size:16px;line-height:1.35}
+.homeRobotStage{height:225px;display:grid;place-items:center;position:relative;margin:-4px 0 -8px}
+.homeRobotStage:before{content:"";position:absolute;width:230px;height:120px;border-radius:50%;background:radial-gradient(ellipse,rgba(0,220,255,.22),transparent 68%);filter:blur(4px);bottom:18px}
+.homeRobot{width:285px;max-width:84%;height:230px;object-fit:contain;position:relative;z-index:1;animation:homeRobotFloat 3.4s ease-in-out infinite;filter:drop-shadow(0 14px 24px rgba(0,191,255,.22))}
+.homeConversationChoices{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:6px 0 12px}
+.homeConversationChoice{border:1px solid #315b79;background:#0e2a40;color:#fff;border-radius:18px;padding:13px 12px;text-align:left;display:flex;gap:10px;align-items:center}
+.homeConversationChoice .ico{font-size:25px}.homeConversationChoice b{display:block;font-size:16px}.homeConversationChoice small{display:block;color:#9fb7ca;margin-top:2px}
+.homeConversationChoice.active{border-color:#29a8ff;box-shadow:0 0 0 1px #29a8ff inset,0 0 18px rgba(28,154,255,.18);background:#103754}
+.homeModes{margin-top:0}.homeModes .mode{padding:11px 8px;font-size:14px}
+.homeStartConversation{width:100%;margin-top:12px;border:none;border-radius:19px;padding:16px;background:linear-gradient(180deg,#24aaff,#0e7fe7);color:#fff;font-size:20px;font-weight:950;box-shadow:0 7px 0 #075ca9}
+
+#home .pathCard{margin-top:14px;grid-template-columns:72px 1fr;gap:12px;padding:18px;border-radius:24px;background:linear-gradient(180deg,#0d263b,#0a2033);border:1px solid #244d6b}
+#home .pathCard .pathIcon{width:68px;height:68px;border-radius:20px;display:grid;place-items:center;font-size:38px;background:#0d4771}
+#home .pathCard .pathGrow small{color:#58bfff;font-weight:900;letter-spacing:.05em}
+#home .pathCard .pathGrow h2{font-size:22px;margin:5px 0 2px}
+#home .pathCard .pathGrow p{margin:0;color:#9db3c6}
+#home .pathCard .pathButton{grid-column:1/-1;width:100%;margin-top:7px;border-radius:18px;font-size:20px}
+
+#home .quickGrid{grid-template-columns:1fr;margin-top:14px}
+#home .quickCard.goalOnly{min-height:96px;display:grid;grid-template-columns:64px 1fr auto;align-items:center;text-align:left;gap:12px;padding:16px 18px}
+#home .quickCard.goalOnly>span{font-size:42px}.goalCopy b{display:block;font-size:22px}.goalCopy small{display:block;margin-top:4px}.goalArrow{font-size:30px;color:#78a3c3}
+
+/* O novo robô também entra na conversa ao vivo */
+#chat .chatCoach{align-items:center}
+#chatBot.robotSvgBot{width:118px!important;height:106px!important;min-width:118px;border:none!important;background:transparent!important;box-shadow:none!important;display:grid!important;place-items:center!important;overflow:visible!important}
+#chatBot.robotSvgBot img{width:132px;height:116px;object-fit:contain;filter:drop-shadow(0 8px 18px rgba(0,217,255,.22));animation:chatRobotIdle 3s ease-in-out infinite}
+#chatBot.robotSvgBot.thinking img{animation:chatRobotThink .72s ease-in-out infinite}
+#chatBot.robotSvgBot.listening img{animation:chatRobotListen .48s ease-in-out infinite;filter:drop-shadow(0 0 20px rgba(0,243,255,.55))}
+#chatBot.robotSvgBot.speaking img{animation:chatRobotTalk .28s ease-in-out infinite alternate;filter:drop-shadow(0 0 22px rgba(0,243,255,.55))}
+#chatBot.robotSvgBot.robotHappy img{animation:robotHappy .44s ease-in-out 2}
+#chatBot.robotSvgBot.robotOops img{animation:robotOops .38s ease-in-out 2}
+.chatContextBadge{margin:10px 0 6px;padding:9px 12px;border-radius:14px;background:#0d2c43;border:1px solid #28516d;color:#bcd7e9;font-weight:800;font-size:14px}
+
+@keyframes homeRobotFloat{0%,100%{transform:translateY(0) rotate(0)}50%{transform:translateY(-7px) rotate(.8deg)}}
+@keyframes chatRobotIdle{0%,100%{transform:translateY(0)}50%{transform:translateY(-4px)}}
+@keyframes chatRobotThink{0%,100%{transform:translateY(0) rotate(-2deg)}50%{transform:translateY(-3px) rotate(3deg)}}
+@keyframes chatRobotListen{0%,100%{transform:scale(1)}50%{transform:scale(1.055)}}
+@keyframes chatRobotTalk{from{transform:scale(1) rotate(-1deg)}to{transform:scale(1.045) rotate(1deg)}}
+@keyframes robotHappy{0%,100%{transform:translateY(0) scale(1)}50%{transform:translateY(-9px) scale(1.05)}}
+@keyframes robotOops{0%,100%{transform:rotate(0)}30%{transform:rotate(-7deg)}70%{transform:rotate(7deg)}}
+
+@media(max-width:390px){
+  .homeConversationTop h2{font-size:24px}.teacherTypesBtn{font-size:12px;padding:9px 10px}
+  .homeRobotStage{height:200px}.homeRobot{height:210px;width:250px}
+  .homeConversationChoices{grid-template-columns:1fr}.homeModes{gap:7px}.homeModes .mode{font-size:12px}
+}
