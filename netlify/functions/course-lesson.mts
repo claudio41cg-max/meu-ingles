@@ -15,7 +15,10 @@ function cors(origin: string | null) {
     "Vary":"Origin"
   };
 }
-function env(name: string) { try { return Netlify.env.get(name) || ""; } catch { return ""; } }
+function env(name: string) {
+  try { return String(Netlify.env.get(name) || "").trim(); }
+  catch { return ""; }
+}
 function cleanJson(text: string) {
   return JSON.parse(String(text||"").replace(/^```json\s*/i,"").replace(/^```\s*/i,"").replace(/\s*```$/i,"").trim() || "{}");
 }
