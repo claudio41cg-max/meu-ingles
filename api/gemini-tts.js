@@ -29,6 +29,14 @@ export default async function handler(req, res) {
     return m ? Number(m[1]) || 24000 : 24000;
   };
 
+  const retrySecondsFrom = raw => {
+    const s = String(raw || '');
+    const m1 = s.match(/retryDelay[\\\"']?\s*[:=]\s*[\\\"']?(\d+(?:\.\d+)?)s/i);
+    const m2 = s.match(/retry in\s+(\d+(?:\.\d+)?)s/i);
+    const n = Number((m1 || m2)?.[1] || 0);
+    return Number.isFinite(n) && n > 0 ? Math.ceil(n) : 15;
+  };
+
   async function generate(text, voice, lang, style) {
     const instruction = lang === 'pt-BR'
       ? `Fale apenas em português brasileiro. Soe como uma pessoa conversando cara a cara, com ritmo natural, pequenas pausas e entonação espontânea. Não use voz de locutor, assistente virtual ou robô. ${style}\n\nDiga somente isto: ${text}`
@@ -56,7 +64,10 @@ export default async function handler(req, res) {
 
     const raw = await response.text();
     if (!response.ok) {
-      throw new Error(`${MODEL}_${response.status}:${raw.slice(0, 500)}`);
+      const err = new Error(`${MODEL}_${response.status}:${raw.slice(0, 500)}`);
+      err.statusCode = response.status;
+      if (response.status === 429) err.retryAfter = retrySecondsFrom(raw);
+      throw err;
     }
 
     let data;
@@ -101,6 +112,17 @@ export default async function handler(req, res) {
         audio_received: !!out.audio
       });
     } catch (error) {
+      if (Number(error?.statusCode) === 429) {
+        const retryAfter = Number(error?.retryAfter) || 15;
+        res.setHeader('Retry-After', String(retryAfter));
+        return res.status(429).json({
+          ok: false,
+          diagnostic: true,
+          error: 'gemini_rate_limited',
+          retry_after_seconds: retryAfter,
+          message: `Limite gratuito temporário do Gemini TTS. Tente novamente em ${retryAfter} segundos.`
+        });
+      }
       return res.status(502).json({
         ok: false,
         diagnostic: true,
@@ -126,6 +148,15 @@ export default async function handler(req, res) {
     const out = await generate(text, voice, lang, style);
     return res.status(200).json({ ok: true, ...out });
   } catch (error) {
+    if (Number(error?.statusCode) === 429) {
+      const retryAfter = Number(error?.retryAfter) || 15;
+      res.setHeader('Retry-After', String(retryAfter));
+      return res.status(429).json({
+        error: 'gemini_rate_limited',
+        retry_after_seconds: retryAfter,
+        message: `Limite gratuito temporário do Gemini TTS. Tente novamente em ${retryAfter} segundos.`
+      });
+    }
     return res.status(502).json({
       error: 'gemini_tts_error',
       details: String(error?.message || error).slice(0, 1000)
