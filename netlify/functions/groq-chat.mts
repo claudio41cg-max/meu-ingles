@@ -17,7 +17,10 @@ function cors(origin: string | null) {
     "Vary": "Origin"
   };
 }
-function env(name: string) { try { return Netlify.env.get(name) || ""; } catch { return ""; } }
+function env(name: string) {
+  try { return String(Netlify.env.get(name) || "").trim(); }
+  catch { return ""; }
+}
 function safeJson(text: string) {
   const t = String(text || "").replace(/^```json\s*/i, "").replace(/^```\s*/i, "").replace(/\s*```$/i, "").trim();
   return JSON.parse(t || "{}");
