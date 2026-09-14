@@ -1,0 +1,285 @@
+/* Conversa v32 — tela limpa, robô maior e reações visuais mais vivas */
+
+/* Quando a conversa abre, ficam apenas o professor, o robô e os controles. */
+#home.conversation-focus .homeConversationTop,
+#home.conversation-focus .homeConversationIntro,
+#home.conversation-focus .homeChatBox,
+#home.conversation-focus .homeChatHint{
+  display:none!important;
+}
+
+#home.conversation-focus .homeTalkCard{
+  position:relative;
+  min-height:calc(100vh - 170px);
+  min-height:calc(100svh - 170px);
+  padding-top:70px!important;
+  padding-bottom:16px!important;
+  overflow:hidden;
+}
+
+/* Nome do professor e Sair ficam no topo da tela de conversa. */
+#home.conversation-focus .homeChatHead{
+  position:absolute;
+  top:16px;
+  left:18px;
+  right:18px;
+  z-index:20;
+  margin:0;
+  min-height:42px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+}
+#home.conversation-focus .homeChatHead b{
+  display:flex;
+  align-items:center;
+  min-width:0;
+  font-size:17px;
+  line-height:1.1;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+#home.conversation-focus .persona-tranquilo .homeChatHead b:before{content:"🙂 ";margin-right:4px}
+#home.conversation-focus .persona-doideira .homeChatHead b:before{content:"🤪 ";margin-right:4px}
+#home.conversation-focus .persona-hard .homeChatHead b:before{content:"🔥 ";margin-right:4px}
+#home.conversation-focus .homeChatClose{
+  flex:0 0 auto;
+  padding:9px 17px;
+  min-height:40px;
+}
+
+/* O robô domina a parte superior da segunda tela. */
+#home.conversation-focus .homeTalkCard.chat-open .homeRobotStage{
+  height:390px!important;
+  height:clamp(320px,46svh,430px)!important;
+  margin:0 0 10px!important;
+  overflow:visible;
+}
+#home.conversation-focus .homeTalkCard.chat-open .robotVisual{
+  width:min(98%,430px)!important;
+  max-height:100%;
+}
+#home.conversation-focus .homeTalkCard.chat-open .homeRobot{
+  width:100%!important;
+  height:100%!important;
+}
+
+/* A divisória fica mais baixa, logo abaixo do robô grande. */
+#home.conversation-focus .homeInlineChat{
+  display:block!important;
+  margin-top:0!important;
+  padding-top:18px!important;
+  border-top:1px solid rgba(88,173,220,.38)!important;
+}
+
+/* O assunto continua acessível, mas como um detalhe discreto. */
+#home.conversation-focus .homeTopicPill{
+  max-width:100%;
+  margin:0 0 10px;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  white-space:nowrap;
+  font-size:12px;
+  opacity:.9;
+}
+
+/* Se for preciso escolher módulo, a lista não ocupa o centro da tela em coluna. */
+#home.conversation-focus .homeModulePicker.open{
+  display:flex!important;
+  gap:8px;
+  max-height:none!important;
+  overflow-x:auto!important;
+  overflow-y:hidden!important;
+  padding:0 0 10px!important;
+  margin:0 0 8px!important;
+  scroll-snap-type:x proximity;
+  scrollbar-width:thin;
+}
+#home.conversation-focus .modulePickBtn{
+  flex:0 0 min(72vw,245px);
+  min-width:175px;
+  display:flex!important;
+  align-items:center;
+  gap:8px;
+  padding:9px 11px;
+  scroll-snap-align:start;
+}
+#home.conversation-focus .modulePickBtn span{
+  overflow:hidden;
+  text-overflow:ellipsis;
+  white-space:nowrap;
+}
+
+/* Controles mais limpos e com o microfone como destaque. */
+#home.conversation-focus .homeChatControls{
+  grid-template-columns:64px 1fr 54px;
+  gap:9px;
+  margin-top:2px!important;
+}
+#home.conversation-focus .homeChatMic{
+  width:64px;
+  height:64px;
+}
+#home.conversation-focus .homeChatMic svg{width:34px;height:34px}
+#home.conversation-focus .homeChatInput,
+#home.conversation-focus .homeChatSend{height:54px}
+
+/* Estados do microfone: ouvindo, processando e respondendo. */
+#home.conversation-focus .homeTalkCard.robot-listening .homeChatMic,
+#home.conversation-focus .homeChatMic.listening{
+  animation:micListen32 .9s ease-in-out infinite!important;
+}
+#home.conversation-focus .homeTalkCard.robot-thinking .homeChatMic{
+  animation:micThink32 1s ease-in-out infinite;
+  filter:saturate(.75) brightness(.88);
+}
+#home.conversation-focus .homeTalkCard.audio-speaking .homeChatMic,
+#home.conversation-focus .homeTalkCard.robot-speaking .homeChatMic{
+  animation:micSpeak32 .58s ease-in-out infinite alternate;
+}
+@keyframes micListen32{
+  0%,100%{transform:scale(1);box-shadow:0 0 0 5px rgba(39,228,163,.08),0 0 18px rgba(39,228,163,.28)}
+  50%{transform:scale(1.08);box-shadow:0 0 0 11px rgba(39,228,163,.10),0 0 32px rgba(39,228,163,.55)}
+}
+@keyframes micThink32{
+  0%,100%{transform:scale(.98);opacity:.76}
+  50%{transform:scale(1.03);opacity:1}
+}
+@keyframes micSpeak32{
+  from{transform:scale(1);filter:brightness(1)}
+  to{transform:scale(1.055);filter:brightness(1.18)}
+}
+
+/* Piscar natural sem interferir na inclinação dos olhos de cada personalidade. */
+#home.conversation-focus .robotFaceOverlay .rEye{
+  animation:robotBlink32 5.4s linear infinite;
+}
+#home.conversation-focus .robotFaceOverlay .rEye.right{animation-delay:.035s}
+#home.conversation-focus .robot-angry .robotFaceOverlay .rEye{animation:none!important}
+@keyframes robotBlink32{
+  0%,46%,50%,92%,96%,100%{opacity:1}
+  48%,94%{opacity:.05}
+}
+
+/* Tranquilo: movimento mais suave. */
+#home.conversation-focus .persona-tranquilo .robotVisual{animation-duration:3.8s}
+#home.conversation-focus .persona-tranquilo .robotFaceOverlay{filter:saturate(.9)}
+
+/* Doideira: um pouco mais inquieto mesmo quando está parado. */
+#home.conversation-focus .persona-doideira .robotVisual{animation-duration:2.25s}
+#home.conversation-focus .persona-doideira .robotFaceOverlay{filter:saturate(1.12)}
+
+/* Hard 18+: postura mais firme e olhar mais marcado. */
+#home.conversation-focus .persona-hard .robotVisual{animation-duration:3.2s}
+#home.conversation-focus .persona-hard .robotFaceOverlay{filter:contrast(1.08) saturate(1.08)}
+
+/* Ouvindo: olhos atentos e sobrancelhas erguidas. */
+#home.conversation-focus .homeTalkCard.robot-listening .rEye{
+  top:34%!important;
+  height:24%!important;
+  width:14%!important;
+  border-radius:50%!important;
+  box-shadow:0 0 12px #00efff,0 0 28px rgba(0,224,255,.95)!important;
+}
+#home.conversation-focus .homeTalkCard.robot-listening .rEye.left{left:24%!important;transform:none!important}
+#home.conversation-focus .homeTalkCard.robot-listening .rEye.right{right:24%!important;transform:none!important}
+#home.conversation-focus .homeTalkCard.robot-listening .rBrow{top:18%!important}
+#home.conversation-focus .homeTalkCard.robot-listening .rBrow.left{transform:rotate(-5deg)!important}
+#home.conversation-focus .homeTalkCard.robot-listening .rBrow.right{transform:rotate(5deg)!important}
+#home.conversation-focus .homeTalkCard.robot-listening .rMouth{
+  width:24%!important;
+  left:38%!important;
+  height:10%!important;
+  top:66%!important;
+}
+
+/* Pensando: olhar levemente assimétrico, sem texto na tela. */
+#home.conversation-focus .homeTalkCard.robot-thinking .rEye.left{
+  top:33%!important;
+  height:17%!important;
+  transform:translateY(-2px)!important;
+}
+#home.conversation-focus .homeTalkCard.robot-thinking .rEye.right{
+  top:40%!important;
+  height:12%!important;
+  transform:rotate(-5deg)!important;
+}
+#home.conversation-focus .homeTalkCard.robot-thinking .rBrow.left{top:19%!important;transform:rotate(-11deg)!important}
+#home.conversation-focus .homeTalkCard.robot-thinking .rBrow.right{top:25%!important;transform:rotate(8deg)!important}
+#home.conversation-focus .homeTalkCard.robot-thinking .rMouth{
+  width:23%!important;
+  left:38.5%!important;
+  top:67%!important;
+  height:7%!important;
+  border-radius:0!important;
+}
+
+/* Acertou: olhos sorrindo e sorriso mais aberto. */
+#home.conversation-focus .homeTalkCard.robot-happy .rEye{
+  top:43%!important;
+  width:15%!important;
+  height:7%!important;
+  border-radius:999px!important;
+  transform:none!important;
+}
+#home.conversation-focus .homeTalkCard.robot-happy .rBrow.left{transform:rotate(-8deg)!important}
+#home.conversation-focus .homeTalkCard.robot-happy .rBrow.right{transform:rotate(8deg)!important}
+#home.conversation-focus .homeTalkCard.robot-happy .rMouth{
+  left:27%!important;
+  width:46%!important;
+  top:59%!important;
+  height:22%!important;
+  border-bottom-width:7px!important;
+  border-radius:0 0 65% 65%!important;
+}
+
+/* Erro ou quase: expressão de "opa"; no Hard, o erro forte ainda vira raiva vermelha pelo v31. */
+#home.conversation-focus .homeTalkCard.robot-oops .rEye{
+  top:39%!important;
+  height:15%!important;
+  width:12%!important;
+  opacity:.88;
+}
+#home.conversation-focus .homeTalkCard.robot-oops .rBrow.left{transform:rotate(-14deg)!important}
+#home.conversation-focus .homeTalkCard.robot-oops .rBrow.right{transform:rotate(14deg)!important}
+#home.conversation-focus .homeTalkCard.robot-oops .rMouth{
+  left:35%!important;
+  top:69%!important;
+  width:30%!important;
+  height:11%!important;
+  border-bottom:0!important;
+  border-top:5px solid #00efff!important;
+  border-radius:55% 55% 0 0!important;
+  box-shadow:0 -4px 8px -5px #00efff!important;
+}
+
+/* Falando: a boca segue o áudio real e ganha um brilho sutil. */
+#home.conversation-focus .homeTalkCard.audio-speaking .robotFaceOverlay{
+  box-shadow:inset 0 0 0 2px rgba(40,76,108,.22),inset 0 -10px 30px rgba(0,118,190,.08),0 0 22px rgba(0,224,255,.16);
+}
+#home.conversation-focus .homeTalkCard.audio-speaking:not(.robot-angry) .rMouth{
+  box-shadow:0 6px 12px -5px #00efff,0 0 12px rgba(0,238,255,.24);
+}
+
+/* Em telas menores, mantém o robô grande sem empurrar os controles para longe demais. */
+@media(max-width:390px){
+  #home.conversation-focus .homeTalkCard{padding-top:64px!important}
+  #home.conversation-focus .homeChatHead{top:13px;left:14px;right:14px}
+  #home.conversation-focus .homeChatHead b{font-size:15px}
+  #home.conversation-focus .homeTalkCard.chat-open .homeRobotStage{
+    height:350px!important;
+    height:clamp(292px,42svh,360px)!important;
+  }
+  #home.conversation-focus .homeTalkCard.chat-open .robotVisual{width:min(100%,385px)!important}
+  #home.conversation-focus .homeChatControls{grid-template-columns:60px 1fr 50px;gap:7px}
+  #home.conversation-focus .homeChatMic{width:60px;height:60px}
+}
+
+@media(max-height:720px){
+  #home.conversation-focus .homeTalkCard.chat-open .homeRobotStage{
+    height:300px!important;
+  }
+  #home.conversation-focus .homeTalkCard.chat-open .robotVisual{width:min(92%,350px)!important}
+}
