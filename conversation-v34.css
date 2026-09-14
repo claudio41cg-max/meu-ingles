@@ -1,0 +1,435 @@
+/* Conversa v34 — rosto de frente, robô centralizado, microfone inferior e topo corrigido */
+
+/* Mantém a conversa fixa dentro da tela, sem rolagem vertical. */
+html.conversation-screen-lock-root,
+body.conversation-screen-lock{
+  height:100dvh;
+  overflow:hidden!important;
+  overscroll-behavior:none;
+}
+body.conversation-screen-lock .app{
+  height:100dvh;
+  min-height:0!important;
+  padding-bottom:0!important;
+  display:flex;
+  flex-direction:column;
+  overflow:hidden;
+}
+body.conversation-screen-lock header{flex:0 0 auto}
+body.conversation-screen-lock main{
+  flex:1 1 auto;
+  min-height:0;
+  overflow:hidden;
+  padding:8px 18px 92px!important;
+}
+#home.conversation-focus{
+  height:100%;
+  min-height:0;
+  overflow:hidden;
+}
+
+/* "Olá, Cláudio" continua escondido somente na conversa. */
+#home.conversation-focus .hero{display:none!important}
+
+/* Card inteiro da conversa. */
+#home.conversation-focus .homeTalkCard{
+  height:100%;
+  min-height:0!important;
+  margin:0!important;
+  padding:62px 14px 12px!important;
+  display:flex;
+  flex-direction:column;
+  position:relative;
+  overflow:hidden!important;
+}
+
+/* Professor e Sair voltam para o topo, na mesma linha. */
+#home.conversation-focus .homeInlineChat{
+  flex:0 0 auto;
+  min-height:0;
+  margin:0!important;
+  padding-top:10px!important;
+  border-top:1px solid rgba(88,173,220,.42)!important;
+  position:static!important;
+  z-index:30;
+  background:linear-gradient(180deg,rgba(8,27,42,.04),rgba(8,27,42,.88) 30%);
+}
+#home.conversation-focus .homeChatHead{
+  position:absolute!important;
+  top:12px!important;
+  left:16px!important;
+  right:16px!important;
+  z-index:60!important;
+  display:flex!important;
+  align-items:center!important;
+  justify-content:space-between!important;
+  gap:12px!important;
+  margin:0!important;
+  min-height:42px;
+}
+#home.conversation-focus .homeChatHead b{
+  display:flex;
+  align-items:center;
+  min-width:0;
+  font-size:18px!important;
+  line-height:1.1;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+#home.conversation-focus .homeChatClose{
+  flex:0 0 auto;
+  min-height:40px;
+  padding:9px 17px!important;
+}
+
+/* Robô grande, porém centralizado de verdade e sem cortar as laterais. */
+#home.conversation-focus .homeTalkCard.chat-open .homeRobotStage{
+  flex:1 1 auto;
+  min-height:0!important;
+  height:auto!important;
+  margin:0!important;
+  padding:0 0 8px!important;
+  display:grid!important;
+  place-items:center!important;
+  overflow:visible!important;
+}
+#home.conversation-focus .homeTalkCard.chat-open .robotVisual{
+  width:min(100%,520px)!important;
+  max-width:100%!important;
+  max-height:100%!important;
+  aspect-ratio:300/270!important;
+  position:relative;
+  margin:auto!important;
+  left:auto!important;
+  right:auto!important;
+}
+#home.conversation-focus .homeTalkCard.chat-open .homeRobot{
+  width:100%!important;
+  height:100%!important;
+  object-fit:contain!important;
+  object-position:center center!important;
+}
+
+/* O visor segue exatamente o visor do SVG recortado usado na conversa. */
+#home.conversation-focus .robotFaceOverlay{
+  left:14%!important;
+  top:18.52%!important;
+  width:65.33%!important;
+  height:48.15%!important;
+  border-radius:50%!important;
+  background:transparent!important;
+  box-shadow:none!important;
+  overflow:hidden!important;
+  transform:none!important;
+}
+
+/* Rosto sempre olhando para a frente. */
+#home.conversation-focus .robotFaceOverlay .rEye{
+  top:38%!important;
+  width:13%!important;
+  height:18%!important;
+  border-radius:50%!important;
+  background:#00efff!important;
+  box-shadow:0 0 10px #00efff,0 0 22px rgba(0,224,255,.9)!important;
+  opacity:1;
+}
+#home.conversation-focus .robotFaceOverlay .rEye.left{
+  left:25%!important;
+  right:auto!important;
+  transform:none!important;
+}
+#home.conversation-focus .robotFaceOverlay .rEye.right{
+  right:25%!important;
+  left:auto!important;
+  transform:none!important;
+}
+#home.conversation-focus .robotFaceOverlay .rBrow{
+  top:23%!important;
+  width:18%!important;
+  height:5%!important;
+}
+#home.conversation-focus .robotFaceOverlay .rBrow.left{
+  left:22%!important;
+  right:auto!important;
+  transform:rotate(-5deg)!important;
+}
+#home.conversation-focus .robotFaceOverlay .rBrow.right{
+  right:22%!important;
+  left:auto!important;
+  transform:rotate(5deg)!important;
+}
+#home.conversation-focus .robotFaceOverlay .rMouth{
+  left:32%!important;
+  top:62%!important;
+  width:36%!important;
+  height:16%!important;
+  transform:none!important;
+}
+
+/* Hard continua firme, mas olhando reto para o aluno. */
+#home.conversation-focus .persona-hard .rEye{
+  top:40%!important;
+  height:11%!important;
+  width:14%!important;
+  border-radius:999px!important;
+}
+#home.conversation-focus .persona-hard .rEye.left{left:24%!important;transform:none!important}
+#home.conversation-focus .persona-hard .rEye.right{right:24%!important;transform:none!important}
+#home.conversation-focus .persona-hard .rBrow.left{transform:rotate(12deg)!important}
+#home.conversation-focus .persona-hard .rBrow.right{transform:rotate(-12deg)!important}
+#home.conversation-focus .persona-hard .rMouth{
+  width:30%!important;
+  left:35%!important;
+  height:8%!important;
+  top:65%!important;
+  border-radius:0!important;
+  transform:none!important;
+}
+
+/* Tranquilo e Doideira preservam personalidade sem desviar o olhar. */
+#home.conversation-focus .persona-tranquilo .rEye{height:20%!important}
+#home.conversation-focus .persona-tranquilo .rMouth{width:38%!important;left:31%!important;height:17%!important}
+#home.conversation-focus .persona-doideira .rEye{height:20%!important}
+#home.conversation-focus .persona-doideira .rBrow.left{transform:rotate(-9deg)!important}
+#home.conversation-focus .persona-doideira .rBrow.right{transform:rotate(9deg)!important}
+#home.conversation-focus .persona-doideira .rMouth{width:40%!important;left:30%!important;height:18%!important;transform:none!important}
+
+/* Microfone do peito removido por completo. */
+#home.conversation-focus .robotTalkButton{display:none!important}
+
+/* Módulo fica abaixo da linha, separado do Professor. */
+#home.conversation-focus .homeTopicPill{
+  display:inline-flex!important;
+  max-width:100%;
+  margin:0 0 8px!important;
+  min-height:32px;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  white-space:nowrap;
+  font-size:12px;
+}
+
+/* Escolha de módulo continua horizontal quando aberta. */
+#home.conversation-focus .homeModulePicker.open{
+  display:flex!important;
+  gap:8px;
+  max-height:none!important;
+  overflow-x:auto!important;
+  overflow-y:hidden!important;
+  padding:0 0 8px!important;
+  margin:0 0 7px!important;
+  scrollbar-width:thin;
+}
+#home.conversation-focus .modulePickBtn{
+  flex:0 0 min(70vw,235px);
+  min-width:170px;
+  display:flex!important;
+  align-items:center;
+  gap:8px;
+}
+#home.conversation-focus .modulePickBtn span{
+  overflow:hidden;
+  text-overflow:ellipsis;
+  white-space:nowrap;
+}
+
+/* Microfone bonito volta para a faixa inferior. */
+#home.conversation-focus .homeChatControls{
+  display:grid!important;
+  grid-template-columns:64px minmax(0,1fr) 58px!important;
+  gap:9px!important;
+  align-items:center!important;
+  margin:0!important;
+  position:relative;
+  z-index:50;
+  pointer-events:auto!important;
+}
+#home.conversation-focus .homeChatMic{
+  display:grid!important;
+  width:64px!important;
+  height:64px!important;
+  border-radius:50%!important;
+  border:1px solid rgba(151,235,255,.68)!important;
+  place-items:center!important;
+  padding:0!important;
+  background:
+    radial-gradient(circle at 34% 26%,rgba(255,255,255,.72) 0 5%,transparent 18%),
+    radial-gradient(circle at 34% 28%,#48e9ff 0,#159cec 44%,#0759a4 100%)!important;
+  box-shadow:
+    0 0 0 5px rgba(36,190,255,.10),
+    0 0 24px rgba(36,190,255,.34),
+    0 9px 24px rgba(0,57,116,.42),
+    inset 0 1px 2px rgba(255,255,255,.48)!important;
+  transition:.18s ease!important;
+}
+#home.conversation-focus .homeChatMic svg{
+  width:33px!important;
+  height:33px!important;
+  filter:drop-shadow(0 2px 4px rgba(0,0,0,.28));
+}
+#home.conversation-focus .homeChatMic:active{transform:scale(.94)}
+#home.conversation-focus .homeChatMic.listening,
+#home.conversation-focus .homeTalkCard.robot-listening .homeChatMic{
+  background:radial-gradient(circle at 34% 28%,#68ffc6 0,#1acb7d 48%,#087a4f 100%)!important;
+  box-shadow:0 0 0 8px rgba(35,216,137,.12),0 0 30px rgba(40,255,170,.5)!important;
+  animation:micPulse34 .9s ease-in-out infinite!important;
+}
+#home.conversation-focus .homeTalkCard.robot-thinking .homeChatMic{
+  animation:micThink34 1s ease-in-out infinite!important;
+}
+#home.conversation-focus .homeTalkCard.audio-speaking .homeChatMic,
+#home.conversation-focus .homeTalkCard.robot-speaking .homeChatMic{
+  animation:micSpeak34 .55s ease-in-out infinite alternate!important;
+}
+@keyframes micPulse34{0%,100%{transform:scale(1)}50%{transform:scale(1.07)}}
+@keyframes micThink34{0%,100%{opacity:.72;transform:scale(.98)}50%{opacity:1;transform:scale(1.035)}}
+@keyframes micSpeak34{from{transform:scale(1)}to{transform:scale(1.055)}}
+
+#home.conversation-focus .homeChatInput{
+  height:54px!important;
+  min-width:0!important;
+  position:relative;
+  z-index:51;
+  pointer-events:auto!important;
+}
+#home.conversation-focus .homeChatSend{
+  width:58px!important;
+  height:54px!important;
+  position:relative;
+  z-index:52;
+  pointer-events:auto!important;
+  touch-action:manipulation;
+}
+
+/* Expressões de espera, todas frontais e simétricas. */
+#home.conversation-focus .homeTalkCard.idle-front .rEye{height:18%!important;top:38%!important}
+#home.conversation-focus .homeTalkCard.idle-front .rMouth{width:34%!important;left:33%!important;height:14%!important;top:63%!important}
+
+#home.conversation-focus .homeTalkCard.idle-smile .rEye{
+  top:43%!important;
+  height:7%!important;
+  width:15%!important;
+  border-radius:999px!important;
+}
+#home.conversation-focus .homeTalkCard.idle-smile .rBrow.left{transform:rotate(-7deg)!important}
+#home.conversation-focus .homeTalkCard.idle-smile .rBrow.right{transform:rotate(7deg)!important}
+#home.conversation-focus .homeTalkCard.idle-smile .rMouth{
+  width:44%!important;
+  left:28%!important;
+  height:20%!important;
+  top:59%!important;
+}
+
+#home.conversation-focus .homeTalkCard.idle-alert .rEye{
+  top:34%!important;
+  width:15%!important;
+  height:24%!important;
+  border-radius:50%!important;
+}
+#home.conversation-focus .homeTalkCard.idle-alert .rBrow{top:18%!important}
+#home.conversation-focus .homeTalkCard.idle-alert .rMouth{
+  width:24%!important;
+  left:38%!important;
+  top:66%!important;
+  height:10%!important;
+}
+
+#home.conversation-focus .homeTalkCard.idle-surprised .rEye{
+  width:15%!important;
+  height:25%!important;
+  top:33%!important;
+  border-radius:50%!important;
+}
+#home.conversation-focus .homeTalkCard.idle-surprised .rBrow{top:16%!important}
+#home.conversation-focus .homeTalkCard.idle-surprised .rMouth{
+  left:43%!important;
+  top:64%!important;
+  width:14%!important;
+  height:18%!important;
+  border:4px solid #00efff!important;
+  border-radius:50%!important;
+  border-bottom:4px solid #00efff!important;
+  box-shadow:0 0 10px rgba(0,238,255,.55)!important;
+}
+
+/* Estados de ação continuam expressivos, mas sem olhar de lado. */
+#home.conversation-focus .homeTalkCard.robot-listening .rEye{
+  top:34%!important;
+  width:15%!important;
+  height:24%!important;
+  border-radius:50%!important;
+}
+#home.conversation-focus .homeTalkCard.robot-listening .rBrow{top:17%!important}
+#home.conversation-focus .homeTalkCard.robot-listening .rBrow.left{transform:rotate(-7deg)!important}
+#home.conversation-focus .homeTalkCard.robot-listening .rBrow.right{transform:rotate(7deg)!important}
+#home.conversation-focus .homeTalkCard.robot-listening .rMouth{width:22%!important;left:39%!important;top:67%!important;height:9%!important}
+
+#home.conversation-focus .homeTalkCard.robot-thinking .rEye{
+  top:34%!important;
+  height:11%!important;
+  width:14%!important;
+  border-radius:999px!important;
+  transform:none!important;
+}
+#home.conversation-focus .homeTalkCard.robot-thinking .rBrow{top:19%!important}
+#home.conversation-focus .homeTalkCard.robot-thinking .rBrow.left{transform:rotate(-12deg)!important}
+#home.conversation-focus .homeTalkCard.robot-thinking .rBrow.right{transform:rotate(12deg)!important}
+#home.conversation-focus .homeTalkCard.robot-thinking .rMouth{width:22%!important;left:39%!important;top:68%!important;height:7%!important;border-radius:0!important}
+
+#home.conversation-focus .homeTalkCard.robot-happy .rEye{
+  top:43%!important;
+  width:15%!important;
+  height:7%!important;
+  border-radius:999px!important;
+}
+#home.conversation-focus .homeTalkCard.robot-happy .rMouth{left:27%!important;width:46%!important;top:59%!important;height:22%!important}
+
+#home.conversation-focus .homeTalkCard.robot-oops .rEye{
+  top:39%!important;
+  height:14%!important;
+  width:12%!important;
+}
+#home.conversation-focus .homeTalkCard.robot-oops .rBrow.left{transform:rotate(-14deg)!important}
+#home.conversation-focus .homeTalkCard.robot-oops .rBrow.right{transform:rotate(14deg)!important}
+#home.conversation-focus .homeTalkCard.robot-oops .rMouth{
+  left:35%!important;
+  top:69%!important;
+  width:30%!important;
+  height:10%!important;
+  border-bottom:0!important;
+  border-top:5px solid #00efff!important;
+  border-radius:55% 55% 0 0!important;
+}
+
+/* Raiva do Hard também continua central e simétrica. */
+#home.conversation-focus .homeTalkCard.robot-angry .rEye{
+  top:38%!important;
+  width:16%!important;
+  height:9%!important;
+  border-radius:3px!important;
+}
+#home.conversation-focus .homeTalkCard.robot-angry .rEye.left{left:22%!important;transform:rotate(14deg)!important}
+#home.conversation-focus .homeTalkCard.robot-angry .rEye.right{right:22%!important;transform:rotate(-14deg)!important}
+#home.conversation-focus .homeTalkCard.robot-angry .rBrow.left{transform:rotate(18deg)!important}
+#home.conversation-focus .homeTalkCard.robot-angry .rBrow.right{transform:rotate(-18deg)!important}
+
+@media(max-width:390px){
+  body.conversation-screen-lock main{padding:7px 12px 88px!important}
+  #home.conversation-focus .homeTalkCard{padding:58px 10px 10px!important}
+  #home.conversation-focus .homeChatHead{top:10px!important;left:12px!important;right:12px!important}
+  #home.conversation-focus .homeChatHead b{font-size:16px!important}
+  #home.conversation-focus .homeTalkCard.chat-open .robotVisual{width:min(100%,470px)!important}
+  #home.conversation-focus .homeChatControls{grid-template-columns:60px minmax(0,1fr) 54px!important;gap:7px!important}
+  #home.conversation-focus .homeChatMic{width:60px!important;height:60px!important}
+  #home.conversation-focus .homeChatSend{width:54px!important}
+}
+
+@media(max-height:690px){
+  #home.conversation-focus .homeTalkCard{padding-top:56px!important}
+  #home.conversation-focus .homeTalkCard.chat-open .robotVisual{width:min(92%,430px)!important}
+  #home.conversation-focus .homeTopicPill{min-height:28px;padding-top:5px;padding-bottom:5px}
+  #home.conversation-focus .homeChatInput,#home.conversation-focus .homeChatSend{height:50px!important}
+  #home.conversation-focus .homeChatMic{width:56px!important;height:56px!important}
+  #home.conversation-focus .homeChatControls{grid-template-columns:56px minmax(0,1fr) 54px!important}
+}
