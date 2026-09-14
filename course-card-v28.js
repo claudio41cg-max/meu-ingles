@@ -25,56 +25,35 @@ function nextLesson(){
   return {level,m:11,n:7,complete:true};
 }
 function updateCard(){
-  const card=document.querySelector('#home .pathCard');
   const title=document.querySelector('#nextLessonTitle');
   const meta=document.querySelector('#nextLessonMeta');
-  if(!card||!title||!meta)return;
+  if(!title||!meta)return;
   const n=nextLesson();
-  title.textContent='Todos os Cursos';
+  if(title.textContent!=='Todos os Cursos')title.textContent='Todos os Cursos';
+  let text='';
   if(n.complete){
-    meta.textContent=`${n.level} concluído · toque no card para ver todos os módulos`;
+    text=`${n.level} concluído · toque no card para ver todos os módulos`;
   }else{
     const module=(MODULES[n.level]||[])[n.m]||'Módulo atual';
     const type=TYPES[n.n]||'Aula';
-    meta.textContent=`${n.level} · ${module} · Aula ${n.n+1} · ${type}`;
+    text=`${n.level} · ${module} · Aula ${n.n+1} · ${type}`;
   }
-  card.classList.add('allCoursesCard');
-}
-
-function bindCard(){
-  const card=document.querySelector('#home .pathCard');
-  if(!card||card.dataset.allCoursesBound)return;
-  card.dataset.allCoursesBound='1';
-  card.setAttribute('role','button');
-  card.setAttribute('tabindex','0');
-  card.setAttribute('aria-label','Abrir todos os cursos e módulos');
-  card.addEventListener('click',e=>{
-    if(e.target.closest('.pathButton'))return;
-    window.stableShow?.('course');
-  });
-  card.addEventListener('keydown',e=>{
-    if(e.key==='Enter'||e.key===' '){e.preventDefault();window.stableShow?.('course')}
-  });
+  if(meta.textContent!==text)meta.textContent=text;
 }
 
 function init(){
-  bindCard();
   updateCard();
   const oldShow=window.stableShow;
   if(typeof oldShow==='function'&&!oldShow.__courseCardV28){
     const wrapped=function(id){
       const r=oldShow(id);
-      if(id==='home')setTimeout(()=>{bindCard();updateCard()},30);
+      if(id==='home')setTimeout(updateCard,40);
       return r;
     };
     wrapped.__courseCardV28=true;
     window.stableShow=wrapped;
   }
-  const observer=new MutationObserver(()=>{
-    if(document.querySelector('#home')?.classList.contains('active'))updateCard();
-  });
-  const home=document.querySelector('#home');
-  if(home)observer.observe(home,{subtree:true,childList:true,characterData:true});
+  window.addEventListener('focus',()=>setTimeout(updateCard,30));
 }
 
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',()=>setTimeout(init,160));
