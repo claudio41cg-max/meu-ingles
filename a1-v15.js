@@ -38,7 +38,25 @@ function status(t=''){const e=$('#a15Voice');if(e)e.textContent=t}
 function bytes(b){const x=atob(b),u=new Uint8Array(x.length);for(let i=0;i<x.length;i++)u[i]=x.charCodeAt(i);return u}
 async function pcm(b,rate=24000){const u=bytes(b),a=new Float32Array(u.length/2),v=new DataView(u.buffer,u.byteOffset,u.byteLength);for(let i=0;i<a.length;i++)a[i]=Math.max(-1,Math.min(1,v.getInt16(i*2,true)/32768));ctx=ctx||new(window.AudioContext||window.webkitAudioContext)();if(ctx.state==='suspended')await ctx.resume();if(src)try{src.stop()}catch{}const bf=ctx.createBuffer(1,a.length,rate);bf.copyToChannel(a,0);src=ctx.createBufferSource();src.buffer=bf;src.connect(ctx.destination);await new Promise(r=>{src.onended=()=>{src=null;r()};src.start()})}
 async function speak(text,lang='en-US',isTeacher=false){status('');const [,tv]=teacher();try{const r=await fetch(TTS,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({text,lang,voice:isTeacher?tv:'Achird',style:isTeacher?style():'Natural American English for a complete beginner. Clear, warm, human pronunciation. Say it once at a comfortable pace.'})});const d=await r.json();if(!r.ok||!d.audio)throw 0;await pcm(d.audio,d.sample_rate||24000);return true}catch{status('⚠️ A voz Gemini não carregou. Toque em ouvir para tentar de novo.');return false}}
-async function react(ok,heard,target){let txt=ok?'Boa! Agora foi 😄':'Quase. Olha a certa e tenta de novo.';const s=state(),mode=s.teacher||'media';if(mode==='pesada')txt=ok?'Aí, porra! Agora sim 😄':'Porra, quase 😂 olha a certa e tenta de novo.';else if(mode==='leve')txt=ok?'Muito bem. Continue.':'Ainda não. Olhe com calma e tente outra vez.';try{const r=await fetch(CHAT,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({mode:'lesson_feedback',message:heard,heard,target,score:ok?100:0,passed:ok,lesson:'A1 iniciante com repetição',level:'A1',personality:mode,scenario:'Poucas palavras, repetição e frases essenciais',error_streak:ok?0:1})});if(r.ok){const d=await r.json();if(d.reply_pt)txt=d.reply_pt}}catch{}const b=$('#a15Feedback');if(b){b.className='b14Feedback '+(ok?'good':'bad');b.innerHTML='<b>'+esc(txt)+'</b>'}speak(txt,'pt-BR',true)}
+function quickReaction(ok){
+ const mode=state().teacher||'media';
+ const lines={
+  leve:{ok:['Muito bem!','Isso mesmo!','Perfeito, acertou!','Ótimo, pode continuar.'],bad:['Quase. Tenta outra vez.','Ainda não. Olha com calma.','Por pouco. Vamos de novo.']},
+  media:{ok:['Boa! Mandou bem 😄','Aí sim! Acertou.','Boa, essa entrou na cabeça!','Perfeito! Bora pra próxima.'],bad:['Ih, escapou 😂 tenta de novo.','Quase, meu amigo.','Por pouco! Olha a certa e tenta outra.']},
+  pesada:{ok:['Aí, porra! Agora sim 😄','Boa! Acertou bonito.','Agora sim, cacete. Mandou bem!','Isso! Sem enrolar, acertou.'],bad:['Porra, quase 😂 tenta de novo.','Aí não, cacete 😂 olha a certa.','Quase. Presta atenção e manda outra.']}
+ };
+ const arr=(ok?lines[mode]?.ok:lines[mode]?.bad)||(ok?lines.media.ok:lines.media.bad);
+ return arr[Math.floor(Math.random()*arr.length)];
+}
+function react(ok,heard,target){
+ const txt=quickReaction(ok);
+ const b=$('#a15Feedback');if(b){b.className='b14Feedback '+(ok?'good':'bad');b.innerHTML='<b>'+esc(txt)+'</b>'}
+ /* A voz começa imediatamente. A IA melhora o texto em paralelo, sem segurar o aluno. */
+ speak(txt,'pt-BR',true);
+ const s=state(),mode=s.teacher||'media';
+ fetch(CHAT,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({mode:'lesson_feedback',message:heard,heard,target,score:ok?100:0,passed:ok,lesson:'A1 iniciante com repetição',level:'A1',personality:mode,scenario:'Poucas palavras, repetição e frases essenciais',error_streak:ok?0:1})})
+  .then(r=>r.ok?r.json():null).then(d=>{if(d?.reply_pt&&b)b.innerHTML='<b>'+esc(d.reply_pt)+'</b>'}).catch(()=>{});
+}
 
 function lesson(m,n){const cur=item(m,n),k=known(m,n),op=options(cur,m,n),prev=k.filter(x=>x.en.toLowerCase()!==cur.en.toLowerCase()).slice(-1)[0]||{e:'☕',en:'coffee',pt:'café'};const words=cur.en.trim().split(/\s+/),review=[cur,prev,...k.slice(-4).reverse()].filter((x,i,a)=>a.findIndex(y=>y.en.toLowerCase()===x.en.toLowerCase())===i).slice(0,3);const steps=[
 {t:words.length>1?'phrase':'learn',x:cur},
@@ -66,11 +84,11 @@ else if(s.t==='guided'){h=`<h2>${esc(s.q)}</h2><div class="b14Conversation">${s.
 else if(s.t==='build'){const exp=s.target.split(/\s+/),ans=run.built.map((x,i)=>`<span class="b14Token ${run.checked?(x===exp[i]?'correct':'wrong'):''}">${esc(x)}</span>`).join('');h=`<h2>${esc(s.q)}</h2><div class="b14Translation" style="font-size:28px;color:#fff;font-weight:850">${esc(s.pt)}</div><div class="b14Answer">${ans||'<span style="color:#8198aa">Toque nas palavras</span>'}</div><div class="b14Bank">${s.tokens.map((x,i)=>`<button onclick="a15Pick(${i})" ${run.used?.includes(i)?'disabled class="used"':''}>${esc(x)}</button>`).join('')}</div><div class="b14Actions"><button class="b14Clear" onclick="a15Clear()">Limpar</button><button class="b14Check" onclick="a15Check()">Verificar</button></div>${run.checked&&!run.ok?`<div class="b14CorrectOrder">Correto: ${esc(s.target)}</div>`:''}<div id="a15Feedback"></div>${run.checked&&run.ok?next():run.checked&&!run.ok?`<div class="b14Footer"><button class="b14Next blue" onclick="a15Clear()">Tentar de novo</button></div>`:''}`}
 else{h=`<h2>Você já conhece isso</h2><div class="b14Review">${s.items.map(x=>`<button class="b14Mini" onclick="a15Speak('${encodeURIComponent(x.en)}')"><span>${x.e||'🔁'}</span><b>${esc(x.en)}</b><small>${esc(x.pt)}</small></button>`).join('')}</div><div class="b14Footer"><button class="b14Next" onclick="a15Finish()">Concluir aula · +30 XP</button></div>`}
 $('#courseBody').innerHTML=shell(h);window.scrollTo(0,0);if((s.t==='learn'||s.t==='phrase')&&s.x)setTimeout(()=>speak(s.x.en),250);if(s.t==='choice'&&s.audio)setTimeout(()=>speak(s.audio),250)}
-window.a15Answer=async e=>{const s=run.lesson.steps[run.i],v=decodeURIComponent(e),ok=v===s.ans;document.querySelectorAll('[data-a15]').forEach(b=>{const x=decodeURIComponent(b.dataset.a15);if(x===v)b.classList.add(ok?'correct':'wrong');if(!ok&&x===s.ans)b.classList.add('correct');b.disabled=true});const f=$('#a15Feedback');if(f)f.insertAdjacentHTML('afterend',ok?next():`<div class="b14Footer"><button class="b14Next blue" onclick="a15Retry()">Tentar de novo</button></div>`);await react(ok,v,s.ans)};
+window.a15Answer=e=>{const s=run.lesson.steps[run.i],v=decodeURIComponent(e),ok=v===s.ans;document.querySelectorAll('[data-a15]').forEach(b=>{const x=decodeURIComponent(b.dataset.a15);if(x===v)b.classList.add(ok?'correct':'wrong');if(!ok&&x===s.ans)b.classList.add('correct');b.disabled=true});const f=$('#a15Feedback');if(f)f.insertAdjacentHTML('afterend',ok?next():`<div class="b14Footer"><button class="b14Next blue" onclick="a15Retry()">Tentar de novo</button></div>`);react(ok,v,s.ans)};
 window.a15Retry=()=>render();
 window.a15Pick=i=>{if(run.checked)return;run.used=run.used||[];if(run.used.includes(i))return;run.used.push(i);run.built.push(run.lesson.steps[run.i].tokens[i]);render()};
 window.a15Clear=()=>{run.built=[];run.used=[];run.checked=false;run.ok=false;render()};
-window.a15Check=async()=>{const s=run.lesson.steps[run.i],v=run.built.join(' ');run.checked=true;run.ok=v===s.target;render();await react(run.ok,v,s.target)};
+window.a15Check=()=>{const s=run.lesson.steps[run.i],v=run.built.join(' ');run.checked=true;run.ok=v===s.target;render();react(run.ok,v,s.target)};
 
 function start(m,n){run={m,n,i:0,lesson:lesson(m,n),built:[],used:[],checked:false,ok:false};render()}
 function finish(){const s=state();s.done=s.done&&typeof s.done==='object'?s.done:{};const k=`A1-${run.m}-${run.n}`;if(!s.done[k]){s.done[k]=true;s.xp=(Number(s.xp)||0)+30}s.level='A1';save(s);sessionStorage.setItem('a15back',String(run.m));location.reload()}
