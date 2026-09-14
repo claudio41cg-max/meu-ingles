@@ -18,6 +18,7 @@ function currentTeacher(){return st().teacher||'media'}
 function currentVoice(){return st().voice||'Aoede'}
 function currentModule(){const t=(document.querySelector('#nextLessonTitle')?.textContent||'').trim();return (t.split('·')[0]||'Primeiros contatos').trim()}
 function card(){return document.querySelector('#home .professorPanel')}
+function setFocus(on){document.querySelector('#home')?.classList.toggle('conversation-focus',!!on)}
 function setRobotState(name){const c=card();if(!c)return;c.classList.remove('robot-listening','robot-thinking','robot-speaking','robot-happy','robot-oops','robot-angry');if(name)c.classList.add('robot-'+name)}
 function personaLabel(){return currentTeacher()==='pesada'?'Hard 18+':currentTeacher()==='media'?'Doideira':'Tranquilo'}
 function firstPrompt(){
@@ -39,6 +40,8 @@ async function say(text,emotion='neutral'){
  try{if(window.geminiSpeak)await window.geminiSpeak(text,'pt-BR',currentVoice())}catch(e){}
  setRobotState('');
 }
+function micIcon(){return '<svg viewBox="0 0 64 64" aria-hidden="true"><defs><linearGradient id="micg" x1="10" y1="8" x2="54" y2="56"><stop stop-color="#6ee7ff"/><stop offset="1" stop-color="#1688ff"/></linearGradient></defs><rect x="23" y="10" width="18" height="30" rx="9" fill="url(#micg)"/><path d="M16 30c0 9 7 16 16 16s16-7 16-16M32 46v9M23 55h18" fill="none" stroke="#dffaff" stroke-width="4" stroke-linecap="round"/></svg>'}
+function moduleButtons(){return (LEVEL_MODULES[currentLevel()]||[]).map((m,i)=>`<button class="modulePickBtn" onclick="pickV26Module(${i})"><b>${i+1}</b><span>${esc(m)}</span></button>`).join('')}
 function render(){
  const c=card();if(!c)return;
  c.classList.add('homeTalkCard');
@@ -52,13 +55,14 @@ function render(){
  </div>
  <button class="homeStartConversation" onclick="startV26Conversation()">💬 Conversar agora</button>
  <div class="homeInlineChat">
-   <div class="homeChatHead"><b>Professor ${esc(personaLabel())}</b><button class="homeChatClose" onclick="closeV26Conversation()">Sair</button></div>
-   <div id="homeTopicPill" class="homeTopicPill"></div>
+   <div class="homeChatHead"><b>Professor ${esc(personaLabel())}</b><button class="homeChatClose" onclick="closeV26Conversation(event)">Sair</button></div>
+   <button id="homeTopicPill" class="homeTopicPill" onclick="changeV26Topic()"></button>
+   <div id="homeModulePicker" class="homeModulePicker">${moduleButtons()}</div>
    <div id="homeInlineChatBox" class="homeChatBox"></div>
    <div class="homeChatHint">Responda falando ou escrevendo. O professor começa fácil e aumenta a dificuldade aos poucos.</div>
-   <div class="homeChatControls"><button id="homeChatMic" class="homeChatMic" onclick="v26Mic()">🎙️</button><input id="homeChatInput" class="homeChatInput" maxlength="500" placeholder="Digite sua resposta..."><button class="homeChatSend" onclick="v26Send()">➤</button></div>
+   <div class="homeChatControls"><button id="homeChatMic" class="homeChatMic" onclick="v26Mic()" aria-label="Falar">${micIcon()}</button><input id="homeChatInput" class="homeChatInput" maxlength="500" placeholder="Digite sua resposta..."><button class="homeChatSend" onclick="v26Send()">➤</button></div>
  </div>`;
- if(phase!=='idle')c.classList.add('chat-open');
+ if(phase!=='idle'){c.classList.add('chat-open');setFocus(true)}else{c.classList.remove('chat-open');setFocus(false)}
  setTopicPill();
  const inp=document.querySelector('#homeChatInput');inp?.addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();window.v26Send()}});
 }
@@ -69,7 +73,20 @@ window.startV26Conversation=async()=>{
  phase=mode==='module'?'choose_module':'choose_free';topic='';history=[];turn=0;errorStreak=0;render();
  const prompt=firstPrompt();addMsg(prompt,'bot');setTopicPill();await say(prompt,'happy');
 };
-window.closeV26Conversation=()=>{phase='idle';topic='';history=[];turn=0;errorStreak=0;render()};
+window.closeV26Conversation=e=>{e?.preventDefault?.();e?.stopPropagation?.();phase='idle';topic='';history=[];turn=0;errorStreak=0;busy=false;setRobotState('');setFocus(false);render();setTimeout(()=>card()?.scrollIntoView({behavior:'smooth',block:'start'}),30)};
+window.changeV26Topic=()=>{
+ if(phase==='idle')return;
+ const picker=document.querySelector('#homeModulePicker');
+ if(mode==='module'){
+   phase='choose_module';topic='';history=[];turn=0;errorStreak=0;setTopicPill();picker?.classList.toggle('open');
+ }else{
+   phase='choose_free';topic='';history=[];turn=0;errorStreak=0;setTopicPill();const input=document.querySelector('#homeChatInput');if(input){input.placeholder='Digite o novo assunto...';input.focus()}
+ }
+};
+window.pickV26Module=i=>{
+ const modules=LEVEL_MODULES[currentLevel()]||[];const m=modules[Number(i)];if(!m)return;
+ document.querySelector('#homeModulePicker')?.classList.remove('open');handleUser(String(Number(i)+1));
+};
 function matchModule(text){
  const modules=LEVEL_MODULES[currentLevel()]||[];const n=norm(text);
  const num=n.match(/(?:modulo|módulo)?\s*(\d{1,2})/i);if(num){const i=Number(num[1])-1;if(modules[i])return modules[i]}
@@ -92,8 +109,8 @@ async function ask(text){
 async function handleUser(text){
  text=String(text||'').trim();if(!text||busy)return;addMsg(text,'user');
  if(phase==='choose_module'){
-   const m=matchModule(text);if(!m){const mods=LEVEL_MODULES[currentLevel()]||[];const msg=`Não peguei qual módulo. Fala o número de 1 a ${mods.length} ou o nome, por exemplo: ${mods[0]||'Primeiros contatos'}.`;addMsg(msg,'bot');await say(msg,'oops');return}
-   topic=m;phase='learning';setTopicPill();await ask(`Escolhi o módulo ${m}. Comece agora pelo exercício oral mais fácil desse módulo e faça uma pergunta curta em inglês, com ajuda em português se necessário.`);return;
+   const m=matchModule(text);if(!m){document.querySelector('#homeModulePicker')?.classList.add('open');const mods=LEVEL_MODULES[currentLevel()]||[];const msg=`Escolhe um dos módulos abaixo ou fala o número de 1 a ${mods.length}.`;addMsg(msg,'bot');await say(msg,'oops');return}
+   topic=m;phase='learning';document.querySelector('#homeModulePicker')?.classList.remove('open');setTopicPill();await ask(`Escolhi o módulo ${m}. Comece agora pelo exercício oral mais fácil desse módulo e faça uma pergunta curta em inglês, com ajuda em português se necessário.`);return;
  }
  if(phase==='choose_free'){
    topic=text.slice(0,80);phase='learning';setTopicPill();await ask(`Quero praticar sobre ${topic}. Comece pela pergunta oral mais fácil possível e aumente a dificuldade aos poucos conforme eu acertar.`);return;
