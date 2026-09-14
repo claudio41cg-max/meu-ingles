@@ -1,0 +1,216 @@
+/* Conversa v33 — robô maior, tela fixa, visor corrigido e mais expressão */
+
+/* A conversa ocupa a área útil inteira e não rola para cima/baixo. */
+html.conversation-screen-lock-root,
+body.conversation-screen-lock{
+  height:100dvh;
+  overflow:hidden!important;
+  overscroll-behavior:none;
+}
+body.conversation-screen-lock .app{
+  height:100dvh;
+  min-height:0!important;
+  padding-bottom:0!important;
+  display:flex;
+  flex-direction:column;
+  overflow:hidden;
+}
+body.conversation-screen-lock header{flex:0 0 auto}
+body.conversation-screen-lock main{
+  flex:1 1 auto;
+  min-height:0;
+  overflow:hidden;
+  padding:8px 18px 92px!important;
+}
+#home.conversation-focus{
+  height:100%;
+  min-height:0;
+  overflow:hidden;
+}
+
+/* "Olá, Cláudio" desaparece somente durante a conversa. */
+#home.conversation-focus .hero{display:none!important}
+
+/* Card de conversa passa a usar todo o espaço restante. */
+#home.conversation-focus .homeTalkCard{
+  height:100%;
+  min-height:0!important;
+  margin:0!important;
+  padding:54px 14px 12px!important;
+  display:flex;
+  flex-direction:column;
+  overflow:hidden!important;
+}
+
+/* Cabeçalho interno continua simples. */
+#home.conversation-focus .homeChatHead{
+  top:12px!important;
+  left:16px!important;
+  right:16px!important;
+}
+
+/* O robô usa de verdade o espaço livre da tela. */
+#home.conversation-focus .homeTalkCard.chat-open .homeRobotStage{
+  flex:1 1 auto;
+  min-height:0!important;
+  height:auto!important;
+  margin:0!important;
+  padding:0 0 4px!important;
+  display:grid;
+  place-items:center;
+  overflow:visible!important;
+}
+#home.conversation-focus .homeTalkCard.chat-open .robotVisual{
+  width:min(122%,520px)!important;
+  max-width:none!important;
+  max-height:100%!important;
+  aspect-ratio:300/270!important;
+  position:relative;
+}
+#home.conversation-focus .homeTalkCard.chat-open .homeRobot{
+  width:100%!important;
+  height:100%!important;
+  object-fit:contain!important;
+}
+
+/* O visor não é mais uma mancha preta sobre a carcaça.
+   O próprio SVG já desenha o visor; aqui entram só olhos, sobrancelhas e boca. */
+#home.conversation-focus .robotFaceOverlay{
+  left:14%!important;
+  top:18.5%!important;
+  width:65.33%!important;
+  height:48.15%!important;
+  border-radius:50%!important;
+  background:transparent!important;
+  box-shadow:none!important;
+  overflow:hidden!important;
+}
+#home.conversation-focus .robotFaceOverlay .rEye{
+  box-shadow:0 0 10px #00efff,0 0 22px rgba(0,224,255,.9)!important;
+}
+
+/* Botão principal de voz no peito do robô. */
+.robotTalkButton{
+  display:none;
+  position:absolute;
+  z-index:12;
+  left:50%;
+  top:77%;
+  transform:translate(-50%,-50%);
+  width:58px;
+  height:58px;
+  border:1px solid rgba(153,239,255,.72);
+  border-radius:50%;
+  background:radial-gradient(circle at 34% 28%,#3be7ff 0,#118bdc 47%,#07518f 100%);
+  color:white;
+  box-shadow:0 0 0 6px rgba(34,196,255,.12),0 8px 22px rgba(0,64,120,.4),inset 0 1px 2px rgba(255,255,255,.5);
+  place-items:center;
+  padding:0;
+  touch-action:manipulation;
+}
+#home.conversation-focus .robotTalkButton{display:grid}
+.robotTalkGlyph{font-size:27px;line-height:1;filter:drop-shadow(0 2px 3px rgba(0,0,0,.3))}
+.homeTalkCard.robot-listening .robotTalkButton{
+  background:radial-gradient(circle at 34% 28%,#63ffc4 0,#18c97b 50%,#08784e 100%);
+  animation:chestListen33 .85s ease-in-out infinite;
+}
+.homeTalkCard.robot-thinking .robotTalkButton{
+  animation:chestThink33 1s ease-in-out infinite;
+}
+.homeTalkCard.audio-speaking .robotTalkButton,
+.homeTalkCard.robot-speaking .robotTalkButton{
+  background:radial-gradient(circle at 34% 28%,#9bf5ff 0,#19a8ff 48%,#075da2 100%);
+  animation:chestSpeak33 .42s ease-in-out infinite alternate;
+}
+@keyframes chestListen33{0%,100%{box-shadow:0 0 0 6px rgba(43,235,162,.12),0 0 16px rgba(43,235,162,.45)}50%{box-shadow:0 0 0 13px rgba(43,235,162,.08),0 0 30px rgba(43,235,162,.8)}}
+@keyframes chestThink33{0%,100%{opacity:.65;transform:translate(-50%,-50%) scale(.96)}50%{opacity:1;transform:translate(-50%,-50%) scale(1.04)}}
+@keyframes chestSpeak33{from{transform:translate(-50%,-50%) scale(1)}to{transform:translate(-50%,-50%) scale(1.08)}}
+
+/* A faixa inferior fica sempre acima da navegação do app. */
+#home.conversation-focus .homeInlineChat{
+  flex:0 0 auto;
+  min-height:0;
+  padding-top:10px!important;
+  margin:0!important;
+  position:relative;
+  z-index:30;
+  background:linear-gradient(180deg,rgba(8,27,42,.06),rgba(8,27,42,.92) 22%);
+}
+#home.conversation-focus .homeTopicPill{
+  margin:0 0 8px!important;
+  min-height:32px;
+}
+#home.conversation-focus .homeChatControls{
+  grid-template-columns:minmax(0,1fr) 58px!important;
+  gap:9px!important;
+  margin:0!important;
+  position:relative;
+  z-index:50;
+  pointer-events:auto!important;
+}
+#home.conversation-focus .homeChatMic{display:none!important}
+#home.conversation-focus .homeChatInput{
+  height:54px!important;
+  position:relative;
+  z-index:51;
+  pointer-events:auto!important;
+}
+#home.conversation-focus .homeChatSend{
+  width:58px;
+  height:54px!important;
+  position:relative;
+  z-index:52;
+  pointer-events:auto!important;
+  touch-action:manipulation;
+}
+
+/* Expressões extras para o robô quando está esperando o aluno. */
+#home.conversation-focus .homeTalkCard.idle-curious .rBrow.left{transform:rotate(-15deg)!important;top:19%!important}
+#home.conversation-focus .homeTalkCard.idle-curious .rBrow.right{transform:rotate(8deg)!important;top:24%!important}
+#home.conversation-focus .homeTalkCard.idle-curious .rEye.left{height:23%!important;top:34%!important}
+#home.conversation-focus .homeTalkCard.idle-curious .rEye.right{height:15%!important;top:39%!important}
+#home.conversation-focus .homeTalkCard.idle-curious .rMouth{width:24%!important;left:38%!important;height:8%!important;top:68%!important}
+
+#home.conversation-focus .homeTalkCard.idle-smirk .rEye.right{height:8%!important;top:43%!important;border-radius:999px!important}
+#home.conversation-focus .homeTalkCard.idle-smirk .rBrow.right{transform:rotate(13deg)!important}
+#home.conversation-focus .homeTalkCard.idle-smirk .rMouth{width:34%!important;left:35%!important;transform:rotate(-7deg)!important;height:12%!important}
+
+#home.conversation-focus .homeTalkCard.idle-surprised .rEye{width:15%!important;height:25%!important;top:33%!important;border-radius:50%!important}
+#home.conversation-focus .homeTalkCard.idle-surprised .rBrow{top:16%!important}
+#home.conversation-focus .homeTalkCard.idle-surprised .rMouth{
+  left:43%!important;
+  top:65%!important;
+  width:14%!important;
+  height:18%!important;
+  border:4px solid #00efff!important;
+  border-radius:50%!important;
+  box-shadow:0 0 10px rgba(0,238,255,.55)!important;
+}
+
+#home.conversation-focus .homeTalkCard.idle-wink .rEye.right{height:7%!important;top:44%!important;border-radius:999px!important}
+#home.conversation-focus .homeTalkCard.idle-wink .rMouth{width:42%!important;left:29%!important;height:19%!important;transform:rotate(3deg)!important}
+
+/* Em ação, os estados reais vencem as microexpressões de espera. */
+#home.conversation-focus .homeTalkCard.robot-listening,
+#home.conversation-focus .homeTalkCard.robot-thinking,
+#home.conversation-focus .homeTalkCard.robot-speaking,
+#home.conversation-focus .homeTalkCard.robot-happy,
+#home.conversation-focus .homeTalkCard.robot-oops,
+#home.conversation-focus .homeTalkCard.robot-angry{filter:none}
+
+/* Celulares mais estreitos. */
+@media(max-width:390px){
+  body.conversation-screen-lock main{padding:7px 12px 88px!important}
+  #home.conversation-focus .homeTalkCard{padding:52px 10px 10px!important}
+  #home.conversation-focus .homeTalkCard.chat-open .robotVisual{width:min(128%,470px)!important}
+  .robotTalkButton{width:54px;height:54px}
+  .robotTalkGlyph{font-size:25px}
+}
+
+/* Celulares baixos: ainda sem scroll, apenas reduz um pouco o robô. */
+@media(max-height:690px){
+  #home.conversation-focus .homeTalkCard.chat-open .robotVisual{width:min(108%,430px)!important}
+  #home.conversation-focus .homeTalkCard{padding-top:50px!important}
+  #home.conversation-focus .homeTopicPill{min-height:28px;padding-top:5px;padding-bottom:5px}
+  #home.conversation-focus .homeChatInput,#home.conversation-focus .homeChatSend{height:50px!important}
+}
