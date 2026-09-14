@@ -39,7 +39,7 @@ function applyHome(){
   }
   const quick=home.querySelector('.quickGrid');
   if(quick){
-    quick.innerHTML=`<button class="quickCard goalOnly" onclick="stableShow('settings')"><span>🎯</span><span class="goalCopy"><b>Minha meta</b><small id="dailyGoalText">${Number(state().daily)||10} min por dia</small></span><span class="goalArrow">›</span></button>`;
+    quick.innerHTML=`<button class="quickCard goalOnly" onclick="openConversationFromHomeCard()"><span>🗣️</span><span class="goalCopy"><b>Conversar</b><small>Converse com a IA por voz.</small></span><span class="goalArrow">›</span></button>`;
   }
 }
 
@@ -55,6 +55,36 @@ window.openTeacherTypes=()=>{
     h?.scrollIntoView({behavior:'smooth',block:'start'});
   },120);
 };
+
+window.openConversationFromHomeCard=()=>{
+  window.stableShow?.('home');
+  setTimeout(()=>{
+    document.querySelector('#home .professorPanel')?.scrollIntoView({behavior:'smooth',block:'start'});
+    window.startV26Conversation?.();
+  },90);
+};
+
+window.openDailyGoal=()=>{
+  window.stableShow?.('settings');
+  setTimeout(()=>{
+    const h=[...document.querySelectorAll('#settings h3')].find(x=>/Meta diária/i.test(x.textContent||''));
+    h?.scrollIntoView({behavior:'smooth',block:'start'});
+  },120);
+};
+
+function swapBottomNav(){
+  const b=document.querySelector('nav button[data-screen="chat"], nav button[data-screen="goal"]');
+  if(!b)return;
+  b.dataset.screen='goal';
+  b.innerHTML='<i>🎯</i>Minha meta';
+  if(b.dataset.goalSwap)return;
+  b.dataset.goalSwap='1';
+  b.addEventListener('click',e=>{
+    e.preventDefault();
+    e.stopImmediatePropagation();
+    window.openDailyGoal?.();
+  },true);
+}
 
 function moduleScenario(){
   const module=currentModuleTitle(),level=currentLevel();
@@ -116,9 +146,10 @@ function setupChatObserver(){
 }
 
 function hookGlobals(){
+  swapBottomNav();
   const oldShow=window.stableShow;
   if(typeof oldShow==='function'&&!oldShow.__home25){
-    const wrapped=function(id){const r=oldShow(id);setTimeout(()=>{if(id==='home')applyHome();if(id==='chat'){ensureChatRobot();updateChatContext()}},0);return r};
+    const wrapped=function(id){const r=oldShow(id);setTimeout(()=>{if(id==='home')applyHome();if(id==='chat'){ensureChatRobot();updateChatContext()}swapBottomNav()},0);return r};
     wrapped.__home25=true;window.stableShow=wrapped;
   }
   const oldScenario=window.setStableScenario;
@@ -128,10 +159,10 @@ function hookGlobals(){
   }
   document.querySelectorAll('nav button').forEach(b=>{
     if(b.dataset.home25)return;b.dataset.home25='1';
-    b.addEventListener('click',()=>setTimeout(()=>{if(b.dataset.screen==='home')applyHome();if(b.dataset.screen==='chat'){ensureChatRobot();updateChatContext()}},20));
+    b.addEventListener('click',()=>setTimeout(()=>{if(b.dataset.screen==='home')applyHome();if(b.dataset.screen==='chat'){ensureChatRobot();updateChatContext()}swapBottomNav()},20));
   });
 }
 
-function init(){hookGlobals();applyHome();ensureChatRobot();updateChatContext();}
+function init(){hookGlobals();swapBottomNav();applyHome();ensureChatRobot();updateChatContext();}
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',()=>setTimeout(init,40));else setTimeout(init,40);
 })();
