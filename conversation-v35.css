@@ -1,0 +1,128 @@
+/* Conversa v35 — olhar realmente frontal + microfone estável */
+
+/* A face estava visualmente deslocada para a direita no celular.
+   Corrigimos o eixo do overlay e sincronizamos os dois olhos. */
+#home.conversation-focus .robotFaceOverlay{
+  left:5.5%!important;
+  top:18.52%!important;
+  width:65.33%!important;
+  height:48.15%!important;
+  transform:none!important;
+  filter:none!important;
+}
+
+#home.conversation-focus .robotFaceOverlay .rEye{
+  top:38%!important;
+  width:13%!important;
+  height:18%!important;
+  border-radius:50%!important;
+  background:#00efff!important;
+  opacity:1!important;
+  filter:none!important;
+  box-shadow:0 0 10px #00efff,0 0 22px rgba(0,224,255,.9)!important;
+  animation:robotBlink35 5.6s linear infinite!important;
+  animation-delay:0s!important;
+}
+#home.conversation-focus .robotFaceOverlay .rEye.left{
+  left:25%!important;
+  right:auto!important;
+  transform:none!important;
+}
+#home.conversation-focus .robotFaceOverlay .rEye.right{
+  right:25%!important;
+  left:auto!important;
+  transform:none!important;
+  animation-delay:0s!important;
+}
+@keyframes robotBlink35{
+  0%,46%,50%,100%{transform:scaleY(1)}
+  48%{transform:scaleY(.10)}
+}
+
+/* Sobrancelhas e boca compartilham o mesmo eixo central. */
+#home.conversation-focus .robotFaceOverlay .rBrow{
+  opacity:.9!important;
+}
+#home.conversation-focus .robotFaceOverlay .rBrow.left{
+  left:22%!important;
+  right:auto!important;
+}
+#home.conversation-focus .robotFaceOverlay .rBrow.right{
+  right:22%!important;
+  left:auto!important;
+}
+#home.conversation-focus .robotFaceOverlay .rMouth{
+  left:32%!important;
+  width:36%!important;
+  transform:none!important;
+}
+
+/* Hard 18+: sério, mas sempre olhando diretamente para o aluno. */
+#home.conversation-focus .persona-hard .rEye{
+  top:40%!important;
+  width:14%!important;
+  height:11%!important;
+  border-radius:999px!important;
+  opacity:1!important;
+}
+#home.conversation-focus .persona-hard .rEye.left{
+  left:24%!important;
+  transform:none!important;
+}
+#home.conversation-focus .persona-hard .rEye.right{
+  right:24%!important;
+  transform:none!important;
+}
+#home.conversation-focus .persona-hard .rBrow.left{transform:rotate(12deg)!important}
+#home.conversation-focus .persona-hard .rBrow.right{transform:rotate(-12deg)!important}
+#home.conversation-focus .persona-hard .rMouth{
+  left:35%!important;
+  width:30%!important;
+  top:65%!important;
+  height:8%!important;
+  transform:none!important;
+}
+
+/* As expressões abaixo continuam animadas, mas nunca desviam um olho do outro. */
+#home.conversation-focus .homeTalkCard.idle-front .rEye{
+  top:38%!important;height:18%!important;width:13%!important
+}
+#home.conversation-focus .homeTalkCard.idle-smile .rEye,
+#home.conversation-focus .homeTalkCard.robot-happy .rEye{
+  top:43%!important;height:7%!important;width:15%!important;border-radius:999px!important
+}
+#home.conversation-focus .homeTalkCard.idle-alert .rEye,
+#home.conversation-focus .homeTalkCard.robot-listening .rEye{
+  top:34%!important;height:24%!important;width:15%!important;border-radius:50%!important
+}
+#home.conversation-focus .homeTalkCard.idle-surprised .rEye{
+  top:33%!important;height:25%!important;width:15%!important;border-radius:50%!important
+}
+#home.conversation-focus .homeTalkCard.robot-thinking .rEye{
+  top:39%!important;height:10%!important;width:14%!important;border-radius:999px!important
+}
+
+/* Durante a fala, a boca anima, mas o rosto permanece frontal. */
+#home.conversation-focus .homeTalkCard.audio-speaking .rMouth{
+  transform-origin:center center!important;
+}
+
+/* O botão de áudio continua no local aprovado. */
+#home.conversation-focus .homeChatMic{
+  display:grid!important;
+  touch-action:manipulation!important;
+  user-select:none!important;
+  -webkit-tap-highlight-color:transparent;
+}
+#home.conversation-focus .homeChatMic.voice-busy{
+  opacity:.78;
+  pointer-events:none;
+}
+
+/* Status de escuta, sem acrescentar texto na tela. */
+#home.conversation-focus .homeChatMic.listening{
+  background:radial-gradient(circle at 34% 28%,#75ffd0 0,#19cb7e 48%,#087a4f 100%)!important;
+  box-shadow:0 0 0 9px rgba(35,216,137,.12),0 0 34px rgba(40,255,170,.58)!important;
+  animation:micPulse35 .82s ease-in-out infinite!important;
+}
+@keyframes micPulse35{0%,100%{transform:scale(1)}50%{transform:scale(1.075)}}
