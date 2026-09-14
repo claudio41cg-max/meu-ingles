@@ -1,0 +1,6 @@
+Backup completo antes da v36
+Data: 2026-09-14
+Versão preservada: v35
+Commit para restauração completa: 34651b3a98dee90807f4168350dd81fa32c40c72
+
+Este commit representa o estado completo do projeto imediatamente antes das correções v36.
