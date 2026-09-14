@@ -1,0 +1,77 @@
+/* Conversa v36 — centralização visual e robô mais vivo */
+
+/* O desenho estava visualmente à esquerda por causa da composição do SVG.
+   Movemos a peça inteira, sem mexer no rosto que já ficou aprovado. */
+#home.conversation-focus .homeTalkCard.chat-open .robotVisual{
+  left:22px!important;
+  right:auto!important;
+}
+
+/* Mais vida no estado normal. */
+#home.conversation-focus .homeTalkCard.chat-open .robotVisual{
+  animation:robotFloat36 2.55s ease-in-out infinite!important;
+}
+@keyframes robotFloat36{
+  0%,100%{transform:translateY(2px) rotate(-1.1deg)}
+  35%{transform:translateY(-8px) rotate(.7deg)}
+  65%{transform:translateY(-4px) rotate(1.15deg)}
+}
+
+/* Microexpressões também mexem o corpo, não só o rosto. */
+#home.conversation-focus .homeTalkCard.idle-front .robotVisual{
+  animation:robotFront36 2.4s ease-in-out infinite!important;
+}
+#home.conversation-focus .homeTalkCard.idle-smile .robotVisual{
+  animation:robotSmile36 1.75s ease-in-out infinite!important;
+}
+#home.conversation-focus .homeTalkCard.idle-alert .robotVisual{
+  animation:robotAlert36 1.55s ease-in-out infinite!important;
+}
+#home.conversation-focus .homeTalkCard.idle-surprised .robotVisual{
+  animation:robotSurprise36 1.4s ease-in-out infinite!important;
+}
+@keyframes robotFront36{0%,100%{transform:translateY(1px)}50%{transform:translateY(-7px)}}
+@keyframes robotSmile36{0%,100%{transform:translateY(1px) rotate(-.8deg)}50%{transform:translateY(-10px) rotate(1.4deg) scale(1.018)}}
+@keyframes robotAlert36{0%,100%{transform:translateY(0) rotate(-1.2deg)}50%{transform:translateY(-6px) rotate(1.8deg) scale(1.025)}}
+@keyframes robotSurprise36{0%,100%{transform:translateY(1px) scale(1)}42%{transform:translateY(-10px) scale(1.035)}58%{transform:translateY(-6px) scale(1.02)}}
+
+/* Reações reais durante a conversa. */
+#home.conversation-focus .homeTalkCard.robot-listening .robotVisual{
+  animation:robotListen36 .72s ease-in-out infinite alternate!important;
+}
+#home.conversation-focus .homeTalkCard.robot-thinking .robotVisual{
+  animation:robotThink36 1.05s ease-in-out infinite!important;
+}
+#home.conversation-focus .homeTalkCard.robot-speaking .robotVisual,
+#home.conversation-focus .homeTalkCard.audio-speaking .robotVisual{
+  animation:robotSpeak36 .46s ease-in-out infinite alternate!important;
+}
+#home.conversation-focus .homeTalkCard.robot-happy .robotVisual{
+  animation:robotHappy36 .48s ease-in-out 3!important;
+}
+#home.conversation-focus .homeTalkCard.robot-oops .robotVisual{
+  animation:robotOops36 .3s ease-in-out 3!important;
+}
+#home.conversation-focus .homeTalkCard.robot-angry .robotVisual{
+  animation:robotAngry36 .22s ease-in-out 5!important;
+}
+@keyframes robotListen36{from{transform:translateY(-2px) scale(1)}to{transform:translateY(-10px) scale(1.04)}}
+@keyframes robotThink36{0%,100%{transform:translateY(0) rotate(-2deg)}50%{transform:translateY(-8px) rotate(2.7deg)}}
+@keyframes robotSpeak36{from{transform:translateY(-2px) scale(1.01) rotate(-.7deg)}to{transform:translateY(-9px) scale(1.035) rotate(.7deg)}}
+@keyframes robotHappy36{0%,100%{transform:scale(1) translateY(0)}50%{transform:scale(1.07) translateY(-9px) rotate(1.6deg)}}
+@keyframes robotOops36{0%,100%{transform:translateX(0)}50%{transform:translateX(-7px) rotate(-2deg)}}
+@keyframes robotAngry36{0%,100%{transform:translateX(0)}25%{transform:translateX(-8px) rotate(-2deg)}75%{transform:translateX(8px) rotate(2deg)}}
+
+/* O botão de enviar mostra quando a IA está pensando, sem desaparecer. */
+#home.conversation-focus .homeChatSend.ai-busy{
+  opacity:.68!important;
+  filter:saturate(.75)!important;
+}
+#home.conversation-focus .homeChatMic.ai-busy{
+  opacity:.72!important;
+}
+
+/* Em telas estreitas, desloca um pouco menos para não encostar na borda. */
+@media(max-width:390px){
+  #home.conversation-focus .homeTalkCard.chat-open .robotVisual{left:16px!important}
+}
