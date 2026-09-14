@@ -28,26 +28,45 @@
 .homeInlineChat{display:none;margin-top:14px;border-top:1px solid #23465e;padding-top:14px}
 .homeTalkCard.chat-open .homeInlineChat{display:block}
 .homeTalkCard.chat-open .homeConversationChoices,.homeTalkCard.chat-open .homeStartConversation{display:none}
-.homeTalkCard.chat-open .homeRobotStage{height:235px}
-.homeTalkCard.chat-open .homeRobot{height:225px}
+.homeTalkCard.chat-open .homeRobotStage{height:250px}
+.homeTalkCard.chat-open .homeRobot{height:240px}
 .homeChatHead{display:flex;justify-content:space-between;gap:10px;align-items:center;margin-bottom:10px}
 .homeChatHead b{font-size:18px;color:#dff7ff}
-.homeChatClose{border:1px solid #31536c;background:#10273a;color:#d9efff;border-radius:999px;padding:8px 13px;font-weight:850}
-.homeChatBox{max-height:290px;overflow:auto;display:grid;gap:10px;padding:4px 1px 10px;scrollbar-width:thin}
+.homeChatClose{border:1px solid #3a607d;background:linear-gradient(180deg,#18384f,#0d2537);color:#effaff;border-radius:999px;padding:9px 16px;font-weight:900;box-shadow:0 5px 16px rgba(0,0,0,.18)}
+.homeChatClose:active{transform:scale(.96)}
+.homeChatBox{max-height:330px;overflow:auto;display:grid;gap:10px;padding:4px 1px 10px;scrollbar-width:thin}
 .homeChatMsg{max-width:88%;padding:13px 15px;border-radius:18px;font-size:17px;line-height:1.35;white-space:pre-wrap}
 .homeChatMsg.bot{justify-self:start;background:#102b40;border:1px solid #2a5572;color:#edf9ff;border-bottom-left-radius:6px}
 .homeChatMsg.user{justify-self:end;background:#137bd5;color:white;border-bottom-right-radius:6px}
 .homeChatHint{font-size:13px;color:#8fb4ca;text-align:center;margin:2px 0 10px}
 .homeChatControls{display:grid;grid-template-columns:58px 1fr 52px;gap:8px;align-items:center}
-.homeChatMic,.homeChatSend{height:52px;border:0;border-radius:16px;font-size:24px;font-weight:900;color:white;background:#117fd4}
-.homeChatMic.listening{background:#15bd70;box-shadow:0 0 0 8px rgba(21,189,112,.12)}
+.homeChatMic{width:58px;height:58px;border:1px solid rgba(126,231,255,.55);border-radius:50%;display:grid;place-items:center;padding:0;background:radial-gradient(circle at 35% 25%,#1edcff 0,#078fea 45%,#045cad 100%);box-shadow:0 0 0 4px rgba(37,190,255,.08),0 8px 22px rgba(0,108,220,.35),inset 0 1px 1px rgba(255,255,255,.35);transition:.18s ease}
+.homeChatMic svg{width:31px;height:31px;filter:drop-shadow(0 2px 4px rgba(0,0,0,.28))}
+.homeChatMic:active{transform:scale(.94)}
+.homeChatMic.listening{background:radial-gradient(circle at 35% 25%,#4dffbb 0,#16c87c 48%,#087d51 100%);box-shadow:0 0 0 8px rgba(21,189,112,.13),0 0 26px rgba(40,255,170,.45);animation:micPulse 1s ease-in-out infinite}
+@keyframes micPulse{0%,100%{transform:scale(1)}50%{transform:scale(1.06)}}
+.homeChatSend{height:52px;border:0;border-radius:16px;font-size:24px;font-weight:900;color:white;background:#117fd4}
 .homeChatInput{height:52px;border-radius:16px;border:1px solid #31536c;background:#0b1d2c;color:white;padding:0 14px;font-size:17px;min-width:0}
 .homeChatInput::placeholder{color:#6f91a8}
-.homeTopicPill{display:inline-flex;align-items:center;gap:7px;padding:7px 10px;border-radius:999px;background:#0c2b42;border:1px solid #27536f;color:#bfeaff;font-size:13px;font-weight:800;margin-bottom:10px}
+.homeTopicPill{display:inline-flex;align-items:center;gap:7px;padding:8px 12px;border-radius:999px;background:#0c2b42;border:1px solid #2f6688;color:#c9f2ff;font-size:13px;font-weight:850;margin-bottom:10px;cursor:pointer}
+.homeTopicPill:active{transform:scale(.98)}
+.homeModulePicker{display:none;grid-template-columns:1fr;gap:7px;margin:0 0 12px;max-height:265px;overflow:auto;padding-right:2px}
+.homeModulePicker.open{display:grid}
+.modulePickBtn{display:grid;grid-template-columns:32px 1fr;gap:9px;align-items:center;text-align:left;border:1px solid #2b5875;background:#0c2639;color:#eaf8ff;border-radius:14px;padding:10px 12px;font-weight:750}
+.modulePickBtn b{display:grid;place-items:center;width:30px;height:30px;border-radius:50%;background:#168be2;color:white}
+.modulePickBtn:active{transform:scale(.985)}
 
 #home .quickCard.goalOnly{grid-template-columns:auto 1fr auto;align-items:center;text-align:left}
 #home .goalCopy{min-width:0}
 #home .goalCopy small{font-size:17px!important;line-height:1.2;white-space:nowrap}
+
+/* Durante a conversa, o robô vira o foco da tela. */
+#home.conversation-focus .allCoursesCard,
+#home.conversation-focus .quickGrid{display:none!important}
+#home.conversation-focus .homeTalkCard{min-height:calc(100vh - 190px);margin-bottom:12px;border-color:#2c6c91;box-shadow:0 18px 42px rgba(0,0,0,.28),0 0 30px rgba(0,163,255,.08)}
+#home.conversation-focus .homeConversationIntro{display:none}
+#home.conversation-focus .homeTalkCard.chat-open .homeRobotStage{height:280px}
+#home.conversation-focus .homeTalkCard.chat-open .homeRobot{height:270px}
 
 @media(max-width:390px){
  .homeTalkCard .homeConversationTop h2{font-size:27px}
@@ -55,4 +74,6 @@
  .homeTalkCard .homeRobotStage{height:235px}
  .homeTalkCard .homeRobot{height:220px}
  .homeChatMsg{font-size:16px}
+ #home.conversation-focus .homeTalkCard.chat-open .homeRobotStage{height:245px}
+ #home.conversation-focus .homeTalkCard.chat-open .homeRobot{height:235px}
 }
