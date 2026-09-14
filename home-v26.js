@@ -1,7 +1,9 @@
 (()=>{
 'use strict';
 const KEY='meuInglesStableV2';
-const CHAT='https://meu-ingles-livid.vercel.app/api/groq-chat';
+const API=location.hostname.endsWith('github.io')?'https://meu-ingles-claudio.netlify.app':'';
+const CHAT=API+'/api/groq-chat';
+const PROMPT_KEY='meuInglesLastOpeningV36';
 const LEVEL_MODULES={
  A1:['Primeiros contatos','Alfabeto, números e dados pessoais','Família e pessoas','Rotina diária','Perguntas e hábitos','Casa e cidade','Comida e restaurante','Compras e preços','Direções e transporte','Tempo livre e habilidades','Ontem e fim de semana','Projeto A1: um dia completo em inglês'],
  A2:['Rotina em movimento','Histórias do passado','Planos e futuro','Comparando coisas','Viagem e hotel','Saúde e bem-estar','Trabalho e estudo','Experiências de vida','Serviços e problemas','Contando uma história','Vida social','Projeto A2: viagem completa'],
@@ -21,26 +23,48 @@ function card(){return document.querySelector('#home .professorPanel')}
 function setFocus(on){document.querySelector('#home')?.classList.toggle('conversation-focus',!!on)}
 function setRobotState(name){const c=card();if(!c)return;c.classList.remove('robot-listening','robot-thinking','robot-speaking','robot-happy','robot-oops','robot-angry');if(name)c.classList.add('robot-'+name)}
 function personaLabel(){return currentTeacher()==='pesada'?'Hard 18+':currentTeacher()==='media'?'Doideira':'Tranquilo'}
-function firstPrompt(){
- if(mode==='module'){
-   if(currentTeacher()==='pesada')return 'Escolhe o módulo que você quer treinar, Cláudio. Fala o nome ou o número. Sem enrolar, porra.';
-   if(currentTeacher()==='media')return 'Bora escolher um módulo, Cláudio 😄 Fala o nome ou o número do que você quer treinar.';
-   return 'Qual módulo você quer treinar, Cláudio? Pode dizer o nome ou o número do módulo.';
- }
- if(currentTeacher()==='pesada')return 'Tá, conversa livre. Sobre o que você quer falar? Escolhe um assunto e bora ver se esse inglês aguenta o tranco.';
- if(currentTeacher()==='media')return 'Modo livre! 😄 Sobre o que você quer conversar hoje? Vale viagem, comida, trabalho, filme, qualquer coisa.';
- return 'Sobre o que você gostaria de conversar hoje? Pode escolher qualquer assunto que queira praticar em inglês.';
+function pickOpening(){
+ const teacher=currentTeacher();
+ const groups={
+  module:{
+   leve:['Qual módulo você quer treinar hoje, Cláudio? Pode falar o nome ou o número.','Vamos praticar um módulo? Me diga qual você quer começar.','Escolha um módulo para a gente treinar. Pode falar o nome ou o número.','Pronto para praticar? Qual módulo você quer pegar agora?'],
+   media:['Bora, Cláudio 😄 Qual módulo você quer encarar agora?','Escolhe um módulo aí e vamos treinar. Pode falar o nome ou o número.','Vamos nessa! Qual módulo você quer praticar hoje?','Manda o módulo, Cláudio. Nome ou número, do jeito que for mais fácil.'],
+   pesada:['Escolhe o módulo que você quer treinar, Cláudio. Sem enrolar.','Manda o módulo, porra. Nome ou número e vamos trabalhar.','Qual módulo vai ser hoje? Escolhe logo e bora treinar.','Vamos ver esse inglês, Cláudio. Fala o módulo que você quer pegar.']
+  },
+  free:{
+   leve:['Sobre o que você gostaria de conversar hoje? Escolha qualquer assunto.','Modo livre. Me diga um assunto e eu começo a conversa com você.','Qual assunto você quer praticar hoje? Pode ser qualquer coisa.','Vamos conversar. Escolha um tema que você goste.'],
+   media:['Modo livre! 😄 Qual assunto você quer jogar na roda hoje?','Bora conversar, Cláudio. Escolhe um tema e eu puxo o papo.','Manda um assunto aí. Comida, viagem, trabalho, filme, o que você quiser.','Qual vai ser o papo de hoje? Escolhe um tema e vamos nessa.'],
+   pesada:['Tá, conversa livre. Qual assunto você quer encarar hoje?','Manda um tema, Cláudio. Vamos ver se esse inglês aguenta o tranco.','Escolhe um assunto e bora conversar sem enrolação.','Qual é o tema? Manda aí e vamos botar esse inglês pra trabalhar.']
+  }
+ };
+ const arr=groups[mode]?.[teacher]||groups.free.media;
+ let last=-1;try{last=Number(localStorage.getItem(PROMPT_KEY))}catch{}
+ let idx=Math.floor(Math.random()*arr.length);if(arr.length>1&&idx===last)idx=(idx+1)%arr.length;
+ try{localStorage.setItem(PROMPT_KEY,String(idx))}catch{}
+ return arr[idx];
 }
 function esc(s){return String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
 function addMsg(text,who){const box=document.querySelector('#homeInlineChatBox');if(!box)return;const d=document.createElement('div');d.className='homeChatMsg '+who;d.textContent=text;box.appendChild(d);box.scrollTop=box.scrollHeight}
 function setTopicPill(){const p=document.querySelector('#homeTopicPill');if(!p)return;p.textContent=topic?(mode==='module'?`🧩 Módulo: ${topic}`:`💬 Tema: ${topic}`):(mode==='module'?'🧩 Escolhendo módulo':'💬 Escolhendo assunto')}
+function setBusy(on){
+ busy=!!on;
+ const send=document.querySelector('#home .homeChatSend'),mic=document.querySelector('#homeChatMic');
+ send?.classList.toggle('ai-busy',busy);mic?.classList.toggle('ai-busy',busy);
+ if(send)send.disabled=busy;
+}
+function wait(ms){return new Promise((_,rej)=>setTimeout(()=>rej(new Error('timeout')),ms))}
 async function say(text,emotion='neutral'){
  if(!text)return;
  setRobotState(emotion==='angry'?'angry':emotion==='oops'?'oops':emotion==='happy'?'happy':'speaking');
- try{if(window.geminiSpeak)await window.geminiSpeak(text,'pt-BR',currentVoice())}catch(e){}
+ try{
+  if(window.geminiSpeak)await Promise.race([window.geminiSpeak(text,'pt-BR',currentVoice()),wait(18000)]);
+  else throw new Error('tts');
+ }catch(e){
+  try{speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(text);u.lang='pt-BR';u.rate=1;u.pitch=1;speechSynthesis.speak(u)}catch{}
+ }
  setRobotState('');
 }
-function micIcon(){return '<svg viewBox="0 0 64 64" aria-hidden="true"><defs><linearGradient id="micg" x1="10" y1="8" x2="54" y2="56"><stop stop-color="#6ee7ff"/><stop offset="1" stop-color="#1688ff"/></linearGradient></defs><rect x="23" y="10" width="18" height="30" rx="9" fill="url(#micg)"/><path d="M16 30c0 9 7 16 16 16s16-7 16-16M32 46v9M23 55h18" fill="none" stroke="#dffaff" stroke-width="4" stroke-linecap="round"/></svg>'}
+function micIcon(){return '<svg viewBox="0 0 64 64" aria-hidden="true"><defs><linearGradient id="micg" x1="10" y1="8" x2="54" y2="56"><stop stop-color="#6ee7ff"/><stop offset="1" stop-color="#1688ff"/></linearGradient></defs><rect x="23" y="10" width="18" height="30" rx="9" fill="url(#micg"/><path d="M16 30c0 9 7 16 16 16s16-7 16-16M32 46v9M23 55h18" fill="none" stroke="#dffaff" stroke-width="4" stroke-linecap="round"/></svg>'}
 function moduleButtons(){return (LEVEL_MODULES[currentLevel()]||[]).map((m,i)=>`<button class="modulePickBtn" onclick="pickV26Module(${i})"><b>${i+1}</b><span>${esc(m)}</span></button>`).join('')}
 function render(){
  const c=card();if(!c)return;
@@ -71,11 +95,11 @@ window.openTeacherTypes=()=>{window.stableShow?.('settings');setTimeout(()=>{[..
 window.startV26Conversation=async()=>{
  if(phase!=='idle')return;
  phase=mode==='module'?'choose_module':'choose_free';topic='';history=[];turn=0;errorStreak=0;render();
- const prompt=firstPrompt();addMsg(prompt,'bot');setTopicPill();await say(prompt,'happy');
+ const prompt=pickOpening();addMsg(prompt,'bot');setTopicPill();await say(prompt,'happy');
 };
-window.closeV26Conversation=e=>{e?.preventDefault?.();e?.stopPropagation?.();phase='idle';topic='';history=[];turn=0;errorStreak=0;busy=false;setRobotState('');setFocus(false);render();setTimeout(()=>card()?.scrollIntoView({behavior:'smooth',block:'start'}),30)};
+window.closeV26Conversation=e=>{e?.preventDefault?.();e?.stopPropagation?.();phase='idle';topic='';history=[];turn=0;errorStreak=0;setBusy(false);setRobotState('');setFocus(false);render();setTimeout(()=>card()?.scrollIntoView({behavior:'smooth',block:'start'}),30)};
 window.changeV26Topic=()=>{
- if(phase==='idle')return;
+ if(phase==='idle'||busy)return;
  const picker=document.querySelector('#homeModulePicker');
  if(mode==='module'){
    phase='choose_module';topic='';history=[];turn=0;errorStreak=0;setTopicPill();picker?.classList.toggle('open');
@@ -84,6 +108,7 @@ window.changeV26Topic=()=>{
  }
 };
 window.pickV26Module=i=>{
+ if(busy)return;
  const modules=LEVEL_MODULES[currentLevel()]||[];const m=modules[Number(i)];if(!m)return;
  document.querySelector('#homeModulePicker')?.classList.remove('open');handleUser(String(Number(i)+1));
 };
@@ -95,16 +120,33 @@ function matchModule(text){
  return score>0?best:'';
 }
 function moodFrom(d){if(d?.emotion)return d.emotion;if(d?.verdict==='wrong')return currentTeacher()==='pesada'?'angry':'oops';if(d?.verdict==='almost')return 'oops';if(d?.verdict==='correct')return 'happy';return 'neutral'}
+async function fetchAI(body){
+ const controller=new AbortController();const timer=setTimeout(()=>controller.abort(),12000);
+ try{
+  const r=await fetch(CHAT,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body),signal:controller.signal});
+  const raw=await r.text();let d={};try{d=JSON.parse(raw)}catch{}
+  if(!r.ok)throw new Error(d?.details||d?.error||'Falha da IA');
+  return d;
+ }finally{clearTimeout(timer)}
+}
+function fallbackReply(){
+ if(topic){
+  if(currentTeacher()==='pesada')return `A conexão deu uma engasgada, mas não vamos parar. Tell me one thing about ${topic}.`;
+  if(currentTeacher()==='media')return `A conexão demorou um pouco 😄 Vamos seguir: tell me one thing about ${topic}.`;
+  return `A conexão demorou um pouco. Vamos continuar: tell me one thing about ${topic}.`;
+ }
+ return 'A conexão demorou um pouco. Tente falar de novo.';
+}
 async function ask(text){
- if(busy)return;busy=true;setRobotState('thinking');
+ if(busy)return;setBusy(true);setRobotState('thinking');
  try{
    const body={mode:'conversation',message:text,level:currentLevel(),personality:currentTeacher(),scenario:mode==='module'?`Treino guiado do módulo ${topic}`:`Conversa livre guiada sobre ${topic}`,conversation_mode:mode,learning_topic:topic,turn,error_streak:errorStreak,history:history.slice(-10)};
-   const r=await fetch(CHAT,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});const raw=await r.text();let d={};try{d=JSON.parse(raw)}catch{};if(!r.ok)throw new Error(d?.details||d?.error||'Falha da IA');
-   const reply=[d.reply_pt,d.reply_en].filter(Boolean).join(d.reply_pt&&d.reply_en?'\n':'');
+   let d;try{d=await fetchAI(body)}catch{d={reply_pt:fallbackReply(),verdict:'neutral',emotion:'neutral'}}
+   const reply=[d.reply_pt,d.reply_en].filter(Boolean).join(d.reply_pt&&d.reply_en?'\n':'')||fallbackReply();
    history.push({role:'user',content:text},{role:'assistant',content:reply});turn++;
    if(d.verdict==='wrong'||d.verdict==='almost')errorStreak=Math.min(12,errorStreak+1);else if(d.verdict==='correct')errorStreak=Math.max(0,errorStreak-1);
-   addMsg(reply,'bot');await say(reply,moodFrom(d));
- }catch(e){const msg='A IA não respondeu agora. Tenta de novo em alguns segundos.';addMsg(msg,'bot');setRobotState('oops');setTimeout(()=>setRobotState(''),900)}finally{busy=false}
+   addMsg(reply,'bot');setBusy(false);await say(reply,moodFrom(d));
+ }catch(e){setBusy(false);const msg=fallbackReply();addMsg(msg,'bot');await say(msg,'oops')}finally{setBusy(false)}
 }
 async function handleUser(text){
  text=String(text||'').trim();if(!text||busy)return;addMsg(text,'user');
@@ -117,11 +159,17 @@ async function handleUser(text){
  }
  await ask(text);
 }
-window.v26Send=()=>{const i=document.querySelector('#homeChatInput');const t=i?.value.trim();if(t){i.value='';handleUser(t)}};
+window.v26Send=()=>{
+ if(busy)return;
+ const i=document.querySelector('#homeChatInput');const t=String(i?.value||'').trim();
+ if(!t)return;
+ i.value='';handleUser(t);
+};
 window.v26Mic=()=>{
+ if(busy||card()?.classList.contains('audio-speaking'))return;
  const SR=window.SpeechRecognition||window.webkitSpeechRecognition;if(!SR){addMsg('Seu navegador não liberou o reconhecimento de voz. Você pode escrever a resposta.','bot');return}
- const mic=document.querySelector('#homeChatMic');const r=new SR();r.lang='pt-BR';r.interimResults=false;r.maxAlternatives=1;setRobotState('listening');mic?.classList.add('listening');
- r.onresult=e=>{mic?.classList.remove('listening');setRobotState('');handleUser(e.results[0][0].transcript)};
+ const mic=document.querySelector('#homeChatMic');const r=new SR();r.lang=phase==='learning'?'en-US':'pt-BR';r.interimResults=false;r.maxAlternatives=1;setRobotState('listening');mic?.classList.add('listening');
+ r.onresult=e=>{mic?.classList.remove('listening');setRobotState('');const t=e.results?.[0]?.[0]?.transcript;if(t)handleUser(t)};
  r.onerror=()=>{mic?.classList.remove('listening');setRobotState('oops');setTimeout(()=>setRobotState(''),700)};
  r.onend=()=>{mic?.classList.remove('listening');if(card()?.classList.contains('robot-listening'))setRobotState('')};r.start();
 };
