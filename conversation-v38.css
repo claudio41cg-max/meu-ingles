@@ -1,0 +1,157 @@
+/* Conversa v38 — limpeza visual e robô principal maior, sem tocar na voz */
+
+/* Na conversa ficam apenas o robô e os controles realmente úteis. */
+#home.conversation-focus .homeConversationTop,
+#home.conversation-focus .homeConversationIntro,
+#home.conversation-focus .homeChatBox,
+#home.conversation-focus .homeChatHint{
+  display:none!important;
+}
+
+/* Faz a divisória descer e dá mais área útil ao robô somente durante a conversa. */
+#home.conversation-focus .homeTalkCard{
+  padding:8px 14px 12px!important;
+}
+#home.conversation-focus .homeTalkCard.chat-open .homeRobotStage{
+  flex:1 1 auto!important;
+  min-height:455px!important;
+  height:auto!important;
+  margin:0!important;
+  padding:0 0 6px!important;
+  display:grid!important;
+  place-items:center!important;
+  overflow:visible!important;
+}
+
+/* Usa visualmente o SVG principal já existente no projeto. */
+#home.conversation-focus .homeTalkCard.chat-open .robotVisual{
+  width:min(122%,610px)!important;
+  max-width:none!important;
+  max-height:100%!important;
+  aspect-ratio:400/350!important;
+  position:relative!important;
+  left:auto!important;
+  right:auto!important;
+  margin:auto!important;
+  transform-origin:50% 72%!important;
+}
+#home.conversation-focus .homeTalkCard.chat-open .homeRobot{
+  content:url("assets/robot-professor.svg?v=38")!important;
+  width:100%!important;
+  height:100%!important;
+  object-fit:contain!important;
+  object-position:center!important;
+  animation:none!important;
+  transform:none!important;
+}
+
+/* A face dinâmica cobre apenas o visor do SVG principal. */
+#home.conversation-focus .robotFaceOverlay{
+  display:block!important;
+  left:25.5%!important;
+  top:22.8%!important;
+  width:49%!important;
+  height:37.2%!important;
+  border-radius:50%!important;
+  overflow:hidden!important;
+  background:linear-gradient(180deg,rgba(5,15,38,.99),rgba(0,27,57,.99))!important;
+  box-shadow:inset 0 0 0 2px rgba(40,76,108,.22),inset 0 -10px 30px rgba(0,118,190,.08)!important;
+  transform:none!important;
+}
+
+/* Linha da área de conversa mais baixa e discreta. */
+#home.conversation-focus .homeInlineChat{
+  flex:0 0 auto!important;
+  margin:0!important;
+  padding-top:12px!important;
+  border-top:1px solid rgba(90,190,235,.28)!important;
+  background:linear-gradient(180deg,rgba(8,27,42,.03),rgba(8,27,42,.92) 34%)!important;
+}
+#home.conversation-focus .homeChatHead{
+  position:static!important;
+  margin:0 0 9px!important;
+  min-height:40px!important;
+}
+#home.conversation-focus .homeChatHead b{font-size:20px!important}
+#home.conversation-focus .homeTopicPill{margin:0 0 9px!important}
+#home.conversation-focus .homeChatControls{margin-top:0!important}
+
+/* Piscar natural da face sobreposta. */
+#home.conversation-focus .rEye{overflow:hidden!important}
+#home.conversation-focus .rEye::after{
+  content:"";
+  position:absolute;
+  inset:-2px;
+  border-radius:inherit;
+  background:#06172a;
+  transform:scaleY(0);
+  transform-origin:50% 0;
+  animation:robotBlink38 4.7s ease-in-out infinite;
+}
+#home.conversation-focus .rEye.right::after{animation-delay:.04s}
+@keyframes robotBlink38{
+  0%,43%,47%,100%{transform:scaleY(0)}
+  44.5%,45.5%{transform:scaleY(1)}
+}
+
+/* Movimento de cabeça e corpo conforme o estado da conversa. */
+#home.conversation-focus .homeTalkCard .robotVisual{animation:robotIdle38 3.2s ease-in-out infinite!important}
+#home.conversation-focus .homeTalkCard.robot-listening .robotVisual{animation:robotListen38 .72s ease-in-out infinite alternate!important}
+#home.conversation-focus .homeTalkCard.robot-thinking .robotVisual{animation:robotThink38 1.05s ease-in-out infinite!important}
+#home.conversation-focus .homeTalkCard.robot-speaking .robotVisual,
+#home.conversation-focus .homeTalkCard.audio-speaking .robotVisual{animation:robotSpeak38 .46s ease-in-out infinite alternate!important}
+#home.conversation-focus .homeTalkCard.robot-happy .robotVisual{animation:robotHappy38 .5s ease 2!important}
+#home.conversation-focus .homeTalkCard.robot-oops .robotVisual{animation:robotOops38 .32s ease 3!important}
+#home.conversation-focus .homeTalkCard.robot-angry .robotVisual{animation:robotAngry38 .25s ease 4!important}
+
+@keyframes robotIdle38{0%,100%{transform:translateY(0) rotate(-1deg)}50%{transform:translateY(-7px) rotate(1deg)}}
+@keyframes robotListen38{from{transform:translateY(-2px) scale(1)}to{transform:translateY(-10px) scale(1.035) rotate(1deg)}}
+@keyframes robotThink38{0%,100%{transform:translateY(0) rotate(-3deg)}50%{transform:translateY(-5px) rotate(4deg)}}
+@keyframes robotSpeak38{from{transform:translateY(-3px) scale(1.01)}to{transform:translateY(-9px) scale(1.04)}}
+@keyframes robotHappy38{0%,100%{transform:scale(1)}50%{transform:scale(1.08) rotate(2deg)}}
+@keyframes robotOops38{0%,100%{transform:translateX(0)}50%{transform:translateX(-7px) rotate(-2deg)}}
+@keyframes robotAngry38{0%,100%{transform:translateX(0) rotate(0)}25%{transform:translateX(-7px) rotate(-2deg)}75%{transform:translateX(7px) rotate(2deg)}}
+
+/* Boca acompanha a fala real da IA. */
+#home.conversation-focus .homeTalkCard.audio-speaking .rMouth,
+#home.conversation-focus .homeTalkCard.robot-speaking .rMouth{
+  animation:robotMouth38 .17s ease-in-out infinite alternate!important;
+}
+@keyframes robotMouth38{from{transform:scaleY(.48)}to{transform:scaleY(1.34)}}
+
+/* Personalidades: Tranquilo amigável, Doideira viva, Hard mais intensa. */
+#home.conversation-focus .persona-tranquilo .rBrow{opacity:.52!important}
+#home.conversation-focus .persona-tranquilo .rEye{height:19%!important;border-radius:50%!important}
+#home.conversation-focus .persona-tranquilo .rMouth{left:29%!important;top:60%!important;width:42%!important;height:19%!important;border-radius:0 0 60% 60%!important}
+
+#home.conversation-focus .persona-doideira .rEye.left{top:36%!important;width:14%!important;height:22%!important;border-radius:50%!important}
+#home.conversation-focus .persona-doideira .rEye.right{top:39%!important;width:15%!important;height:17%!important;border-radius:50%!important}
+#home.conversation-focus .persona-doideira .rBrow.left{transform:rotate(-15deg)!important}
+#home.conversation-focus .persona-doideira .rBrow.right{transform:rotate(10deg)!important}
+#home.conversation-focus .persona-doideira .rMouth{left:27%!important;top:58%!important;width:46%!important;height:22%!important}
+
+#home.conversation-focus .persona-hard .rEye{top:42%!important;width:15%!important;height:8%!important;border-radius:999px!important;box-shadow:0 0 8px #00efff,0 0 20px rgba(0,224,255,.76)!important}
+#home.conversation-focus .persona-hard .rEye.left{left:23%!important}
+#home.conversation-focus .persona-hard .rEye.right{right:23%!important}
+#home.conversation-focus .persona-hard .rBrow.left{transform:rotate(18deg)!important}
+#home.conversation-focus .persona-hard .rBrow.right{transform:rotate(-18deg)!important}
+#home.conversation-focus .persona-hard .rMouth{left:36%!important;top:67%!important;width:28%!important;height:5%!important;border-radius:999px!important}
+
+/* Acerto e erro continuam visíveis no rosto. */
+#home.conversation-focus .homeTalkCard.robot-happy .rMouth,
+#home.conversation-focus .homeTalkCard.idle-smile .rMouth{left:27%!important;top:58%!important;width:46%!important;height:21%!important}
+#home.conversation-focus .homeTalkCard.robot-oops .rMouth{left:38%!important;top:67%!important;width:24%!important;height:8%!important}
+#home.conversation-focus .homeTalkCard.robot-angry .rEye{top:43%!important;height:7%!important}
+#home.conversation-focus .homeTalkCard.robot-angry .rBrow.left{transform:rotate(22deg)!important}
+#home.conversation-focus .homeTalkCard.robot-angry .rBrow.right{transform:rotate(-22deg)!important}
+#home.conversation-focus .homeTalkCard.robot-angry .rMouth{left:38%!important;top:68%!important;width:24%!important;height:5%!important}
+
+@media(max-width:430px){
+  #home.conversation-focus .homeTalkCard.chat-open .homeRobotStage{min-height:410px!important}
+  #home.conversation-focus .homeTalkCard.chat-open .robotVisual{width:min(126%,540px)!important}
+}
+@media(max-height:740px){
+  #home.conversation-focus .homeTalkCard.chat-open .homeRobotStage{min-height:315px!important}
+  #home.conversation-focus .homeTalkCard.chat-open .robotVisual{width:min(112%,470px)!important}
+  #home.conversation-focus .homeChatHead b{font-size:18px!important}
+}
