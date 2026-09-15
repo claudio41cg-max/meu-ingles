@@ -1,0 +1,163 @@
+/* Conversa v37 — tela limpa, robô protagonista e expressões por personalidade */
+
+/* Na conversa por voz, o histórico textual fica invisível: a experiência é áudio + robô. */
+#home.conversation-focus .homeChatBox,
+#home.conversation-focus .homeChatHint{
+  display:none!important;
+}
+
+/* Com menos texto embaixo, o palco do robô ocupa quase toda a área útil. */
+#home.conversation-focus .homeTalkCard{
+  padding:10px 14px 12px!important;
+}
+#home.conversation-focus .homeTalkCard.chat-open .homeRobotStage{
+  flex:1 1 auto!important;
+  min-height:430px!important;
+  height:auto!important;
+  padding:0 0 4px!important;
+  margin:0!important;
+  display:grid!important;
+  place-items:center!important;
+  overflow:visible!important;
+}
+#home.conversation-focus .homeTalkCard.chat-open .robotVisual{
+  width:min(116%,560px)!important;
+  max-width:none!important;
+  max-height:100%!important;
+  margin:auto!important;
+  left:18px!important;
+  right:auto!important;
+  transform-origin:50% 72%!important;
+}
+#home.conversation-focus .homeTalkCard.chat-open .homeRobot{
+  width:100%!important;
+  height:100%!important;
+  object-fit:contain!important;
+}
+
+/* A linha divisória desce naturalmente com o palco maior e fica mais discreta. */
+#home.conversation-focus .homeInlineChat{
+  flex:0 0 auto!important;
+  margin:0!important;
+  padding-top:12px!important;
+  border-top:1px solid rgba(90,190,235,.28)!important;
+  background:linear-gradient(180deg,rgba(8,27,42,.03),rgba(8,27,42,.92) 34%)!important;
+}
+
+/* Cabeçalho da conversa abaixo do robô. */
+#home.conversation-focus .homeChatHead{
+  position:static!important;
+  margin:0 0 9px!important;
+  min-height:40px!important;
+}
+#home.conversation-focus .homeChatHead b{
+  font-size:20px!important;
+}
+
+/* O seletor de assunto/módulo continua visível, sem criar um bloco de texto no centro. */
+#home.conversation-focus .homeTopicPill{
+  margin:0 0 9px!important;
+}
+
+/* Controles ficam compactos no rodapé do card. */
+#home.conversation-focus .homeChatControls{
+  margin-top:0!important;
+}
+
+/* PERSONALIDADES — três rostos realmente diferentes. */
+/* Tranquilo: olhos suaves, sobrancelhas relaxadas e sorriso acolhedor. */
+#home.conversation-focus .persona-tranquilo .rEye{
+  top:39%!important;
+  width:13%!important;
+  height:17%!important;
+  border-radius:50%!important;
+}
+#home.conversation-focus .persona-tranquilo .rBrow.left{transform:rotate(-4deg)!important}
+#home.conversation-focus .persona-tranquilo .rBrow.right{transform:rotate(4deg)!important}
+#home.conversation-focus .persona-tranquilo .rMouth{
+  left:29%!important;
+  top:60%!important;
+  width:42%!important;
+  height:19%!important;
+  border-radius:0 0 60% 60%!important;
+}
+
+/* Doideira: expressão mais elétrica e assimétrica, sem perder o olhar para o aluno. */
+#home.conversation-focus .persona-doideira .rEye.left{
+  top:36%!important;
+  width:14%!important;
+  height:22%!important;
+  border-radius:50%!important;
+}
+#home.conversation-focus .persona-doideira .rEye.right{
+  top:39%!important;
+  width:15%!important;
+  height:17%!important;
+  border-radius:50%!important;
+}
+#home.conversation-focus .persona-doideira .rBrow.left{transform:rotate(-15deg)!important}
+#home.conversation-focus .persona-doideira .rBrow.right{transform:rotate(10deg)!important}
+#home.conversation-focus .persona-doideira .rMouth{
+  left:27%!important;
+  top:58%!important;
+  width:46%!important;
+  height:22%!important;
+}
+
+/* Hard 18+: olhar estreito, sobrancelhas marcadas e boca firme. */
+#home.conversation-focus .persona-hard .rEye{
+  top:42%!important;
+  width:15%!important;
+  height:8%!important;
+  border-radius:999px!important;
+  box-shadow:0 0 8px #00efff,0 0 20px rgba(0,224,255,.76)!important;
+}
+#home.conversation-focus .persona-hard .rEye.left{left:23%!important}
+#home.conversation-focus .persona-hard .rEye.right{right:23%!important}
+#home.conversation-focus .persona-hard .rBrow.left{transform:rotate(18deg)!important}
+#home.conversation-focus .persona-hard .rBrow.right{transform:rotate(-18deg)!important}
+#home.conversation-focus .persona-hard .rMouth{
+  left:36%!important;
+  top:67%!important;
+  width:28%!important;
+  height:5%!important;
+  border-radius:999px!important;
+}
+
+/* Reações continuam sobrepondo a expressão-base quando algo acontece. */
+#home.conversation-focus .homeTalkCard.robot-happy .rMouth,
+#home.conversation-focus .homeTalkCard.idle-smile .rMouth{
+  left:27%!important;
+  top:58%!important;
+  width:46%!important;
+  height:21%!important;
+}
+#home.conversation-focus .homeTalkCard.robot-oops .rMouth{
+  left:38%!important;
+  top:67%!important;
+  width:24%!important;
+  height:8%!important;
+}
+#home.conversation-focus .homeTalkCard.robot-angry .rEye{
+  top:43%!important;
+  height:7%!important;
+}
+#home.conversation-focus .homeTalkCard.robot-angry .rBrow.left{transform:rotate(22deg)!important}
+#home.conversation-focus .homeTalkCard.robot-angry .rBrow.right{transform:rotate(-22deg)!important}
+#home.conversation-focus .homeTalkCard.robot-angry .rMouth{
+  left:38%!important;
+  top:68%!important;
+  width:24%!important;
+  height:5%!important;
+}
+
+/* Celulares menores: mantém o robô grande sem esconder os controles. */
+@media(max-width:430px){
+  #home.conversation-focus .homeTalkCard.chat-open .homeRobotStage{min-height:390px!important}
+  #home.conversation-focus .homeTalkCard.chat-open .robotVisual{width:min(122%,510px)!important;left:12px!important}
+}
+@media(max-height:740px){
+  #home.conversation-focus .homeTalkCard.chat-open .homeRobotStage{min-height:310px!important}
+  #home.conversation-focus .homeTalkCard.chat-open .robotVisual{width:min(108%,460px)!important}
+  #home.conversation-focus .homeChatHead b{font-size:18px!important}
+}
