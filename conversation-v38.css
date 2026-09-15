@@ -23,7 +23,7 @@
   overflow:visible!important;
 }
 
-/* Usa visualmente o SVG principal já existente no projeto. */
+/* Continua usando exatamente o SVG principal já existente no projeto. */
 #home.conversation-focus .homeTalkCard.chat-open .robotVisual{
   width:min(122%,610px)!important;
   max-width:none!important;
@@ -36,7 +36,7 @@
   transform-origin:50% 72%!important;
 }
 #home.conversation-focus .homeTalkCard.chat-open .homeRobot{
-  content:url("assets/robot-professor.svg?v=38")!important;
+  content:url("assets/robot-professor.svg?v=39")!important;
   width:100%!important;
   height:100%!important;
   object-fit:contain!important;
@@ -45,18 +45,35 @@
   transform:none!important;
 }
 
-/* A face dinâmica cobre apenas o visor do SVG principal. */
+/*
+   FACE DINÂMICA
+   O SVG principal já possui olhos e sorriso. Durante a conversa esta máscara
+   cobre SOMENTE a parte interna do visor e desenha a expressão por cima.
+   A máscara foi ligeiramente encolhida e recortada para nenhuma parte do rosto
+   escapar do visor, mesmo quando o robô inclina ou aumenta de tamanho.
+*/
 #home.conversation-focus .robotFaceOverlay{
   display:block!important;
-  left:25.5%!important;
-  top:22.8%!important;
-  width:49%!important;
-  height:37.2%!important;
+  position:absolute!important;
+  left:26.1%!important;
+  top:23.2%!important;
+  width:47.8%!important;
+  height:36.5%!important;
   border-radius:50%!important;
+  clip-path:ellipse(50% 50% at 50% 50%)!important;
   overflow:hidden!important;
-  background:linear-gradient(180deg,rgba(5,15,38,.99),rgba(0,27,57,.99))!important;
-  box-shadow:inset 0 0 0 2px rgba(40,76,108,.22),inset 0 -10px 30px rgba(0,118,190,.08)!important;
+  contain:paint!important;
+  isolation:isolate!important;
+  background:linear-gradient(180deg,#071126 0%,#001f3f 100%)!important;
+  box-shadow:inset 0 0 0 2px rgba(40,76,108,.20),inset 0 -10px 28px rgba(0,118,190,.08)!important;
   transform:none!important;
+  z-index:8!important;
+  pointer-events:none!important;
+}
+#home.conversation-focus .robotFaceOverlay .rEye,
+#home.conversation-focus .robotFaceOverlay .rBrow,
+#home.conversation-focus .robotFaceOverlay .rMouth{
+  z-index:2!important;
 }
 
 /* Linha da área de conversa mais baixa e discreta. */
@@ -130,21 +147,39 @@
 #home.conversation-focus .persona-doideira .rBrow.right{transform:rotate(10deg)!important}
 #home.conversation-focus .persona-doideira .rMouth{left:27%!important;top:58%!important;width:46%!important;height:22%!important}
 
-#home.conversation-focus .persona-hard .rEye{top:42%!important;width:15%!important;height:8%!important;border-radius:999px!important;box-shadow:0 0 8px #00efff,0 0 20px rgba(0,224,255,.76)!important}
-#home.conversation-focus .persona-hard .rEye.left{left:23%!important}
-#home.conversation-focus .persona-hard .rEye.right{right:23%!important}
-#home.conversation-focus .persona-hard .rBrow.left{transform:rotate(18deg)!important}
-#home.conversation-focus .persona-hard .rBrow.right{transform:rotate(-18deg)!important}
-#home.conversation-focus .persona-hard .rMouth{left:36%!important;top:67%!important;width:28%!important;height:5%!important;border-radius:999px!important}
+/* Hard: tensão visível mesmo parado. */
+#home.conversation-focus .persona-hard .rEye{
+  top:42%!important;
+  width:15%!important;
+  height:8%!important;
+  border-radius:999px!important;
+  box-shadow:0 0 8px #00efff,0 0 20px rgba(0,224,255,.76)!important;
+}
+#home.conversation-focus .persona-hard .rEye.left{left:23%!important;transform:rotate(7deg)!important}
+#home.conversation-focus .persona-hard .rEye.right{right:23%!important;transform:rotate(-7deg)!important}
+#home.conversation-focus .persona-hard .rBrow{top:21%!important;opacity:1!important}
+#home.conversation-focus .persona-hard .rBrow.left{transform:rotate(21deg)!important}
+#home.conversation-focus .persona-hard .rBrow.right{transform:rotate(-21deg)!important}
+#home.conversation-focus .persona-hard .rMouth{left:35%!important;top:67%!important;width:30%!important;height:5%!important;border-radius:999px!important}
 
 /* Acerto e erro continuam visíveis no rosto. */
 #home.conversation-focus .homeTalkCard.robot-happy .rMouth,
 #home.conversation-focus .homeTalkCard.idle-smile .rMouth{left:27%!important;top:58%!important;width:46%!important;height:21%!important}
 #home.conversation-focus .homeTalkCard.robot-oops .rMouth{left:38%!important;top:67%!important;width:24%!important;height:8%!important}
 #home.conversation-focus .homeTalkCard.robot-angry .rEye{top:43%!important;height:7%!important}
-#home.conversation-focus .homeTalkCard.robot-angry .rBrow.left{transform:rotate(22deg)!important}
-#home.conversation-focus .homeTalkCard.robot-angry .rBrow.right{transform:rotate(-22deg)!important}
-#home.conversation-focus .homeTalkCard.robot-angry .rMouth{left:38%!important;top:68%!important;width:24%!important;height:5%!important}
+#home.conversation-focus .homeTalkCard.robot-angry .rBrow.left{transform:rotate(24deg)!important}
+#home.conversation-focus .homeTalkCard.robot-angry .rBrow.right{transform:rotate(-24deg)!important}
+#home.conversation-focus .homeTalkCard.robot-angry .rMouth{left:37%!important;top:68%!important;width:26%!important;height:5%!important}
+
+/* No Hard, quando fica bravo, o corpo ganha uma tremida curta de impaciência. */
+#home.conversation-focus .persona-hard.robot-angry .robotVisual{
+  animation:robotHardRage38 .16s linear 6!important;
+}
+@keyframes robotHardRage38{
+  0%,100%{transform:translateX(0) rotate(0)}
+  25%{transform:translateX(-8px) rotate(-1.5deg)}
+  75%{transform:translateX(8px) rotate(1.5deg)}
+}
 
 @media(max-width:430px){
   #home.conversation-focus .homeTalkCard.chat-open .homeRobotStage{min-height:410px!important}
