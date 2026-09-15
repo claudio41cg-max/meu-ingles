@@ -1,1 +1,1 @@
-Backup marker before conversation UI cleanup; main ead83ef6769c182c090d270f73af25aa87d32e5b
+BACKUP-LAST: commit ead83ef6769c182c090d270f73af25aa87d32e5b — versão antes de ocultar textos da conversa, ampliar robô e reforçar expressões por personalidade.
