@@ -28,19 +28,36 @@ function lessonFeedback(body) {
   const mode = clean(body?.personality || 'media', 20);
   const target = clean(body?.target || '', 120);
   const shown = target ? `“${target}”` : 'essa';
+  const errors = Math.max(0, Math.min(20, Number(body?.error_streak || 0) || 0));
+
+  const hardWrongLow = [
+    `Porra, Cláudio, essa não. Aqui era ${shown}. Vai de novo.`,
+    `Ô cacete, escapou. A certa é ${shown}. Tenta outra vez.`,
+    `Aí não, porra. Presta atenção em ${shown} e manda de novo.`,
+    `Errou essa. Bora, desembucha de novo: ${shown}.`
+  ];
+
+  const hardWrongMid = [
+    `PORRA, Cláudio, errou de novo! Aqui é ${shown}. Vai, tenta direito agora.`,
+    `Puta que pariu, de novo não 😅 Olha ${shown} e manda outra.`,
+    `Cacete, presta atenção! A resposta é ${shown}. Vai, desembucha.`,
+    `Assim não dá, porra 😂 ${shown}. Agora fala direito e tenta de novo.`
+  ];
+
+  const hardWrongHigh = [
+    `PUTA QUE PARIU, Cláudio! De novo? A resposta é ${shown}. ACORDA e manda certo agora!`,
+    `PORRA, assim não dá! ${shown}. Vai, desembucha essa merda direito agora.`,
+    `CACETE, presta atenção! ${shown}. Respira, olha e tenta DE NOVO!`,
+    `Caralho, Cláudio, você tá brigando com essa resposta 😂 É ${shown}. Agora manda sem inventar moda.`
+  ];
 
   const bank = {
     pesada: passed ? [
-      `Aí, porra! ${shown} certinho. Bora pra próxima.`,
-      `Boa, cacete! Acertou ${shown}. Continua.`,
-      `Agora sim, porra 😄 ${shown}. Segue o jogo.`,
-      `Aí sim! ${shown} entrou na cabeça. Bora, sem enrolar.`
-    ] : [
-      `Porra, Cláudio 😅 aqui era ${shown}. Olha e tenta de novo.`,
-      `Aí não, cacete 😂 a certa é ${shown}. Manda outra.`,
-      `Quase, porra. Presta atenção em ${shown} e tenta de novo.`,
-      `Errou essa, hein 😅 ${shown}. Vai de novo.`
-    ],
+      `AÍ, PORRA! ${shown} certinho. Agora sim, continua.`,
+      `Boa, cacete! Acertou ${shown}. Bora pra próxima antes que eu perca a paciência 😄`,
+      `Agora sim, porra! ${shown}. Tá vendo que consegue? Segue.`,
+      `Aí sim! ${shown} entrou nessa cabeça. Bora, sem enrolar.`
+    ] : errors >= 4 ? hardWrongHigh : errors >= 2 ? hardWrongMid : hardWrongLow,
     media: passed ? [
       `Boa! Acertou ${shown}. Bora pra próxima.`,
       `Aí sim 😄 ${shown} certinho. Continua.`,
@@ -88,11 +105,12 @@ function systemPrompt(body) {
   let personality = '';
   if (mode === 'pesada') {
     const hardIntensity = errors >= 4
-      ? 'Ele já errou várias vezes: fique bem mais impaciente, explosivo e engraçado, use palavrões fortes e cobre atenção. Pode falar coisas como “porra”, “cacete”, “caralho”, “acorda”, mas xingue a situação/erro, não ataque a dignidade do aluno e não ameace.'
+      ? 'O aluno já errou várias vezes seguidas. Agora fique explosivo, ansioso, impaciente e sarcástico. Pode elevar o tom no texto com exclamações e algumas palavras em MAIÚSCULAS. Use palavrões fortes com naturalidade, por exemplo “porra”, “puta que pariu”, “cacete” e “caralho”. Pode falar diretamente com Cláudio de forma ríspida e engraçada, como “PORRA, Cláudio, errou de novo!”, “puta que pariu, assim não dá”, “vai, desembucha” e “acorda, cacete”. Varie bastante e não repita sempre a mesma frase.'
       : errors >= 2
-        ? 'Ele começou a errar em sequência: aumente a pressão e a zoeira, fique claramente impaciente e use palavrões com naturalidade.'
-        : 'No começo seja sinistro e provocador, mas ainda controlado. Use palavrão leve ou médio quando combinar, sem começar no máximo.';
-    personality = `Modo HARD 18+: professor brasileiro adulto, intenso, imprevisível, engraçado e humano. Não seja excessivamente educado nem motivacional. ${hardIntensity}`;
+        ? 'O aluno começou a errar em sequência. Fique visivelmente mais nervoso, impaciente e sarcástico. Use palavrões, broncas curtas e humor ácido. Pode dizer coisas como “porra, de novo?”, “cacete, presta atenção”, “vai, desembucha” e “assim não dá, porra”.'
+        : 'Desde o começo seja tenso, impaciente, provocador, boca-suja e sarcástico, mas não entre imediatamente no máximo. Use palavrões com frequência moderada, humor ácido e frases curtas, como alguém tentando ensinar enquanto já está meio sem paciência.';
+
+    personality = `Modo HARD 18+: você é uma persona adulta, estressada, nervosa, ansiosa, imprevisível, sarcástica e boca-suja. Não seja polido demais, não pareça coach e não fique elogiando toda hora. ${hardIntensity} A bronca pode ser forte, mas continua sendo uma aula: sempre corrija o erro, dê o modelo certo e mande o aluno tentar de novo. Não faça ameaças e não ataque características pessoais sensíveis do aluno.`;
   } else if (mode === 'media') {
     personality = 'Modo DOIDEIRA: professor brasileiro brincalhão, provocador, espontâneo e expressivo. Tire onda dos erros, varie o humor, mas sem humilhar.';
   } else {
@@ -103,7 +121,7 @@ function systemPrompt(body) {
     ? `A conversa é um treino oral do conteúdo do módulo “${topic}”. Fique dentro desse módulo. Faça perguntas e microdesafios relacionados ao que normalmente se aprende nesse tema. Não puxe assunto de módulos futuros sem o aluno pedir.`
     : `A conversa livre é sobre “${topic}”. Transforme esse assunto em prática de inglês útil para o aluno, sem virar papo aleatório demais.`;
 
-  return `Você é o professor de inglês por voz do aplicativo Meu Inglês. O aluno se chama Cláudio.\n${levelRule}\n${personality}\n${teaching}\nCenário: ${scenario}.\nTurno da conversa: ${turn}. Dificuldade planejada: ${difficulty}/5. Erros seguidos: ${errors}.\n\nMÉTODO OBRIGATÓRIO:\n1. Faça UMA pergunta curta por vez.\n2. Comece muito fácil e aumente gradualmente a dificuldade quando o aluno acertar.\n3. Reaproveite palavras e estruturas anteriores para criar repetição inteligente.\n4. Se a resposta estiver errada ou incompleta, corrija curto, dê um modelo simples e peça nova tentativa parecida antes de avançar.\n5. Se acertar, reaja conforme a personalidade e avance só um passo de dificuldade.\n6. Em A1, prefira perguntas que possam ser respondidas com 1 a 5 palavras no começo.\n7. Use português para explicação curta e inglês para a pergunta/exemplo.\n8. Não invente mudança de assunto; mantenha continuidade com o tema escolhido.\n9. Soe humano e emocional, variando reação e ritmo.\n10. Nunca transforme um erro em acerto.\n\nRetorne SOMENTE JSON válido no formato {"verdict":"conversation|correct|almost|wrong|help","reply_pt":"...","reply_en":"...","emotion":"neutral|happy|oops|angry|thinking"}.`;
+  return `Você é o professor de inglês por voz do aplicativo Meu Inglês. O aluno se chama Cláudio.\n${levelRule}\n${personality}\n${teaching}\nCenário: ${scenario}.\nTurno da conversa: ${turn}. Dificuldade planejada: ${difficulty}/5. Erros seguidos: ${errors}.\n\nMÉTODO OBRIGATÓRIO:\n1. Faça UMA pergunta curta por vez.\n2. Comece muito fácil e aumente gradualmente a dificuldade quando o aluno acertar.\n3. Reaproveite palavras e estruturas anteriores para criar repetição inteligente.\n4. Se a resposta estiver errada ou incompleta, corrija curto, dê um modelo simples e peça nova tentativa parecida antes de avançar.\n5. Se acertar, reaja conforme a personalidade e avance só um passo de dificuldade.\n6. Em A1, prefira perguntas que possam ser respondidas com 1 a 5 palavras no começo.\n7. Use português para explicação curta e inglês para a pergunta/exemplo.\n8. Não invente mudança de assunto; mantenha continuidade com o tema escolhido.\n9. Soe humano e emocional, variando reação, ritmo e vocabulário.\n10. Nunca transforme um erro em acerto.\n11. No HARD 18+, evite frases repetidas. Alterne bronca, sarcasmo, palavrão, humor e cobrança de forma natural.\n12. No HARD 18+, quando houver erros seguidos, a escalada de irritação deve ser perceptível de uma resposta para a seguinte.\n\nRetorne SOMENTE JSON válido no formato {"verdict":"conversation|correct|almost|wrong|help","reply_pt":"...","reply_en":"...","emotion":"neutral|happy|oops|angry|thinking"}.`;
 }
 
 async function callGemini(apiKey, body) {
@@ -123,8 +141,8 @@ async function callGemini(apiKey, body) {
     body: JSON.stringify({
       contents: [{ parts: [{ text: prompt }] }],
       generationConfig: {
-        temperature: body?.personality === 'pesada' ? 0.92 : body?.personality === 'media' ? 0.82 : 0.68,
-        maxOutputTokens: 180,
+        temperature: body?.personality === 'pesada' ? 1.0 : body?.personality === 'media' ? 0.82 : 0.68,
+        maxOutputTokens: 220,
         responseMimeType: 'application/json',
         thinkingConfig: { thinkingBudget: 0 }
       }
