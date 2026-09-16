@@ -1,0 +1,59 @@
+/* v44 — mantém toda a expressão dentro e centralizada no visor do robô */
+#home.conversation-focus .robotFaceOverlay{
+  left:25.9%!important;
+  top:23.5%!important;
+  width:48.2%!important;
+  height:35.6%!important;
+  clip-path:ellipse(49% 48% at 50% 50%)!important;
+  overflow:hidden!important;
+}
+#home.conversation-focus .robotFaceOverlay .rEye{
+  top:39%!important;
+  width:12.5%!important;
+  height:18%!important;
+}
+#home.conversation-focus .robotFaceOverlay .rEye.left{left:28%!important}
+#home.conversation-focus .robotFaceOverlay .rEye.right{right:28%!important}
+#home.conversation-focus .robotFaceOverlay .rBrow{
+  top:25%!important;
+  width:17%!important;
+}
+#home.conversation-focus .robotFaceOverlay .rBrow.left{left:26%!important}
+#home.conversation-focus .robotFaceOverlay .rBrow.right{right:26%!important}
+#home.conversation-focus .robotFaceOverlay .rMouth{
+  left:33%!important;
+  top:62%!important;
+  width:34%!important;
+  height:15%!important;
+}
+/* Doideira continua expressivo, mas sem deslocar a face para a lateral. */
+#home.conversation-focus .persona-doideira .rEye.left{
+  left:28%!important;
+  top:39%!important;
+  width:13%!important;
+  height:19%!important;
+}
+#home.conversation-focus .persona-doideira .rEye.right{
+  right:28%!important;
+  top:41%!important;
+  width:13%!important;
+  height:14%!important;
+}
+#home.conversation-focus .persona-doideira .rBrow.left{left:26%!important;transform:rotate(-10deg)!important}
+#home.conversation-focus .persona-doideira .rBrow.right{right:26%!important;transform:rotate(8deg)!important}
+#home.conversation-focus .persona-doideira .rMouth{left:31%!important;top:61%!important;width:38%!important;height:17%!important}
+/* Tranquilo centralizado. */
+#home.conversation-focus .persona-tranquilo .rEye.left{left:28%!important}
+#home.conversation-focus .persona-tranquilo .rEye.right{right:28%!important}
+#home.conversation-focus .persona-tranquilo .rMouth{left:33%!important;top:61%!important;width:34%!important;height:16%!important}
+/* Hard e estado de raiva também permanecem dentro do visor. */
+#home.conversation-focus .persona-hard .rEye.left{left:28%!important}
+#home.conversation-focus .persona-hard .rEye.right{right:28%!important}
+#home.conversation-focus .persona-hard .rBrow.left{left:25%!important}
+#home.conversation-focus .persona-hard .rBrow.right{right:25%!important}
+#home.conversation-focus .persona-hard .rMouth{left:36%!important;top:66%!important;width:28%!important}
+#home.conversation-focus .homeTalkCard.robot-angry .rEye.left{left:25%!important}
+#home.conversation-focus .homeTalkCard.robot-angry .rEye.right{right:25%!important}
+#home.conversation-focus .homeTalkCard.robot-angry .rBrow.left{left:24%!important}
+#home.conversation-focus .homeTalkCard.robot-angry .rBrow.right{right:24%!important}
+#home.conversation-focus .homeTalkCard.robot-angry .rMouth{left:35%!important;top:66%!important;width:30%!important;height:8%!important}
