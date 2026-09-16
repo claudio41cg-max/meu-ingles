@@ -1,0 +1,4 @@
+/* Métodos v40 — durante a aula particular fica somente o robô e os controles */
+#home.conversation-focus .methodsHomeCard{display:none!important}
+#home .homeTalkCard.chat-open .robotMethodsEntry{display:none!important}
+#home.conversation-focus .homeTalkCard.chat-open .robotMethodsEntry{display:none!important}
