@@ -70,6 +70,10 @@ function browserSay(text){try{speechSynthesis.cancel();const u=new SpeechSynthes
 async function sayTeacher(text){
   const s=readState();
   try{
+    if(typeof window.geminiSpeak==='function'){
+      const ok=await window.geminiSpeak(text,'pt-BR',s.voice||'Aoede');
+      if(ok)return;
+    }
     const r=await fetch(TTS,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({text,lang:'pt-BR',voice:s.voice||'Aoede',style:'Voz brasileira humana, natural, curta, espontânea e conversacional. Sem tom de robô.'})});
     if(!r.ok)throw new Error('tts');const d=await r.json();if(!d.audio)throw new Error('audio');await playPCM(d.audio,d.sample_rate||24000);
   }catch{browserSay(text)}
@@ -143,37 +147,15 @@ function localReaction(ok){
 async function react(ok,heard,target,context){
   if(!run)return;
   run.errors=ok?0:(run.errors||0)+1;
-  const immediate=localReaction(ok);
+  const text=localReaction(ok);
   const box=document.querySelector('#b14Feedback');
   if(box){
     box.className='b14Feedback '+(ok?'good':'bad');
-    box.innerHTML='<b>'+esc(immediate)+'</b>';
+    box.innerHTML='<b>'+esc(text)+'</b>';
   }
 
-  /* Fala primeiro, sem esperar a IA responder. */
-  sayTeacher(immediate);
-
-  /* A IA só melhora/varia o texto visual em segundo plano. */
-  const s=readState();
-  fetch(CHAT,{
-    method:'POST',
-    headers:{'Content-Type':'application/json'},
-    body:JSON.stringify({
-      mode:'lesson_feedback',
-      message:heard,
-      heard,
-      target,
-      score:ok?100:0,
-      passed:ok,
-      lesson:context,
-      level:'A1',
-      personality:s.teacher||'media',
-      scenario:'Primeiras aulas A1. Reaja como uma pessoa real, com frases curtas, variadas e sem repetir bordões. No Hard 18+, seja mais porra-louca no acerto e aumente a irritação com erros repetidos, sem humilhar.',
-      error_streak:run.errors
-    })
-  }).then(r=>r.ok?r.json():null).then(d=>{
-    if(d?.reply_pt&&box)box.innerHTML='<b>'+esc(d.reply_pt)+'</b>';
-  }).catch(()=>{});
+  /* Uma única fonte de verdade: o texto exibido é exatamente o texto falado. */
+  sayTeacher(text);
 }
 
 function teacherTop(){
