@@ -205,6 +205,16 @@ function a1ModuleArt(m){
     <span class="a1ArtIcon">${icon}</span>
   </div>`;
 }
+
+const A2_ART=['🏃','🕰️','🗓️','⚖️','✈️','🩺','💼','🌍','🛠️','📖','🤝','🧳'];
+function a2ModuleArt(m){
+  const icon=A2_ART[m]||'✨';
+  return `<div class="a2ModuleArt" aria-hidden="true">
+    <span class="a2ArtBlob a2ArtBlobOne"></span>
+    <span class="a2ArtBlob a2ArtBlobTwo"></span>
+    <span class="a2ArtIcon">${icon}</span>
+  </div>`;
+}
 function renderCourse(){
   const root=$('#courseBody'); if(!root)return;
   const l=state.level;
@@ -228,6 +238,24 @@ function renderCourse(){
     return;
   }
 
+  if(l==='A2'){
+    root.innerHTML=head+`<div class="a2ModuleGrid">${MODULES.A2.map((title,m)=>{
+      const d=moduleDone('A2',m),pct=Math.round(d/8*100);
+      return `<div class="a2ModuleCard tone-${m%6} ${d===8?'complete':''}" role="button" tabindex="0"
+        onclick="openStableModule('A2',${m})"
+        onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();openStableModule('A2',${m})}">
+        <div class="a2ModuleCopy">
+          <div class="a2ModuleNumber">MÓDULO ${m+1}</div>
+          <h3>${esc(title)}</h3>
+          <div class="a2ModuleCount">${d}/8 aulas</div>
+          <div class="moduleProgress"><span style="width:${pct}%"></span></div>
+        </div>
+        ${a2ModuleArt(m)}
+      </div>`;
+    }).join('')}</div>`;
+    return;
+  }
+
   root.innerHTML=head+`${MODULES[l].map((title,m)=>{const d=moduleDone(l,m),pct=Math.round(d/8*100);return `<div class="module ${d===8?'complete':''}"><h3>${d===8?'✅ ':''}${m+1}. ${esc(title)}</h3><p>8 aulas progressivas com explicação, vocabulário, escuta, tradução, fala e professor IA.</p><div class="moduleProgress"><span style="width:${pct}%"></span></div><div class="moduleMeta"><span class="tag">${d}/8 concluídas</span><span class="tag">Nível ${l}</span></div><button class="btn primary" onclick="openStableModule('${l}',${m})">${d?'Continuar módulo':'Abrir módulo'}</button></div>`}).join('')}`;
 }
 window.renderStableCourse=renderCourse;
@@ -235,6 +263,35 @@ window.renderStableCourse=renderCourse;
 window.openStableModule=(l,m)=>{
   state.level=l;save();
   const title=MODULES[l][m];
+
+  if(l==='A2'){
+    const tone=m%6;
+    $('#courseBody').innerHTML=`<div class="a2ModuleLessons tone-${tone}">
+      <div class="a2ModuleLessonsHead">
+        <button class="back" onclick="renderStableCourse()">‹</button>
+        <div>
+          <div class="a2ModuleLessonsEyebrow">A2 · MÓDULO ${m+1}</div>
+          <h2>${esc(title)}</h2>
+        </div>
+      </div>
+      <div class="a2LessonGrid">${LESSON_TYPES.map((t,n)=>{
+        const done=!!state.done[doneKey(l,m,n)];
+        return `<div class="a2LessonCard ${done?'done':''}" role="button" tabindex="0"
+          onclick="openStableLesson('A2',${m},${n})"
+          onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();openStableLesson('A2',${m},${n})}">
+          <div class="a2LessonCopy">
+            <div class="a2LessonNumber">AULA ${n+1}</div>
+            <h4>${esc(t)}${done?' ✓':''}</h4>
+            <div class="a2LessonStatus">${done?'Concluída · toque para revisar':'Toque para começar'}</div>
+          </div>
+          <div class="a2LessonArt" aria-hidden="true"><span>${LESSON_ICONS[n]}</span></div>
+        </div>`;
+      }).join('')}</div>
+    </div>`;
+    window.scrollTo(0,0);
+    return;
+  }
+
   $('#courseBody').innerHTML=`<div class="top"><button class="back" onclick="renderStableCourse()">‹</button><div><h2 style="margin:0">${esc(title)}</h2><div class="muted">${l} · Módulo ${m+1}</div></div></div><div class="lessonGrid">${LESSON_TYPES.map((t,n)=>{const done=!!state.done[doneKey(l,m,n)];return `<div class="lessonCard ${done?'done':''}"><span class="lessonIcon">${LESSON_ICONS[n]}</span><h4>${n+1}. ${t} ${done?'✓':''}</h4><p>Uma aula curta, guiada e interativa, com professor IA reagindo ao seu desempenho.</p><button class="btn primary" style="margin-top:10px" onclick="openStableLesson('${l}',${m},${n})">${done?'Revisar':'Começar'}</button></div>`}).join('')}</div>`;
   window.scrollTo(0,0);
 };
@@ -279,7 +336,8 @@ function teacherDock(){
 }
 function lessonShell(content,stage){
   const r=lessonRuntime, pct=Math.round(((stage+1)/6)*100);
-  return `<div class="lessonShell"><div class="lessonHeader"><button class="back" onclick="openStableModule('${r.l}',${r.m})">‹</button><div class="lessonHeaderGrow"><b>${esc(r.d.title||LESSON_TYPES[r.n])}</b><small>${r.l} · Módulo ${r.m+1} · Aula ${r.n+1}</small></div></div><div class="lessonProgress"><span style="width:${pct}%"></span></div>${teacherDock()}${content}</div>`;
+  const extra=r.l==='A2'?` a2LessonShell tone-${r.m%6}`:'';
+  return `<div class="lessonShell${extra}"><div class="lessonHeader"><button class="back" onclick="openStableModule('${r.l}',${r.m})">‹</button><div class="lessonHeaderGrow"><b>${esc(r.d.title||LESSON_TYPES[r.n])}</b><small>${r.l} · Módulo ${r.m+1} · Aula ${r.n+1}</small></div></div><div class="lessonProgress"><span style="width:${pct}%"></span></div>${teacherDock()}${content}</div>`;
 }
 function nextStageButton(label='Continuar'){return `<button class="btn primary wide" onclick="nextStableLessonStage()">${label}</button>`}
 function reactionHTML(){return `<div id="coachReaction"></div>`}
