@@ -95,7 +95,46 @@ function finish(){const s=state();s.done=s.done&&typeof s.done==='object'?s.done
 window.a15Finish=finish;
 function title(m,n){if(m===0&&n<3)return START[n];return item(m,n)?.title||`Lição ${n+1}`}
 function done(m,n){return !!state().done?.[`A1-${m}-${n}`]}
-function moduleView(m){m=Number(m)||0;const cards=Array.from({length:8},(_,n)=>`<div class="lessonCard ${done(m,n)?'done':''}"><span class="lessonIcon">${done(m,n)?'✅':(item(m,n)?.e||(['☕','🙏','👉'][n]||'💬'))}</span><h4>${n+1}. ${esc(title(m,n))}</h4><button class="btn primary" style="margin-top:10px" onclick="openStableLesson('A1',${m},${n})">${done(m,n)?'Revisar':'Começar'}</button></div>`).join('');$('#courseBody').innerHTML=`<div class="top"><button class="back" onclick="renderStableCourse()">‹</button><div><h2 style="margin:0">${m+1}. ${esc(MT[m])}</h2><div class="muted">A1 · poucas palavras, muita repetição</div></div></div><div class="lessonGrid">${cards}</div>`;window.scrollTo(0,0)}
+const FIRST_CONTACTS_ART=['☕','🥤','👉','👋','🙏','✅','🙅','👋'];
+function firstContactsCards(){
+ return Array.from({length:8},(_,n)=>{
+  const isDone=done(0,n);
+  const icon=FIRST_CONTACTS_ART[n]||'✨';
+  return `<div class="firstContactsLessonCard ${isDone?'done':''}" role="button" tabindex="0"
+    onclick="openStableLesson('A1',0,${n})"
+    onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();openStableLesson('A1',0,${n})}">
+    <div class="firstContactsLessonCopy">
+      <div class="firstContactsLessonNumber">AULA ${n+1}</div>
+      <h4>${esc(title(0,n))}</h4>
+      <div class="firstContactsLessonStatus">${isDone?'Concluída · toque para revisar':'Toque para começar'}</div>
+    </div>
+    <div class="firstContactsLessonArt" aria-hidden="true">
+      <span class="firstContactsArtGlow"></span>
+      <span class="firstContactsArtIcon">${icon}</span>
+    </div>
+  </div>`;
+ }).join('');
+}
+function moduleView(m){
+ m=Number(m)||0;
+ if(m===0){
+   $('#courseBody').innerHTML=`<div class="firstContactsView">
+     <div class="firstContactsHead">
+       <button class="back firstContactsBack" onclick="renderStableCourse()">‹</button>
+       <div>
+         <div class="firstContactsEyebrow">A1 · MÓDULO 1</div>
+         <h2>Primeiros contatos</h2>
+       </div>
+     </div>
+     <div class="firstContactsLessons">${firstContactsCards()}</div>
+   </div>`;
+   window.scrollTo(0,0);
+   return;
+ }
+ const cards=Array.from({length:8},(_,n)=>`<div class="lessonCard ${done(m,n)?'done':''}"><span class="lessonIcon">${done(m,n)?'✅':(item(m,n)?.e||'💬')}</span><h4>${n+1}. ${esc(title(m,n))}</h4><button class="btn primary" style="margin-top:10px" onclick="openStableLesson('A1',${m},${n})">${done(m,n)?'Revisar':'Começar'}</button></div>`).join('');
+ $('#courseBody').innerHTML=`<div class="top"><button class="back" onclick="renderStableCourse()">‹</button><div><h2 style="margin:0">${m+1}. ${esc(MT[m])}</h2><div class="muted">A1 · poucas palavras, muita repetição</div></div></div><div class="lessonGrid">${cards}</div>`;
+ window.scrollTo(0,0);
+}
 window.openStableModule=(l,m)=>l==='A1'?moduleView(m):oldModule?.(l,m);
 window.openStableLesson=(l,m,n)=>{m=Number(m);n=Number(n);if(l==='A1'&&!(m===0&&n<=2))return start(m,n);return oldOpen?.(l,m,n)};
 const back=sessionStorage.getItem('a15back');if(back!==null){sessionStorage.removeItem('a15back');setTimeout(()=>{window.stableShow?.('course');moduleView(Number(back)||0)},250)}
