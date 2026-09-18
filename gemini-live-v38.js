@@ -295,8 +295,15 @@ function handle(m){
  if(m?.__radarProxy||m?.__meuInglesProxy){diag(m.__radarProxy||m.__meuInglesProxy);return}
  if(m?.setupComplete!==undefined){clearTimeout(setupTimer);setupReady=true;stage='ready';send({clientContent:{turns:[{role:'user',parts:[{text:introText()}]}],turnComplete:true}});clearTimeout(introTimer);introTimer=setTimeout(()=>{if(running&&!firstAudio){micSending=true;robot('listening');setMicState('listening')}},5000);return}
  if(m?.serverContent?.interrupted){stopOutput();robot('listening');setMicState('listening')}
+ const transcript=String(m?.serverContent?.inputTranscription?.text||'').trim();
+ if(transcript){
+   window.dispatchEvent(new CustomEvent('meu-ingles-live-input',{detail:{text:transcript,context:externalContext}}));
+ }
  const parts=m?.serverContent?.modelTurn?.parts||[];for(const p of parts){const inline=p?.inlineData||p?.inline_data;if(!inline?.data)continue;const mime=String(inline.mimeType||inline.mime_type||'audio/pcm;rate=24000');if(!/^audio\//i.test(mime))continue;const rate=Number((mime.match(/rate=(\d+)/i)||[])[1])||24000;playAudio(inline.data,rate).catch(console.warn)}
- if(m?.serverContent?.turnComplete){micSending=true;robot('listening');setMicState('listening')}
+ if(m?.serverContent?.turnComplete){
+   micSending=true;robot('listening');setMicState('listening');
+   window.dispatchEvent(new CustomEvent('meu-ingles-live-turn-complete',{detail:{context:externalContext}}));
+ }
 }
 async function cleanup(closeSocket=false){clearTimeout(setupTimer);clearTimeout(introTimer);setupTimer=introTimer=null;setupReady=false;running=false;starting=false;micSending=false;if(closeSocket&&ws){try{ws.onclose=null;ws.onerror=null;ws.onmessage=null;ws.close(1000,'user_stop')}catch{}}ws=null;await stopMic();stopOutput();robot('');setMicState('')}
 async function start(context=null){
@@ -308,7 +315,7 @@ async function start(context=null){
   try{speechSynthesis.cancel()}catch{}
   await Promise.all([prepareOutput(),prepareMic()]);
   stage='worker-websocket';ws=new WebSocket(LIVE_WS+'?app=meu-ingles&v=38');
-  ws.onopen=()=>{stage='browser-websocket-open';running=true;starting=false;send({setup:{model:`models/${MODEL}`,generationConfig:{responseModalities:['AUDIO']},systemInstruction:{parts:[{text:systemText()}]}}});setupTimer=setTimeout(()=>{if(running&&!setupReady){console.warn('[Meu Inglês Live] setupComplete ainda não chegou');setMicState('error');robot('oops')}},8000)};
+  ws.onopen=()=>{stage='browser-websocket-open';running=true;starting=false;send({setup:{model:`models/${MODEL}`,generationConfig:{responseModalities:['AUDIO']},inputAudioTranscription:{},systemInstruction:{parts:[{text:systemText()}]}}});setupTimer=setTimeout(()=>{if(running&&!setupReady){console.warn('[Meu Inglês Live] setupComplete ainda não chegou');setMicState('error');robot('oops')}},8000)};
   ws.onmessage=async e=>{try{handle(JSON.parse(await readData(e.data)))}catch(err){console.warn('[Meu Inglês Live] mensagem inválida',err)}};
   ws.onerror=e=>{console.warn('[Meu Inglês Live] websocket',e);setMicState('error');robot('oops')};
   ws.onclose=async e=>{const manual=manualStop;console.warn('[Meu Inglês Live] fechado',e?.code,e?.reason);await cleanup(false);if(!manual){setMicState('error');robot('oops');setTimeout(()=>{setMicState('');robot('')},1400)}};
