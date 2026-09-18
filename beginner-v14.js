@@ -76,21 +76,104 @@ async function sayTeacher(text){
 }
 function localReaction(ok){
   const m=readState().teacher||'media';
-  const good={leve:['Muito bem.','Isso mesmo.','Perfeito, continua.'],media:['Boa! Mandou bem 😄','Aí sim! Agora foi.','Boa, essa entrou na cabeça!'],pesada:['Aí, porra! Agora sim 😄','Boa! Até que enfim, hein? 😂','Agora sim, cacete. Mandou bem!']};
-  const bad={leve:['Ainda não. Olha com calma e tenta outra vez.','Quase. Vamos de novo.'],media:['Ih, escapou 😂 tenta de novo.','Quase, meu amigo. Olha a certa e manda outra.'],pesada:['Porra, quase 😂 olha a certa e tenta de novo.','Aí não, cacete 😂 presta atenção nessa e vai outra.']};
-  const arr=(ok?good:bad)[m]||good.media;return arr[Math.floor(Math.random()*arr.length)]
+  const streak=run?.errors||0;
+  const good={
+    leve:[
+      'Muito bem. Essa foi limpa.',
+      'Perfeito. Continua nesse ritmo.',
+      'Isso mesmo. Mandou bem.',
+      'Boa. Acertou de primeira.',
+      'Ótimo. Vamos pra próxima.'
+    ],
+    media:[
+      'Boa! Agora foi 😄',
+      'Aí sim! Mandou bem.',
+      'Essa entrou na cabeça!',
+      'Boa, meu amigo. Continua.',
+      'Perfeito. Bora pra próxima.',
+      'Agora sim, sem sofrimento 😂'
+    ],
+    pesada:[
+      'Aí sim, porra! Agora foi!',
+      'Boa, cacete! Essa você matou.',
+      'Caralho, acertou bonito agora.',
+      'Isso, porra! Continua assim.',
+      'Boa! Agora acordou, hein?',
+      'Aí, desgraçado, essa foi na veia 😂',
+      'Finalmente, porra! Bora pra próxima.',
+      'Mandou bem pra cacete agora.'
+    ]
+  };
+  const badLeve=[
+    'Quase. Olha com calma e tenta outra vez.',
+    'Ainda não. Vamos de novo.',
+    'Por pouco. Tenta mais uma.',
+    'Tá perto. Só ajustar isso.'
+  ];
+  const badMedia=[
+    'Ih, escapou 😂 tenta de novo.',
+    'Quase, meu amigo. Mais uma.',
+    'Essa passou raspando. Vai de novo.',
+    'Não foi dessa vez. Bora corrigir.'
+  ];
+  const badHard1=[
+    'Porra, quase. Vai de novo.',
+    'Aí não, cacete 😂 tenta outra.',
+    'Quase, porra. Presta atenção.',
+    'Escapou essa. Manda de novo.'
+  ];
+  const badHard2=[
+    'Caralho, de novo? Foca nessa porra.',
+    'Porra, presta atenção agora.',
+    'Cacete, essa já era pra ter entrado.',
+    'Tá de sacanagem comigo? Vai de novo 😂'
+  ];
+  const badHard3=[
+    'Porra, Cláudio! Agora concentra de verdade.',
+    'Caralho, vamos parar de passear e acertar isso.',
+    'Cacete, essa palavra já tá pedindo socorro 😂',
+    'Porra, agora sem chutar. Pensa e manda.'
+  ];
+  let arr;
+  if(ok)arr=good[m]||good.media;
+  else if(m==='pesada')arr=streak>=3?badHard3:streak===2?badHard2:badHard1;
+  else arr=m==='leve'?badLeve:badMedia;
+  return arr[Math.floor(Math.random()*arr.length)];
 }
 async function react(ok,heard,target,context){
   if(!run)return;
   run.errors=ok?0:(run.errors||0)+1;
-  let text=localReaction(ok);
+  const immediate=localReaction(ok);
+  const box=document.querySelector('#b14Feedback');
+  if(box){
+    box.className='b14Feedback '+(ok?'good':'bad');
+    box.innerHTML='<b>'+esc(immediate)+'</b>';
+  }
+
+  /* Fala primeiro, sem esperar a IA responder. */
+  sayTeacher(immediate);
+
+  /* A IA só melhora/varia o texto visual em segundo plano. */
   const s=readState();
-  try{
-    const r=await fetch(CHAT,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({mode:'lesson_feedback',message:heard,heard,target,score:ok?100:0,passed:ok,lesson:context,level:'A1',personality:s.teacher||'media',scenario:'Primeiras aulas A1 com poucas palavras e muita repetição',error_streak:run.errors})});
-    if(r.ok){const d=await r.json();if(d.reply_pt)text=d.reply_pt}
-  }catch{}
-  const box=document.querySelector('#b14Feedback');if(box){box.className='b14Feedback '+(ok?'good':'bad');box.innerHTML='<b>'+esc(text)+'</b>'}
-  sayTeacher(text);
+  fetch(CHAT,{
+    method:'POST',
+    headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({
+      mode:'lesson_feedback',
+      message:heard,
+      heard,
+      target,
+      score:ok?100:0,
+      passed:ok,
+      lesson:context,
+      level:'A1',
+      personality:s.teacher||'media',
+      scenario:'Primeiras aulas A1. Reaja como uma pessoa real, com frases curtas, variadas e sem repetir bordões. No Hard 18+, seja mais porra-louca no acerto e aumente a irritação com erros repetidos, sem humilhar.',
+      error_streak:run.errors
+    })
+  }).then(r=>r.ok?r.json():null).then(d=>{
+    if(d?.reply_pt&&box)box.innerHTML='<b>'+esc(d.reply_pt)+'</b>';
+  }).catch(()=>{});
 }
 
 function teacherTop(){
