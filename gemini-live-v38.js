@@ -4,6 +4,14 @@
 const MODEL='gemini-3.1-flash-live-preview';
 const LIVE_WS=String(window.MEU_INGLES_LIVE_WS||'wss://radar-gemini-live-a5bf.claudio41cg.workers.dev/v1/live-ws');
 const KEY='meuInglesStableV2';
+const COURSE_MODULES={
+ A1:['Primeiros contatos','Alfabeto, números e dados pessoais','Família e pessoas','Rotina diária','Perguntas e hábitos','Casa e cidade','Comida e restaurante','Compras e preços','Direções e transporte','Tempo livre e habilidades','Ontem e fim de semana','Projeto A1: um dia completo em inglês'],
+ A2:['Rotina em movimento','Histórias do passado','Planos e futuro','Comparando coisas','Viagem e hotel','Saúde e bem-estar','Trabalho e estudo','Experiências de vida','Serviços e problemas','Contando uma história','Vida social','Projeto A2: viagem completa'],
+ B1:['Experiências e passado','Narrativas mais claras','Futuro e decisões','Condições reais','Conselho e obrigação','Voz passiva básica','Pessoas e coisas','O que alguém disse','Phrasal verbs essenciais','Opiniões e argumentos','Inglês no trabalho e viagem','Projeto B1: conversa de 10 minutos'],
+ B2:['Tempo e duração','Hipóteses','Desejos e arrependimentos','Passiva avançada','Relato e interpretação','Dedução e probabilidade','Conectando ideias','Expressões naturais','Comunicação profissional','Notícias e mídia','Debate e persuasão','Projeto B2: apresentação e debate'],
+ C1:['Nuances de tempo e aspecto','Ênfase e inversão','Modalidade avançada','Registro e nominalização','Colocações e idiomaticidade','Escrita profissional e acadêmica','Apresentações de alto nível','Debate e pensamento crítico','Inglês social e humor','Inglês profissional avançado','Escuta rápida e sotaques','Projeto C1: painel profissional'],
+ C2:['Precisão e escolha de registro','Modalidade e posicionamento','Retórica e persuasão','Linguagem figurada','Idiomaticidade profunda','Argumentação complexa','Edição e precisão','Mediação e paráfrase','Velocidade, sotaques e ruído','Cultura, humor e pragmática','Domínio profissional','Projeto C2: domínio total']
+};
 const MIC_SELECTOR='#homeChatMic';
 const MODULE_BTN_SELECTOR='#homeModulePicker .modulePickBtn';
 const CLOSE_SELECTOR='#home .homeChatClose';
@@ -20,7 +28,7 @@ function teacher(){return state().teacher||'media'}
 function level(){return String(state().level||'A1').toUpperCase()}
 function teacherLabel(){return teacher()==='pesada'?'Hard 18+':teacher()==='leve'?'Tranquilo':'Doideira'}
 function topicText(){return String(document.querySelector('#homeTopicPill')?.textContent||'').trim()}
-function mode(){return /módulo|modulo/i.test(topicText())?'module':'free'}
+function mode(){return /curso|módulo|modulo/i.test(topicText())?'course':'free'}
 function selectedTopic(){const t=topicText();const m=t.match(/(?:Módulo|Modulo|Tema):\s*(.+)$/i);return m?m[1].trim():''}
 function choosing(){return /escolhendo/i.test(topicText())}
 function conversationOpen(){return !!card()?.classList.contains('chat-open')}
@@ -56,29 +64,49 @@ function personaInstruction(){
  if(teacher()==='leve')return 'Professor Tranquilo: seja paciente, acolhedor, calmo e claro. Corrija sem pressa e incentive o aluno.';
  return 'Professor Doideira: seja animado, engraçado, imprevisível e energético, mas continue ensinando com clareza.';
 }
+function courseCatalog(){
+ return Object.entries(COURSE_MODULES).map(([level,mods])=>level+': '+mods.map((m,i)=>(i+1)+'. '+m).join(' | ')).join('\n');
+}
 function systemText(){
- const currentMode=mode();const topic=selectedTopic();const choose=choosing();
- const context=currentMode==='module'
-  ? (topic?`O aluno escolheu o módulo "${topic}". Mantenha a prática dentro desse tema e do nível atual.`:'O aluno escolheu estudar por módulos. Primeiro pergunte qual módulo ele quer praticar. Depois mantenha a conversa dentro desse módulo.')
-  : (topic?`O tema de conversa livre escolhido é "${topic}".`:'O aluno escolheu conversa livre. Primeiro pergunte sobre qual assunto ele quer conversar e aprender.');
+ const currentMode=mode();
+ if(currentMode==='course'){
+  return [
+   'Você é o ÚNICO professor de voz ativo nesta sessão do aplicativo Meu Inglês.',
+   'Esta sessão usa Gemini 3.1 Live em mãos livres. Não espere outro TTS e não peça para o aluno apertar o microfone a cada resposta.',
+   `Personalidade ativa: ${teacherLabel()}. ${personaInstruction()}`,
+   'MODO CURSO A1–C2. Não assuma o nível salvo do aplicativo. Primeiro descubra verbalmente qual curso o aluno quer: A1, A2, B1, B2, C1 ou C2.',
+   'REGRA DE FLUXO: 1) pergunte o curso; 2) depois pergunte o módulo daquele curso; 3) só depois comece a aula.',
+   'REGRA ABSOLUTA: o módulo deve ser um dos módulos oficiais listados abaixo. Nunca invente módulo, nunca escolha tema da internet e nunca substitua por outro assunto.',
+   'CATÁLOGO OFICIAL DE CURSOS E MÓDULOS:',
+   courseCatalog(),
+   'Quando o aluno disser o curso, confirme em uma frase curta e pergunte qual módulo desse curso ele quer. Se disser apenas um número de módulo, use exatamente a posição correspondente da lista daquele curso.',
+   'Depois que o módulo for escolhido, permaneça exclusivamente nele durante a aula. Não mude para outro módulo sem o aluno pedir.',
+   'No A1, use vocabulário e estruturas realmente simples. Faça uma pergunta curta por vez e espere a resposta.',
+   'Corrija um erro por vez. Se o aluno acertar, avance aos poucos dentro do mesmo módulo.',
+   'Use português do Brasil somente quando ajudar a compreensão. A prática deve priorizar inglês compatível com o nível escolhido.',
+   'Se o aluno interromper você, pare e ouça. Continue a partir do que ele acabou de dizer.',
+   'Não invente progresso, notas, módulos ou conteúdo já estudado que não esteja nesta conversa.'
+  ].join('\n');
+ }
+
+ const topic=selectedTopic();
  return [
   'Você é o professor de inglês por voz do aplicativo Meu Inglês.',
   `Nível atual do aluno: ${level()}.`,
   `Personalidade ativa: ${teacherLabel()}. ${personaInstruction()}`,
-  context,
-  choose?'O aplicativo ainda está na etapa de escolher o assunto. Faça uma pergunta curta para descobrir a escolha do aluno.':'A conversa já pode continuar normalmente.',
+  topic?`O tema de conversa livre escolhido é "${topic}".`:'O aluno escolheu conversa livre. Primeiro pergunte sobre qual assunto ele quer conversar e aprender.',
   'A experiência é áudio em tempo real. Fale de forma natural, como uma pessoa conversando ao vivo.',
-  'Ensine do mais fácil para o mais difícil. Use repetição inteligente de palavras e estruturas já praticadas.',
+  'Ensine do mais fácil para o mais difícil.',
   'Quando o aluno errar pronúncia, gramática ou vocabulário, corrija uma coisa por vez e peça para repetir.',
-  'Para níveis iniciais, fale inglês simples e curto e use português do Brasil apenas quando realmente ajudar.',
-  'Não transforme a conversa em palestra. Faça perguntas curtas, espere a resposta e continue a partir dela.',
-  'Se o aluno interromper você, pare e ouça. Responda ao que ele acabou de dizer.',
-  'Não invente progresso, notas ou conteúdo já estudado que não esteja informado no contexto.'
+  'Não transforme a conversa em palestra. Faça perguntas curtas e espere a resposta.',
+  'Se o aluno interromper você, pare e ouça.'
  ].join('\n');
 }
 function introText(){
- if(mode()==='module')return selectedTopic()?`Comece uma prática oral bem fácil sobre o módulo ${selectedTopic()}. Faça uma pergunta curta ao aluno.`:'Pergunte ao aluno, em português do Brasil, qual módulo ele quer treinar. Seja breve.';
- return selectedTopic()?`Comece uma conversa oral bem fácil sobre ${selectedTopic()}. Faça uma pergunta curta ao aluno.`:'Pergunte ao aluno qual assunto ele quer conversar e praticar em inglês. Seja breve.';
+ if(mode()==='course'){
+  return 'Inicie agora em português do Brasil com uma frase curta perguntando qual curso o aluno quer estudar: A1, A2, B1, B2, C1 ou C2. Não comece nenhuma aula antes de ele escolher o curso e depois o módulo.';
+ }
+ return selectedTopic()? `Comece uma conversa oral bem fácil sobre ${selectedTopic()}. Faça uma pergunta curta ao aluno.` : 'Pergunte ao aluno qual assunto ele quer conversar e praticar em inglês. Seja breve.';
 }
 
 function bytesToBase64(buffer){const b=new Uint8Array(buffer);let out='';for(let i=0;i<b.length;i+=0x8000)out+=String.fromCharCode(...b.subarray(i,Math.min(i+0x8000,b.length)));return btoa(out)}
