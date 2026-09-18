@@ -143,13 +143,64 @@ window.restartStableOnboarding=()=>{
 
 function onboardingFrame(inner,{back=true,next=true,nextText='Continuar',blue=false,nextAction='nextStableOnboarding()'}={}){
   const pct=Math.round(((onboardStep+1)/7)*100);
-  return `<div class="onboard"><div class="onboardTop">${back?'<button class="onboardBack" onclick="prevStableOnboarding()">‹</button>':'<span style="width:42px"></span>'}<div class="onboardProgress"><span style="width:${pct}%"></span></div></div><div class="onboardMain">${inner}</div>${next?`<div class="onboardFooter"><button class="onboardNext ${blue?'blue':''}" onclick="${nextAction}">${nextText}</button></div>`:''}</div>`;
+  return `<div class="onboard onboard-step-${onboardStep}"><div class="onboardTop">${back?'<button class="onboardBack" onclick="prevStableOnboarding()">‹</button>':'<span style="width:42px"></span>'}<div class="onboardProgress"><span style="width:${pct}%"></span></div></div><div class="onboardMain">${inner}</div>${next?`<div class="onboardFooter"><button class="onboardNext ${blue?'blue':''}" onclick="${nextAction}">${nextText}</button></div>`:''}</div>`;
 }
 function selectedClass(a,b){return a===b?'selected':''}
+
+const ONBOARD_GUIDES=[
+  'Oi! Eu vou conhecer um pouco você primeiro. Depois você pode estudar pelos cursos, aprender por temas em Métodos ou praticar uma conversa comigo.',
+  'Funciona assim: você me conta seu nível e sua meta, eu organizo o começo do curso e depois você escolhe entre aulas, temas específicos ou conversação.',
+  'Aqui você não fica preso a um caminho só. Pode seguir o curso, estudar um assunto em Métodos ou entrar numa conversa para praticar de verdade.',
+  'Primeiro eu ajusto o aplicativo ao seu jeito. Depois você pode continuar pelas aulas, escolher um tema específico ou conversar comigo quando quiser.',
+  'Rapidinho: eu vou perguntar seu nome, seu nível, sua meta e o tipo de professor que combina com você. Depois o aplicativo fica todo personalizado.',
+  'Você pode aprender de três jeitos principais: curso passo a passo, Métodos por assunto e conversa livre. Eu vou te ajudar a escolher o melhor caminho.',
+  'Antes de começar eu preparo seu perfil. Depois você decide se quer estudar uma aula, treinar um assunto específico ou partir para a conversação.',
+  'Meu trabalho é deixar o inglês menos engessado. Você escolhe a meta, o ritmo e o estilo do professor, e depois pode alternar entre curso, Métodos e conversa.'
+];
+let onboardGuideBusy=false;
+function pickOnboardGuide(){
+  let last=-1;
+  try{last=Number(localStorage.getItem('meuInglesLastGuideV1'))}catch{}
+  let i=Math.floor(Math.random()*ONBOARD_GUIDES.length);
+  if(ONBOARD_GUIDES.length>1&&i===last)i=(i+1)%ONBOARD_GUIDES.length;
+  try{localStorage.setItem('meuInglesLastGuideV1',String(i))}catch{}
+  return {text:ONBOARD_GUIDES[i],index:i};
+}
+window.playStableOnboardGuide=async()=>{
+  if(onboardGuideBusy)return;
+  const robot=document.querySelector('.onboardGuideRobot');
+  if(!robot)return;
+  const {text,index}=pickOnboardGuide();
+  onboardGuideBusy=true;
+  robot.classList.add('is-speaking','mood-'+(index%4));
+  try{
+    window.stopGeminiTTS?.();
+    if(typeof window.geminiSpeak==='function'){
+      await window.geminiSpeak(text,'pt-BR',onboardDraft.voice||voiceForTeacher(onboardDraft.teacher));
+    }else{
+      await speak(text,'pt-BR');
+    }
+  }finally{
+    robot.classList.remove('is-speaking','mood-0','mood-1','mood-2','mood-3');
+    onboardGuideBusy=false;
+  }
+};
 function renderOnboarding(){
   const root=$('#onboardingBody'); if(!root)return;
   if(onboardStep===0){
-    root.innerHTML=onboardingFrame(`<div class="onboardMascot"><div class="bot xl ${modeClass(onboardDraft.teacher)}"><div class="eyes"><i></i><i></i></div><div class="mouth"><i></i><i></i><i></i><i></i><i></i></div></div></div><div class="onboardBubble">Eu vou ensinar, ouvir você falar e reagir ao que acontecer na aula. Sem resposta pronta repetida.</div><h1>Seu inglês, do seu jeito.</h1><p class="lead">Primeiro eu ajusto o curso ao seu nível. Depois você escolhe se quer um professor tranquilo, doido ou sem muita paciência.</p>`,{back:false,nextText:'Começar agora',blue:true});
+    root.innerHTML=onboardingFrame(`<div class="onboardWelcome">
+      <button class="onboardGuideRobot" type="button" onclick="playStableOnboardGuide()" aria-label="Ouvir apresentação do professor">
+        <span class="guideGlow"></span>
+        <img src="assets/robot-professor.svg?v=26" alt="Robô professor">
+        <span class="guideTap">🔊 Toque em mim</span>
+      </button>
+      <div class="onboardBubble onboardWelcomeBubble">Eu posso te mostrar rapidinho como o aplicativo funciona.</div>
+      <h1>Seu inglês, do seu jeito.</h1>
+      <p class="lead">Eu ajusto o curso ao seu nível, acompanho sua meta e deixo você escolher como quer aprender.</p>
+      <div class="onboardWelcomeChips">
+        <span>📚 Cursos</span><span>🧭 Métodos</span><span>💬 Conversa</span>
+      </div>
+    </div>`,{back:false,nextText:'Começar agora',blue:true});
     return;
   }
   if(onboardStep===1){
