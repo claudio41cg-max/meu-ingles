@@ -120,8 +120,12 @@ function renderTopStats(){
 function renderHomePath(){
   renderTopStats();
   const next=findNextLesson();
-  if($('#nextLessonTitle'))$('#nextLessonTitle').textContent=next.complete?'Nível concluído!':`${MODULES[next.l][next.m]} · Aula ${next.n+1}`;
-  if($('#nextLessonMeta'))$('#nextLessonMeta').textContent=next.complete?'Você pode revisar este nível ou avançar para o próximo.':`${next.l} · ${LESSON_TYPES[next.n]}`;
+  if($('#nextLessonTitle'))$('#nextLessonTitle').textContent=next.complete
+    ?`${next.l} · Nível concluído`
+    :`${next.l} · ${MODULES[next.l][next.m]} · Aula ${next.n+1}`;
+  if($('#nextLessonMeta'))$('#nextLessonMeta').textContent=next.complete
+    ?'Você pode revisar este nível ou explorar os demais cursos.'
+    :LESSON_TYPES[next.n];
 }
 window.continueStableCourse=()=>{
   const next=findNextLesson();
