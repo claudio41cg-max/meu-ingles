@@ -141,6 +141,7 @@ const CLOSE_SELECTOR='#home .homeChatClose';
 let ws=null,micStream=null,inputCtx=null,sourceNode=null,processor=null,sinkGain=null,outputCtx=null,outputCursor=0;
 let running=false,starting=false,setupReady=false,micSending=false,manualStop=false,firstAudio=false,stage='idle';
 let setupTimer=null,introTimer=null;
+let externalContext=null;
 const outputSources=new Set();
 
 function state(){try{return JSON.parse(localStorage.getItem(KEY)||'{}')||{}}catch{return {}}}
@@ -206,6 +207,20 @@ function a1Progress(){
  }).join('\n');
 }
 function systemText(){
+ if(externalContext?.kind==='method'){
+  return [
+   'Você é o ÚNICO professor de voz ativo nesta sessão do aplicativo Meu Inglês.',
+   'Esta sessão usa Gemini 3.1 Live em mãos livres. Não use, não espere e não dependa de nenhum TTS externo.',
+   `Personalidade ativa: ${teacherLabel()}. ${personaInstruction()}`,
+   `MÉTODO ESCOLHIDO: ${externalContext.topic||'assunto definido pelo aluno'}.`,
+   `AULA DO MÉTODO: ${externalContext.lesson||''}.`,
+   `FOCO DA AULA: ${externalContext.lessonTitle||externalContext.topic||''}.`,
+   'Comece diretamente nessa aula. Não pergunte qual curso ou módulo ele quer.',
+   'Faça uma pergunta curta por vez, corrija um erro por vez e aumente a dificuldade aos poucos.',
+   'Priorize conversação e pronúncia. Use português do Brasil apenas quando ajudar a compreensão.',
+   'Se o aluno interromper você, pare e ouça.'
+  ].join('\n');
+ }
  const currentMode=mode();
  if(currentMode==='course'){
   return [
@@ -249,6 +264,9 @@ function systemText(){
  ].join('\n');
 }
 function introText(){
+ if(externalContext?.kind==='method'){
+  return `Comece agora a aula particular de ${externalContext.topic||'inglês'}, ${externalContext.lessonTitle||''}. Cumprimente brevemente e faça a primeira pergunta simples em inglês, com ajuda curta em português se necessário.`;
+ }
  if(mode()==='course'){
   return 'Inicie agora em português do Brasil com uma frase curta perguntando qual curso o aluno quer estudar: A1, A2, B1, B2, C1 ou C2. Não comece nenhuma aula antes de ele escolher o curso e depois o módulo.';
  }
@@ -281,10 +299,12 @@ function handle(m){
  if(m?.serverContent?.turnComplete){micSending=true;robot('listening');setMicState('listening')}
 }
 async function cleanup(closeSocket=false){clearTimeout(setupTimer);clearTimeout(introTimer);setupTimer=introTimer=null;setupReady=false;running=false;starting=false;micSending=false;if(closeSocket&&ws){try{ws.onclose=null;ws.onerror=null;ws.onmessage=null;ws.close(1000,'user_stop')}catch{}}ws=null;await stopMic();stopOutput();robot('');setMicState('')}
-async function start(){
+async function start(context=null){
  if(running||starting||!conversationOpen())return;
+ if(context&&typeof context==='object')externalContext={...context};
  starting=true;manualStop=false;firstAudio=false;stage='start';installStyle();robot('thinking');setMicState('connecting');
  try{
+  try{window.stopGeminiTTS?.()}catch{}
   try{speechSynthesis.cancel()}catch{}
   await Promise.all([prepareOutput(),prepareMic()]);
   stage='worker-websocket';ws=new WebSocket(LIVE_WS+'?app=meu-ingles&v=38');
@@ -294,7 +314,7 @@ async function start(){
   ws.onclose=async e=>{const manual=manualStop;console.warn('[Meu Inglês Live] fechado',e?.code,e?.reason);await cleanup(false);if(!manual){setMicState('error');robot('oops');setTimeout(()=>{setMicState('');robot('')},1400)}};
  }catch(e){console.warn('[Meu Inglês Live] start',e);await cleanup(true);setMicState('error');robot('oops');setTimeout(()=>{setMicState('');robot('')},1600)}
 }
-async function stop(){manualStop=true;stage='manual-stop';await cleanup(true);stage='idle'}
+async function stop(){manualStop=true;stage='manual-stop';await cleanup(true);externalContext=null;stage='idle'}
 function toggle(){if(running||starting)stop();else start()}
 function sendText(text){const t=String(text||'').trim();if(!t||!running||!setupReady)return false;send({clientContent:{turns:[{role:'user',parts:[{text:t}]}],turnComplete:true}});return true}
 function selectModule(btn){const name=String(btn?.textContent||'').replace(/^\s*\d+\s*/,'').trim();if(!name)return;document.querySelector('#homeModulePicker')?.classList.remove('open');const pill=document.querySelector('#homeTopicPill');if(pill)pill.textContent=`🧩 Módulo: ${name}`;sendText(`O aluno escolheu o módulo ${name}. Continue a conversa oral dentro desse módulo, começando pelo mais fácil.`)}
@@ -324,5 +344,5 @@ document.addEventListener('keydown',interceptEnter,true);
 window.addEventListener('pagehide',()=>{manualStop=true;cleanup(true)});
 document.addEventListener('visibilitychange',()=>{if(document.hidden&&(running||starting))stop()});
 installStyle();
-window.MeuInglesGeminiLiveV38={available:true,start,stop,toggle,sendText,get state(){return{running,starting,setupReady,micSending,stage,model:MODEL,worker:LIVE_WS}}};
+window.MeuInglesGeminiLiveV38={available:true,start,stop,toggle,sendText,get state(){return{running,starting,setupReady,micSending,stage,model:MODEL,worker:LIVE_WS,externalContext}}};
 })();
