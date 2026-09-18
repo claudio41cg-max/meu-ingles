@@ -142,6 +142,7 @@ let ws=null,micStream=null,inputCtx=null,sourceNode=null,processor=null,sinkGain
 let running=false,starting=false,setupReady=false,micSending=false,manualStop=false,firstAudio=false,stage='idle';
 let setupTimer=null,introTimer=null;
 let externalContext=null;
+let inputTranscriptBuffer='';
 const outputSources=new Set();
 
 function state(){try{return JSON.parse(localStorage.getItem(KEY)||'{}')||{}}catch{return {}}}
@@ -309,20 +310,21 @@ function handle(m){
  if(m?.setupComplete!==undefined){clearTimeout(setupTimer);setupReady=true;stage='ready';send({clientContent:{turns:[{role:'user',parts:[{text:introText()}]}],turnComplete:true}});clearTimeout(introTimer);introTimer=setTimeout(()=>{if(running&&!firstAudio){micSending=true;robot('listening');setMicState('listening')}},5000);return}
  if(m?.serverContent?.interrupted){stopOutput();robot('listening');setMicState('listening')}
  const transcript=String(m?.serverContent?.inputTranscription?.text||'').trim();
- if(transcript){
-   window.dispatchEvent(new CustomEvent('meu-ingles-live-input',{detail:{text:transcript,context:externalContext}}));
- }
+ if(transcript)inputTranscriptBuffer=(inputTranscriptBuffer+' '+transcript).replace(/\s+/g,' ').trim();
  const parts=m?.serverContent?.modelTurn?.parts||[];for(const p of parts){const inline=p?.inlineData||p?.inline_data;if(!inline?.data)continue;const mime=String(inline.mimeType||inline.mime_type||'audio/pcm;rate=24000');if(!/^audio\//i.test(mime))continue;const rate=Number((mime.match(/rate=(\d+)/i)||[])[1])||24000;playAudio(inline.data,rate).catch(console.warn)}
  if(m?.serverContent?.turnComplete){
    micSending=true;robot('listening');setMicState('listening');
+   const spoken=inputTranscriptBuffer.trim();
+   inputTranscriptBuffer='';
+   if(spoken)window.dispatchEvent(new CustomEvent('meu-ingles-live-user-turn',{detail:{text:spoken,context:externalContext}}));
    window.dispatchEvent(new CustomEvent('meu-ingles-live-turn-complete',{detail:{context:externalContext}}));
  }
 }
-async function cleanup(closeSocket=false){clearTimeout(setupTimer);clearTimeout(introTimer);setupTimer=introTimer=null;setupReady=false;running=false;starting=false;micSending=false;if(closeSocket&&ws){try{ws.onclose=null;ws.onerror=null;ws.onmessage=null;ws.close(1000,'user_stop')}catch{}}ws=null;await stopMic();stopOutput();robot('');setMicState('')}
+async function cleanup(closeSocket=false){clearTimeout(setupTimer);clearTimeout(introTimer);setupTimer=introTimer=null;inputTranscriptBuffer='';setupReady=false;running=false;starting=false;micSending=false;if(closeSocket&&ws){try{ws.onclose=null;ws.onerror=null;ws.onmessage=null;ws.close(1000,'user_stop')}catch{}}ws=null;await stopMic();stopOutput();robot('');setMicState('')}
 async function start(context=null){
  if(running||starting||!conversationOpen())return;
  if(context&&typeof context==='object')externalContext={...context};
- starting=true;manualStop=false;firstAudio=false;stage='start';installStyle();robot('thinking');setMicState('connecting');
+ starting=true;manualStop=false;firstAudio=false;inputTranscriptBuffer='';stage='start';installStyle();robot('thinking');setMicState('connecting');
  try{
   try{window.stopGeminiTTS?.()}catch{}
   try{speechSynthesis.cancel()}catch{}
