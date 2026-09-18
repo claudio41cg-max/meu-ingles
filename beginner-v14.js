@@ -102,7 +102,10 @@ window.setB14Teacher=m=>{window.setStableTeacher?.(m);teacherMenuOpen=false;rend
 
 function shell(inner){
   const total=lessons[run.n].steps.length,pct=Math.round(((run.step+1)/total)*100);
-  return `<div class="beginner14"><div class="b14Top"><button class="b14Back" onclick="openStableModule('A1',0)">‹</button><div class="b14Progress"><span style="width:${pct}%"></span></div></div>${teacherTop()}<div class="b14Card"><div class="b14Eyebrow">A1 · ${run.step+1} de ${total}</div>${inner}</div></div>`;
+  document.querySelector('#course')?.classList.add('first-contacts-lesson-active');
+  const screenTitle=document.querySelector('#course > .top h2');
+  if(screenTitle)screenTitle.textContent='Tela inicial';
+  return `<div class="beginner14 firstContactsLessonScreen"><div class="b14Top"><button class="b14Back" onclick="openStableModule('A1',0)">‹</button><div class="b14Progress"><span style="width:${pct}%"></span></div></div><div class="b14Card"><div class="b14Eyebrow">A1 · ${run.step+1} de ${total}</div>${inner}</div></div>`;
 }
 function nextButton(label='Continuar'){return `<div class="b14Footer"><button class="b14Next" onclick="nextB14()">${label}</button></div>`}
 function audioButton(text){return `<button class="b14Listen" onclick="b14Speak('${encodeURIComponent(text)}')">🔊 Ouvir</button>`}
