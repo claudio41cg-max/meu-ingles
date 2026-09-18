@@ -20,18 +20,18 @@ function currentTeacher(){return st().teacher||'media'}
 function currentVoice(){return st().voice||'Aoede'}
 function currentName(){return String(st().name||'aluno').trim()||'aluno'}
 const HOME_GUIDES=[
-  n=>`Oi, ${n}! Aqui você pode escolher três caminhos. Em Métodos, você treina um assunto específico. Em Temas dos módulos, revisa o que está estudando no curso. E no Modo livre, conversa sobre o que quiser. O que você gostaria de fazer?`,
-  n=>`${n}, quer estudar de um jeito mais focado ou mais solto? Métodos serve para escolher um assunto. Temas dos módulos acompanha o seu curso. E Modo livre é para conversar sem roteiro. Qual você quer agora?`,
-  n=>`Vamos escolher seu caminho, ${n}. Métodos é bom para praticar temas específicos. Temas dos módulos trabalha o conteúdo do seu curso. E Modo livre deixa a conversa aberta. O que você gostaria de fazer?`,
-  n=>`Aqui é simples, ${n}. Se quiser um assunto específico, entre em Métodos. Se quiser revisar o curso, use Temas dos módulos. Se quiser só conversar, vá de Modo livre. Por onde você quer começar?`,
-  n=>`${n}, você pode aprender por tema, pelo curso ou conversando livremente. Métodos é por assunto, Temas dos módulos segue seu aprendizado, e Modo livre é conversa sem roteiro. O que combina mais com você agora?`,
-  n=>`Tem três jeitos de praticar aqui. Métodos para uma aula particular sobre um tema, Temas dos módulos para reforçar o curso, e Modo livre para conversar à vontade. ${n}, o que você gostaria de fazer hoje?`,
-  n=>`Se estiver em dúvida, eu te ajudo, ${n}. Métodos foca em um assunto. Temas dos módulos revisa suas aulas. Modo livre deixa você escolher qualquer conversa. Qual opção você quer experimentar?`,
-  n=>`${n}, escolha o tipo de prática que está com vontade de fazer. Tema específico? Métodos. Revisar o curso? Temas dos módulos. Conversar sem roteiro? Modo livre. O que você prefere?`,
-  n=>`Bora escolher, ${n}. Em Métodos você pega um tema e treina. Em Temas dos módulos você pratica o conteúdo do curso. Em Modo livre a conversa é aberta. Qual caminho você quer seguir?`,
-  n=>`Você não precisa estudar sempre do mesmo jeito, ${n}. Pode usar Métodos, revisar Temas dos módulos ou entrar no Modo livre. O que você gostaria de fazer agora?`,
-  n=>`${n}, quer que eu te guie? Métodos é para assuntos específicos, Temas dos módulos é para o curso que você está fazendo, e Modo livre é para conversar sem limites de tema. Qual deles você escolhe?`,
-  n=>`Hoje você manda, ${n}. Pode estudar um assunto em Métodos, revisar seu curso em Temas dos módulos ou simplesmente conversar no Modo livre. O que você gostaria de fazer?`
+  n=>`Oi, ${n}! Aqui você pode escolher três caminhos. Em Explorar temas, você treina um assunto específico. Em Cursos com IA, revisa o que está estudando no curso. E no Bate-papo livre, conversa sobre o que quiser. O que você gostaria de fazer?`,
+  n=>`${n}, quer estudar de um jeito mais focado ou mais solto? Explorar temas serve para escolher um assunto. Cursos com IA acompanha o seu curso. E Bate-papo livre é para conversar sem roteiro. Qual você quer agora?`,
+  n=>`Vamos escolher seu caminho, ${n}. Explorar temas é bom para praticar temas específicos. Cursos com IA trabalha o conteúdo do seu curso. E Bate-papo livre deixa a conversa aberta. O que você gostaria de fazer?`,
+  n=>`Aqui é simples, ${n}. Se quiser um assunto específico, entre em Explorar temas. Se quiser revisar o curso, use Cursos com IA. Se quiser só conversar, vá de Bate-papo livre. Por onde você quer começar?`,
+  n=>`${n}, você pode aprender por tema, pelo curso ou conversando livremente. Explorar temas é por assunto, Cursos com IA segue seu aprendizado, e Bate-papo livre é conversa sem roteiro. O que combina mais com você agora?`,
+  n=>`Tem três jeitos de praticar aqui. Explorar temas para uma aula particular sobre um tema, Cursos com IA para reforçar o curso, e Bate-papo livre para conversar à vontade. ${n}, o que você gostaria de fazer hoje?`,
+  n=>`Se estiver em dúvida, eu te ajudo, ${n}. Explorar temas foca em um assunto. Cursos com IA revisa suas aulas. Bate-papo livre deixa você escolher qualquer conversa. Qual opção você quer experimentar?`,
+  n=>`${n}, escolha o tipo de prática que está com vontade de fazer. Tema específico? Explorar temas. Revisar o curso? Cursos com IA. Conversar sem roteiro? Bate-papo livre. O que você prefere?`,
+  n=>`Bora escolher, ${n}. Em Explorar temas você pega um tema e treina. Em Cursos com IA você pratica o conteúdo do curso. Em Bate-papo livre a conversa é aberta. Qual caminho você quer seguir?`,
+  n=>`Você não precisa estudar sempre do mesmo jeito, ${n}. Pode usar Explorar temas, revisar Cursos com IA ou entrar no Bate-papo livre. O que você gostaria de fazer agora?`,
+  n=>`${n}, quer que eu te guie? Explorar temas é para assuntos específicos, Cursos com IA é para o curso que você está fazendo, e Bate-papo livre é para conversar sem limites de tema. Qual deles você escolhe?`,
+  n=>`Hoje você manda, ${n}. Pode estudar um assunto em Explorar temas, revisar seu curso em Cursos com IA ou simplesmente conversar no Bate-papo livre. O que você gostaria de fazer?`
 ];
 let homeGuideBusy=false;
 function pickHomeGuide(){
@@ -51,25 +51,34 @@ function pulseGuideChoice(sel,delay){
     document.querySelector(sel)?.classList.add('guide-highlight');
   },delay);
 }
+async function waitHomeTtsStart(){
+  const started=Date.now();
+  while(Date.now()-started<12000){
+    if(document.querySelector('#home .homeTtsProbe.speaking'))return true;
+    await new Promise(r=>setTimeout(r,35));
+  }
+  return false;
+}
 window.playHomeRobotGuide=async()=>{
   if(homeGuideBusy||phase!=='idle')return;
   const robot=document.querySelector('#home .homeRobotStage');
   if(!robot)return;
   const {i,text}=pickHomeGuide();
   homeGuideBusy=true;
-  robot.classList.add('home-guide-speaking','guide-mood-'+(i%4));
-  setRobotState('happy');
-  pulseGuideChoice('#home [data-v26mode="methods"]',900);
-  pulseGuideChoice('#home [data-v26mode="module"]',3600);
-  pulseGuideChoice('#home [data-v26mode="free"]',6500);
+  clearGuideHighlight();
+  setRobotState('thinking');
   try{
     window.stopGeminiTTS?.();
+    const speech=typeof window.geminiSpeak==='function'
+      ?window.geminiSpeak(text,'pt-BR',currentVoice())
+      :say(text,'happy');
+    await waitHomeTtsStart();
+    robot.classList.add('home-guide-speaking','guide-mood-'+(i%4));
     setRobotState('speaking');
-    if(typeof window.geminiSpeak==='function'){
-      await window.geminiSpeak(text,'pt-BR',currentVoice());
-    }else{
-      await say(text,'happy');
-    }
+    pulseGuideChoice('#home [data-v26mode="methods"]',0);
+    pulseGuideChoice('#home [data-v26mode="module"]',2800);
+    pulseGuideChoice('#home [data-v26mode="free"]',5600);
+    await speech;
   }finally{
     clearGuideHighlight();
     robot.classList.remove('home-guide-speaking','guide-mood-0','guide-mood-1','guide-mood-2','guide-mood-3');
@@ -77,7 +86,7 @@ window.playHomeRobotGuide=async()=>{
     setTimeout(()=>setRobotState(''),650);
     homeGuideBusy=false;
   }
-};
+}
 function currentModule(){const t=(document.querySelector('#nextLessonTitle')?.textContent||'').trim();return (t.split('·')[0]||'Primeiros contatos').trim()}
 function card(){return document.querySelector('#home .professorPanel')}
 function setFocus(on){document.querySelector('#home')?.classList.toggle('conversation-focus',!!on)}
@@ -134,7 +143,7 @@ function render(){
  <p class="homeConversationIntro">Escolha entre Explorar temas, Cursos com IA ou Bate-papo livre.</p>
  <button class="homeRobotStage homeRobotGuideButton" type="button" onclick="playHomeRobotGuide()" aria-label="Ouvir mini tutorial">
    <img class="homeRobot" src="assets/robot-professor.svg?v=26" alt="Robô professor">
-   <span class="homeRobotGuideHint">🔊 Toque em mim</span>
+   <span class="homeRobotGuideHint">🔊 Toque em mim</span><span class="bot homeTtsProbe" aria-hidden="true"></span>
  </button>
  <div class="homeConversationChoices">
    <button class="homeConversationChoice methodsCard" data-v26mode="methods" onclick="openMethodsRobot(event)"><span class="ico choiceVisual">🗂️</span><span><b>Explorar temas</b><small>Escolha um assunto e pratique do seu jeito</small></span><span class="choiceArrow">›</span></button>
