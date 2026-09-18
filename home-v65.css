@@ -1,0 +1,141 @@
+/* Home v65 — identidade visual por card, sem alterar lógica */
+
+/* Card principal do robô */
+#home .professorPanel.homeTalkCard,
+#home .professorPanel{
+  position:relative;
+  overflow:hidden;
+  background:
+    radial-gradient(circle at 50% 25%,rgba(36,216,235,.17),transparent 34%),
+    linear-gradient(145deg,#0d2d3d 0%,#0a2234 52%,#071a29 100%) !important;
+  border-color:rgba(69,198,221,.36) !important;
+  box-shadow:0 18px 40px rgba(0,0,0,.27),inset 0 0 0 1px rgba(255,255,255,.025) !important;
+}
+#home .professorPanel.homeTalkCard:after{
+  content:"";
+  position:absolute;
+  width:230px;height:230px;border-radius:50%;
+  right:-95px;top:-100px;
+  background:radial-gradient(circle,rgba(39,214,232,.16),transparent 70%);
+  pointer-events:none;
+}
+#home .homeRobotStage:before{
+  background:radial-gradient(circle,rgba(38,224,238,.25),rgba(8,116,145,.09) 47%,transparent 72%) !important;
+}
+#home .teacherTypesBtn{
+  background:linear-gradient(135deg,#17617a,#12465d) !important;
+  border-color:rgba(104,216,230,.34) !important;
+}
+
+/* Métodos dentro do card do robô */
+#home .robotMethodsEntryV42{
+  background:linear-gradient(135deg,#176d80 0%,#155a73 55%,#123f59 100%) !important;
+  border-color:rgba(103,220,231,.40) !important;
+  box-shadow:0 10px 24px rgba(5,54,68,.24) !important;
+}
+#home .robotMethodsEntryV42 small{color:#c9f4f5 !important}
+#home .robotMethodsEntryV42 i{color:#75e3f1 !important}
+
+/* Tema dos módulos */
+#home .homeConversationChoice[data-v26mode="module"]{
+  background:linear-gradient(135deg,#159c84 0%,#107c7b 56%,#0a5e6b 100%) !important;
+  border-color:rgba(98,234,207,.42) !important;
+  box-shadow:0 10px 24px rgba(4,74,67,.25) !important;
+}
+#home .homeConversationChoice[data-v26mode="module"] small{color:#d8fff7 !important}
+
+/* Modo livre */
+#home .homeConversationChoice[data-v26mode="free"]{
+  background:linear-gradient(135deg,#544db2 0%,#413a8e 56%,#2c2d6d 100%) !important;
+  border-color:rgba(167,158,255,.40) !important;
+  box-shadow:0 10px 24px rgba(34,27,91,.25) !important;
+}
+#home .homeConversationChoice[data-v26mode="free"] small{color:#e4e0ff !important}
+
+/* card ativo: mantém a cor própria e recebe destaque */
+#home .homeConversationChoice.active{
+  border-color:rgba(255,255,255,.58) !important;
+  box-shadow:0 0 0 2px rgba(255,255,255,.22) inset,0 0 24px rgba(96,214,255,.15) !important;
+}
+
+/* Conversar agora */
+#home .homeStartConversation{
+  background:linear-gradient(135deg,#16a08f 0%,#0d7d86 58%,#085e73 100%) !important;
+  box-shadow:0 7px 0 #064858 !important;
+}
+
+/* Todos os Cursos */
+#home .allCoursesCard{
+  position:relative;
+  overflow:hidden;
+  background:linear-gradient(135deg,#1b74c9 0%,#185da9 55%,#174681 100%) !important;
+  border-color:rgba(120,192,255,.40) !important;
+  box-shadow:0 14px 30px rgba(9,52,99,.25) !important;
+}
+#home .allCoursesCard:after{
+  content:"";
+  position:absolute;
+  width:185px;height:185px;border-radius:50%;
+  right:-80px;top:-80px;
+  background:radial-gradient(circle,rgba(128,214,255,.22),transparent 70%);
+  pointer-events:none;
+}
+#home .allCoursesCard .pathGrow small{color:#b5e2ff !important}
+#home .allCoursesCard .pathGrow p{color:#d7e9f8 !important}
+#home .allCoursesCard .pathIcon{
+  background:rgba(8,45,83,.34) !important;
+  border:1px solid rgba(161,219,255,.24) !important;
+}
+#home .allCoursesCard .pathButton{
+  background:linear-gradient(135deg,#21a7ea 0%,#197fce 60%,#145da9 100%) !important;
+  box-shadow:0 6px 0 #0f467c !important;
+}
+
+/* Métodos grande, abaixo de Todos os Cursos */
+#home .methodsHomeCardV42{
+  background:linear-gradient(135deg,#25808b 0%,#1a6679 55%,#164c67 100%) !important;
+  border-color:rgba(108,222,227,.34) !important;
+  box-shadow:0 12px 28px rgba(8,68,75,.22) !important;
+}
+#home .methodsHomeCardV42 small{color:#a8eff0 !important}
+#home .methodsHomeCardV42 em{color:#d1f8f8 !important}
+#home .methodsHomeCardV42 i{color:#79e5ec !important}
+
+/* Cards inferiores */
+#home .quickCard{
+  position:relative;
+  overflow:hidden;
+  border-color:rgba(255,255,255,.12) !important;
+  box-shadow:0 12px 26px rgba(0,0,0,.18) !important;
+}
+#home .quickCard:nth-child(1){
+  background:linear-gradient(135deg,#1c789c 0%,#175f87 56%,#144a70 100%) !important;
+  border-color:rgba(96,211,244,.28) !important;
+}
+#home .quickCard:nth-child(1) small{color:#c9edf7 !important}
+#home .quickCard:nth-child(2){
+  background:linear-gradient(135deg,#b67a30 0%,#916128 56%,#6c4926 100%) !important;
+  border-color:rgba(255,199,111,.32) !important;
+}
+#home .quickCard:nth-child(2) small{color:#ffe6b9 !important}
+
+#home .homeConversationChoice,
+#home .robotMethodsEntryV42,
+#home .methodsHomeCardV42,
+#home .allCoursesCard,
+#home .quickCard{
+  transition:transform .18s ease,filter .18s ease,box-shadow .18s ease;
+}
+#home .homeConversationChoice:active,
+#home .robotMethodsEntryV42:active,
+#home .methodsHomeCardV42:active,
+#home .allCoursesCard:active,
+#home .quickCard:active{
+  transform:scale(.985);
+  filter:brightness(1.04);
+}
+
+@media(max-width:390px){
+  #home .homeConversationChoice{min-height:76px}
+  #home .robotMethodsEntryV42{min-height:86px}
+}
