@@ -114,7 +114,7 @@ function pickOpening(){
 }
 function esc(s){return String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
 function addMsg(text,who){const box=document.querySelector('#homeInlineChatBox');if(!box)return;const d=document.createElement('div');d.className='homeChatMsg '+who;d.textContent=text;box.appendChild(d);box.scrollTop=box.scrollHeight}
-function setTopicPill(){const p=document.querySelector('#homeTopicPill');if(!p)return;p.textContent=topic?(mode==='module'?`🧩 Módulo: ${topic}`:`💬 Tema: ${topic}`):(mode==='module'?'🧩 Escolhendo módulo':'💬 Escolhendo assunto')}
+function setTopicPill(){const p=document.querySelector('#homeTopicPill');if(!p)return;p.textContent=topic?(mode==='module'?`📚 Curso: ${topic}`:`💬 Tema: ${topic}`):(mode==='module'?'📚 Escolhendo curso':'💬 Escolhendo assunto')}
 function setBusy(on){
  busy=!!on;
  const send=document.querySelector('#home .homeChatSend'),mic=document.querySelector('#homeChatMic');
@@ -205,7 +205,16 @@ window.changeV26Topic=()=>{
  if(phase==='idle'||busy)return;
  const picker=document.querySelector('#homeModulePicker');
  if(mode==='module'){
-   phase='choose_module';topic='';history=[];turn=0;errorStreak=0;setTopicPill();picker?.classList.toggle('open');
+   topic='';history=[];turn=0;errorStreak=0;
+   picker?.classList.remove('open');
+   setTopicPill();
+   const live=window.MeuInglesGeminiLiveV38;
+   if(live?.state?.running||live?.state?.starting){
+     live.sendText?.('Quero escolher outro curso. Volte para a escolha entre A1, A2, B1, B2, C1 ou C2.');
+     return;
+   }
+   phase='choose_module';
+   picker?.classList.add('open');
  }else{
    phase='choose_free';topic='';history=[];turn=0;errorStreak=0;setTopicPill();const input=document.querySelector('#homeChatInput');if(input){input.placeholder='Digite o novo assunto...';input.focus()}
  }
