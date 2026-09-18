@@ -131,15 +131,15 @@ function render(){
  c.classList.add('homeTalkCard');
  c.innerHTML=`
  <div class="homeConversationTop"><h2>Converse e Divirta-se</h2><button class="teacherTypesBtn" onclick="openTeacherTypes()">🤖 Tipos de professor</button></div>
- <p class="homeConversationIntro">Em Métodos, Temas dos módulos e Modo livre, escolha como quer praticar hoje.</p>
+ <p class="homeConversationIntro">Escolha entre Explorar temas, Cursos com IA ou Bate-papo livre.</p>
  <button class="homeRobotStage homeRobotGuideButton" type="button" onclick="playHomeRobotGuide()" aria-label="Ouvir mini tutorial">
    <img class="homeRobot" src="assets/robot-professor.svg?v=26" alt="Robô professor">
    <span class="homeRobotGuideHint">🔊 Toque em mim</span>
  </button>
  <div class="homeConversationChoices">
-   <button class="homeConversationChoice methodsCard" data-v26mode="methods" onclick="openMethodsRobot(event)"><span class="ico">🧭</span><span><b>Métodos</b><small>Escolha um tema e uma aula particular</small></span><span class="choiceArrow">›</span></button>
-   <button class="homeConversationChoice ${mode==='module'?'active':''}" data-v26mode="module" onclick="startV26FromCard('module')"><span class="ico">🧩</span><span><b>Tema dos módulos</b><small>Escolha um módulo e pratique por áudio</small></span></button>
-   <button class="homeConversationChoice ${mode==='free'?'active':''}" data-v26mode="free" onclick="startV26FromCard('free')"><span class="ico">∞</span><span><b>Modo livre</b><small>Converse sobre qualquer assunto</small></span></button>
+   <button class="homeConversationChoice methodsCard" data-v26mode="methods" onclick="openMethodsRobot(event)"><span class="ico choiceVisual">🗂️</span><span><b>Explorar temas</b><small>Escolha um assunto e pratique do seu jeito</small></span><span class="choiceArrow">›</span></button>
+   <button class="homeConversationChoice ${mode==='module'?'active':''}" data-v26mode="module" onclick="startV26FromCard('module')"><span class="ico choiceVisual">🤖</span><span><b>Cursos com IA</b><small>Siga aulas guiadas e avance com a IA</small></span></button>
+   <button class="homeConversationChoice ${mode==='free'?'active':''}" data-v26mode="free" onclick="startV26FromCard('free')"><span class="ico choiceVisual">💬</span><span><b>Bate-papo livre</b><small>Converse sobre qualquer assunto sem roteiro</small></span></button>
  </div>
  <div class="homeInlineChat">
    <div class="homeChatHead"><b>Professor ${esc(personaLabel())}</b><button class="homeChatClose" onclick="closeV26Conversation(event)">Sair</button></div>
