@@ -4,6 +4,7 @@ const API=location.hostname.endsWith('github.io')?'https://meu-ingles-claudio.ne
 const TTS=API+'/api/gemini-tts';
 const KEY='meuInglesStableV2';
 const MIN_API_GAP=150;
+const ENGLISH_VOICE='Achird';
 let player=null,currentUrl='',unlocked=false,speaking=false,lastApiAt=0;
 const audioCache=new Map();
 function readState(){try{return JSON.parse(localStorage.getItem(KEY)||'{}')||{}}catch{return {}}}
@@ -19,7 +20,7 @@ async function playData(data,voice){const a=ensurePlayer();const blob=pcmToWavBl
 async function requestVoice(payload,attempt=0){const since=Date.now()-lastApiAt;if(since<MIN_API_GAP)await wait(MIN_API_GAP-since);lastApiAt=Date.now();const r=await fetch(TTS,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)});const raw=await r.text();let d=null;try{d=JSON.parse(raw)}catch{}if(r.status===429&&attempt<2){const retry=Math.max(1,Number(d?.retry_after_seconds)||Number(r.headers.get('Retry-After'))||3);status(`⏳ Limite momentâneo do Gemini. Tentando novamente em ${retry}s…`);await wait((retry+0.5)*1000);return requestVoice(payload,attempt+1)}if(!r.ok)throw new Error('HTTP '+r.status+' '+(d?.message||d?.error||raw.slice(0,120)));if(!d?.audio)throw new Error('Gemini não devolveu áudio');return d}
 async function geminiSpeak(text,lang='pt-BR',voice=currentVoice()){text=String(text||'').trim();if(!text||speaking)return false;speaking=true;try{try{window.speechSynthesis?.cancel()}catch{}await unlock();const key=[voice,lang,text].join('|');if(audioCache.has(key)){status('🎙️ Reproduzindo voz natural do Gemini…');return await playData(audioCache.get(key),voice)}status('🎙️ Gerando voz natural do Gemini…');const payload={text,lang,voice,style:lang.startsWith('en')?'Natural American English, warm, human and conversational.':'Português brasileiro natural, humano, expressivo e conversacional.'};const d=await requestVoice(payload);audioCache.set(key,d);return await playData(d,voice)}catch(e){console.error('Gemini TTS frontend',e);status('❌ '+String(e&&e.message||e).slice(0,180),false);return false}finally{speaking=false;document.querySelectorAll('.bot').forEach(b=>b.classList.remove('speaking'))}}
 window.previewStableVoice=()=>geminiSpeak('Oi, Cláudio. Essa é a minha voz. Bora aprender inglês de um jeito que não dá sono?','pt-BR',currentVoice());
-window.stableSpeakEnglish=enc=>geminiSpeak(decodeURIComponent(String(enc||'')),'en-US',currentVoice());
+window.stableSpeakEnglish=enc=>geminiSpeak(decodeURIComponent(String(enc||'')),'en-US',ENGLISH_VOICE);
 window.geminiSpeak=geminiSpeak;
-try{if(window.speechSynthesis&&typeof window.speechSynthesis.speak==='function'){window.speechSynthesis.speak=(utterance)=>{const text=utterance?.text||'',lang=utterance?.lang||'pt-BR';try{utterance?.onstart?.(new Event('start'))}catch{}geminiSpeak(text,lang,currentVoice()).then(ok=>{if(!ok)status('❌ A voz Gemini falhou. A voz antiga do Android continua bloqueada para não falar por cima.',false);try{utterance?.onend?.(new Event('end'))}catch{}})}}}catch(e){}
+try{if(window.speechSynthesis&&typeof window.speechSynthesis.speak==='function'){window.speechSynthesis.speak=(utterance)=>{const text=utterance?.text||'',lang=utterance?.lang||'pt-BR';try{utterance?.onstart?.(new Event('start'))}catch{}geminiSpeak(text,lang,String(lang).toLowerCase().startsWith('en')?ENGLISH_VOICE:currentVoice()).then(ok=>{if(!ok)status('❌ A voz Gemini falhou. A voz antiga do Android continua bloqueada para não falar por cima.',false);try{utterance?.onend?.(new Event('end'))}catch{}})}}}catch(e){}
 })();
