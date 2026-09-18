@@ -204,10 +204,32 @@ window.v26Mic=()=>{
  r.onend=()=>{mic?.classList.remove('listening');if(card()?.classList.contains('robot-listening'))setRobotState('')};r.start();
 };
 function hookNav(){
- const b=document.querySelector('nav button[data-screen="chat"]');if(!b||b.dataset.v26)return;b.dataset.v26='1';
- b.addEventListener('click',e=>{e.preventDefault();e.stopImmediatePropagation();window.stableShow?.('home');setTimeout(()=>{render();document.querySelector('#home .professorPanel')?.scrollIntoView({behavior:'smooth',block:'start'});if(phase==='idle')window.startV26Conversation()},80)},true);
+ const goal=document.querySelector('nav button[data-screen="goal"]');
+ if(goal&&!goal.dataset.v26){
+   goal.dataset.v26='1';
+   goal.addEventListener('click',e=>{
+     e.preventDefault();
+     e.stopImmediatePropagation();
+     window.stableShow?.('settings');
+     setTimeout(()=>{
+       const h=[...document.querySelectorAll('#settings h3')].find(x=>/Meta diária/i.test(x.textContent||''));
+       h?.scrollIntoView({behavior:'smooth',block:'start'});
+     },80);
+   },true);
+ }
 }
-function hookShow(){const old=window.stableShow;if(typeof old==='function'&&!old.__v26){const w=function(id){if(id==='chat')id='home';const r=old(id);setTimeout(()=>{if(id==='home'){render();hookNav()}},35);return r};w.__v26=true;window.stableShow=w}}
+function hookShow(){
+ const old=window.stableShow;
+ if(typeof old==='function'&&!old.__v26){
+   const w=function(id){
+     const r=old(id);
+     setTimeout(()=>{if(id==='home'){render();hookNav()}},35);
+     return r;
+   };
+   w.__v26=true;
+   window.stableShow=w;
+ }
+}
 function init(){hookShow();hookNav();render()}
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',()=>setTimeout(init,120));else setTimeout(init,120);
 })();
