@@ -196,10 +196,39 @@ window.finishStableOnboarding=async()=>{
   await speak(`Fechado, ${state.name}. Seu curso começa no ${state.level}. E lembra: se enjoar de mim, você troca o tipo de professor na hora.`, 'pt-BR');
 };
 
+const A1_ART=['👋','🔤','👨‍👩‍👧','⏰','❓','🏠','🍽️','🛍️','🗺️','🎮','📅','🏆'];
+function a1ModuleArt(m){
+  const icon=A1_ART[m]||'✨';
+  return `<div class="a1ModuleArt" aria-hidden="true">
+    <span class="a1ArtBlob a1ArtBlobOne"></span>
+    <span class="a1ArtBlob a1ArtBlobTwo"></span>
+    <span class="a1ArtIcon">${icon}</span>
+  </div>`;
+}
 function renderCourse(){
   const root=$('#courseBody'); if(!root)return;
   const l=state.level;
-  root.innerHTML=`<div class="panel"><div class="levelTabs">${Object.keys(LEVELS).map(x=>`<button data-level="${x}" class="levelTab ${x===l?'active':''}" onclick="setStableLevel('${x}')">${x} · ${LEVELS[x]}</button>`).join('')}</div><h2 style="margin:16px 0 4px">${l} · ${LEVELS[l]}</h2><p class="muted" style="margin:0">12 módulos · 96 aulas neste nível · ${levelDone(l)}/96 concluídas</p></div>${MODULES[l].map((title,m)=>{const d=moduleDone(l,m),pct=Math.round(d/8*100);return `<div class="module ${d===8?'complete':''}"><h3>${d===8?'✅ ':''}${m+1}. ${esc(title)}</h3><p>8 aulas progressivas com explicação, vocabulário, escuta, tradução, fala e professor IA.</p><div class="moduleProgress"><span style="width:${pct}%"></span></div><div class="moduleMeta"><span class="tag">${d}/8 concluídas</span><span class="tag">Nível ${l}</span></div><button class="btn primary" onclick="openStableModule('${l}',${m})">${d?'Continuar módulo':'Abrir módulo'}</button></div>`}).join('')}`;
+  const head=`<div class="panel"><div class="levelTabs">${Object.keys(LEVELS).map(x=>`<button data-level="${x}" class="levelTab ${x===l?'active':''}" onclick="setStableLevel('${x}')">${x} · ${LEVELS[x]}</button>`).join('')}</div><h2 style="margin:16px 0 4px">${l} · ${LEVELS[l]}</h2><p class="muted" style="margin:0">12 módulos · 96 aulas neste nível · ${levelDone(l)}/96 concluídas</p></div>`;
+
+  if(l==='A1'){
+    root.innerHTML=head+`<div class="a1ModuleGrid">${MODULES.A1.map((title,m)=>{
+      const d=moduleDone('A1',m),pct=Math.round(d/8*100);
+      return `<div class="a1ModuleCard tone-${m%6} ${d===8?'complete':''}" role="button" tabindex="0"
+        onclick="openStableModule('A1',${m})"
+        onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();openStableModule('A1',${m})}">
+        <div class="a1ModuleCopy">
+          <div class="a1ModuleNumber">MÓDULO ${m+1}</div>
+          <h3>${esc(title)}</h3>
+          <div class="a1ModuleCount">${d}/8 aulas</div>
+          <div class="moduleProgress"><span style="width:${pct}%"></span></div>
+        </div>
+        ${a1ModuleArt(m)}
+      </div>`;
+    }).join('')}</div>`;
+    return;
+  }
+
+  root.innerHTML=head+`${MODULES[l].map((title,m)=>{const d=moduleDone(l,m),pct=Math.round(d/8*100);return `<div class="module ${d===8?'complete':''}"><h3>${d===8?'✅ ':''}${m+1}. ${esc(title)}</h3><p>8 aulas progressivas com explicação, vocabulário, escuta, tradução, fala e professor IA.</p><div class="moduleProgress"><span style="width:${pct}%"></span></div><div class="moduleMeta"><span class="tag">${d}/8 concluídas</span><span class="tag">Nível ${l}</span></div><button class="btn primary" onclick="openStableModule('${l}',${m})">${d?'Continuar módulo':'Abrir módulo'}</button></div>`}).join('')}`;
 }
 window.renderStableCourse=renderCourse;
 
