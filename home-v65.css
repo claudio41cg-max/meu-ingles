@@ -139,3 +139,63 @@
   #home .homeConversationChoice{min-height:76px}
   #home .robotMethodsEntryV42{min-height:86px}
 }
+
+
+/* Home v71 — robô guia interativo */
+#home .homeRobotGuideButton{
+  appearance:none;
+  border:0;
+  background:transparent;
+  width:100%;
+  cursor:pointer;
+  padding:0;
+  -webkit-tap-highlight-color:transparent;
+}
+#home .homeRobotGuideButton .homeRobot{
+  transition:transform .22s ease,filter .22s ease;
+}
+#home .homeRobotGuideHint{
+  position:absolute;
+  left:50%;
+  bottom:10px;
+  transform:translateX(-50%);
+  z-index:3;
+  padding:7px 12px;
+  border-radius:999px;
+  background:rgba(8,38,53,.86);
+  border:1px solid rgba(102,222,235,.34);
+  color:#dffbff;
+  font-size:12px;
+  font-weight:900;
+  white-space:nowrap;
+  box-shadow:0 8px 18px rgba(0,0,0,.2);
+}
+#home .homeRobotGuideButton:active .homeRobot{
+  transform:scale(.97);
+}
+#home .homeRobotStage.home-guide-speaking .homeRobot{
+  animation:homeGuideTalk .72s ease-in-out infinite;
+  filter:drop-shadow(0 18px 24px rgba(0,0,0,.32)) drop-shadow(0 0 18px rgba(51,226,238,.42));
+}
+#home .homeRobotStage.home-guide-speaking:before{
+  animation:homeGuideGlow .85s ease-in-out infinite;
+}
+#home .homeRobotStage.guide-mood-1 .homeRobot{transform:rotate(-2deg)}
+#home .homeRobotStage.guide-mood-2 .homeRobot{transform:rotate(2deg)}
+#home .homeRobotStage.guide-mood-3 .homeRobot{transform:translateY(-4px)}
+#home .homeConversationChoice.guide-highlight{
+  transform:scale(1.018);
+  filter:brightness(1.13);
+  border-color:rgba(255,255,255,.72)!important;
+  box-shadow:0 0 0 2px rgba(255,255,255,.22) inset,0 0 24px rgba(83,224,232,.24)!important;
+}
+@keyframes homeGuideTalk{
+  0%,100%{transform:translateY(0) rotate(0deg)}
+  25%{transform:translateY(-3px) rotate(-1deg)}
+  50%{transform:translateY(1px) rotate(0deg)}
+  75%{transform:translateY(-2px) rotate(1deg)}
+}
+@keyframes homeGuideGlow{
+  0%,100%{transform:scale(.96);opacity:.7}
+  50%{transform:scale(1.06);opacity:1}
+}
