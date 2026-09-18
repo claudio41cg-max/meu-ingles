@@ -233,3 +233,53 @@
 .beginner14 .b14Card{
   border-color:#25565d;
 }
+
+
+/* v63 — estados pós-clique alinhados à paleta nova */
+.beginner14 .b14Choice.correct,
+#course.first-contacts-lesson-active .beginner14 .b14Choice.correct{
+  border-color:#11a78d !important;
+  background:linear-gradient(135deg,rgba(17,167,141,.26),rgba(8,125,137,.20)) !important;
+  box-shadow:0 0 0 1px rgba(17,167,141,.18) inset;
+}
+
+.beginner14 .b14Feedback.good,
+#course.first-contacts-lesson-active .beginner14 .b14Feedback.good{
+  border-color:#11a78d !important;
+  background:linear-gradient(135deg,rgba(17,167,141,.24),rgba(8,125,137,.18)) !important;
+  box-shadow:0 0 0 1px rgba(7,95,124,.16) inset;
+}
+
+.beginner14 .b14Token.correct,
+#course.first-contacts-lesson-active .beginner14 .b14Token.correct,
+.beginner14 .b14Conversation button.correct,
+#course.first-contacts-lesson-active .beginner14 .b14Conversation button.correct{
+  border-color:#11a78d !important;
+  background:linear-gradient(135deg,rgba(17,167,141,.26),rgba(8,125,137,.18)) !important;
+}
+
+.beginner14 .b14CorrectOrder,
+#course.first-contacts-lesson-active .beginner14 .b14CorrectOrder{
+  border:1px solid #11a78d;
+  background:linear-gradient(135deg,rgba(17,167,141,.22),rgba(8,125,137,.16)) !important;
+  color:#d7fff7 !important;
+}
+
+.beginner14 .b14Bank button:focus,
+.beginner14 .b14Bank button:active,
+.beginner14 .b14Mini:focus,
+.beginner14 .b14Mini:active{
+  border-color:#11a78d;
+  box-shadow:0 0 0 2px rgba(17,167,141,.16);
+}
+
+.beginner14 .b14Next,
+#course.first-contacts-lesson-active .beginner14 .b14Next{
+  border:1px solid rgba(17,167,141,.38);
+}
+
+.beginner14 .b14Listen:focus,
+.beginner14 .b14Listen:active{
+  outline:2px solid rgba(17,167,141,.48);
+  outline-offset:2px;
+}
