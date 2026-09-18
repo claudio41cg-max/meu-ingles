@@ -51,10 +51,10 @@ function setRobotAsset(){
 }
 
 function lockScreen(){
- const on=activeConversation();
- document.documentElement.classList.toggle('conversation-screen-lock-root',on);
- document.body.classList.toggle('conversation-screen-lock',on);
- if(on)window.scrollTo(0,0);
+ /* A conversa deve continuar rolável no navegador. Remove a trava antiga
+    que fixava html/body/main e fazia a segunda tela parecer congelada. */
+ document.documentElement.classList.remove('conversation-screen-lock-root');
+ document.body.classList.remove('conversation-screen-lock');
 }
 
 function micLang(){
