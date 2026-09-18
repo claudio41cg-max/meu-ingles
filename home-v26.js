@@ -94,7 +94,19 @@ window.chooseV26Mode=m=>{if(phase!=='idle')return;mode=m==='free'?'free':'module
 window.openTeacherTypes=()=>{window.stableShow?.('settings');setTimeout(()=>{[...document.querySelectorAll('#settings h3')].find(x=>/Personalidade do professor/i.test(x.textContent||''))?.scrollIntoView({behavior:'smooth',block:'start'})},120)};
 window.startV26Conversation=async()=>{
  if(phase!=='idle')return;
- phase=mode==='module'?'choose_module':'choose_free';topic='';history=[];turn=0;errorStreak=0;render();
+ phase=mode==='module'?'live_course':'choose_free';topic='';history=[];turn=0;errorStreak=0;render();
+
+ /* No modo Curso, a única voz é o Gemini 3.1 Live.
+    O TTS 2.5 não faz abertura nem participa desta sessão. */
+ if(mode==='module'&&window.MeuInglesGeminiLiveV38?.available){
+   try{window.speechSynthesis?.cancel?.()}catch{}
+   const pill=document.querySelector('#homeTopicPill');
+   if(pill)pill.textContent='📚 Escolhendo curso';
+   document.querySelector('#homeModulePicker')?.classList.remove('open');
+   await window.MeuInglesGeminiLiveV38.start();
+   return;
+ }
+
  const prompt=pickOpening();addMsg(prompt,'bot');setTopicPill();await say(prompt,'happy');
 };
 window.closeV26Conversation=e=>{e?.preventDefault?.();e?.stopPropagation?.();phase='idle';topic='';history=[];turn=0;errorStreak=0;setBusy(false);setRobotState('');setFocus(false);render();setTimeout(()=>card()?.scrollIntoView({behavior:'smooth',block:'start'}),30)};
