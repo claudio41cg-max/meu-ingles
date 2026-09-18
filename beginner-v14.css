@@ -156,3 +156,80 @@
   background:linear-gradient(135deg,rgba(17,167,141,.24),rgba(8,125,137,.18));
   color:#d7fff7;
 }
+
+
+/* Identidade verde/azulada global para todas as telas de aprendizado */
+.beginner14 .b14Progress span{
+  background:linear-gradient(90deg,#11a78d 0%,#0b9a92 45%,#087d89 72%,#075f7c 100%);
+}
+
+.beginner14 .b14Eyebrow{
+  color:#72efe0;
+}
+
+.beginner14 .b14Next{
+  color:#fff;
+  background:linear-gradient(135deg,#11a78d 0%,#087d89 58%,#075f7c 100%);
+  box-shadow:0 8px 0 #064c58;
+}
+
+.beginner14 .b14Next.blue{
+  color:#fff;
+  background:linear-gradient(135deg,#149f91 0%,#0a858d 58%,#086478 100%);
+  box-shadow:0 8px 0 #064c58;
+}
+
+.beginner14 .b14Check{
+  color:#fff;
+  background:linear-gradient(135deg,#11a78d 0%,#087d89 58%,#075f7c 100%);
+}
+
+.beginner14 .b14Choice.correct,
+.beginner14 .b14Token.correct,
+.beginner14 .b14Conversation button.correct{
+  border-color:#2fd6a0;
+  background:linear-gradient(135deg,rgba(17,167,141,.30),rgba(8,125,137,.22));
+}
+
+.beginner14 .b14Feedback.good{
+  border-color:#2fd6a0;
+  background:linear-gradient(135deg,rgba(17,167,141,.28),rgba(8,125,137,.20));
+}
+
+.beginner14 .b14CorrectOrder{
+  background:linear-gradient(135deg,rgba(17,167,141,.24),rgba(8,125,137,.18));
+  color:#d7fff7;
+}
+
+.beginner14 .b14Teacher button,
+.beginner14 .b14TeacherMenu button.active{
+  border-color:#2a9e94;
+}
+
+.beginner14 .b14TeacherMenu button.active{
+  outline:2px solid #36d0b2;
+}
+
+.beginner14 .b14Listen{
+  background:linear-gradient(135deg,#15506a 0%,#0d5668 100%);
+}
+
+.beginner14 .b14Answer{
+  border-bottom-color:#2c7e7b;
+}
+
+.beginner14 .b14Bank button{
+  border-color:#2d666b;
+}
+
+.beginner14 .b14Clear{
+  background:#163b42;
+}
+
+.beginner14 .b14Mini{
+  border-color:#2d666b;
+}
+
+.beginner14 .b14Card{
+  border-color:#25565d;
+}
