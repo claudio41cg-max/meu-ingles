@@ -74,7 +74,15 @@ words.length>1&&words.length<=5?{t:'build',q:'Monte em inglês:',pt:cur.pt,targe
 function top(){const [label]=teacher();return `<div class="b14Teacher"><button onclick="a15Menu()">Professor: ${label} ▾</button></div>${menu?`<div class="b14TeacherMenu"><button onclick="a15Teacher('leve')">🙂 Tranquilo</button><button onclick="a15Teacher('media')">🤪 Doideira</button><button onclick="a15Teacher('pesada')">🔥 Hard 18+</button></div>`:''}`}
 window.a15Menu=()=>{menu=!menu;render()};
 window.a15Teacher=m=>{window.setStableTeacher?.(m);menu=false;render()};
-function shell(inner){const p=Math.round((run.i+1)/run.lesson.steps.length*100);return `<div class="beginner14"><div class="b14Top"><button class="b14Back" onclick="openStableModule('A1',${run.m})">‹</button><div class="b14Progress"><span style="width:${p}%"></span></div></div>${top()}<div class="b14Card"><div class="b14Eyebrow">A1 · ${run.i+1} de ${run.lesson.steps.length}</div>${inner}<div id="a15Voice" class="b14VoiceWarn"></div></div></div>`}
+function shell(inner){
+ const p=Math.round((run.i+1)/run.lesson.steps.length*100);
+ if(run.m===0){
+   document.querySelector('#course')?.classList.add('first-contacts-lesson-active');
+   const screenTitle=document.querySelector('#course > .top h2');
+   if(screenTitle)screenTitle.textContent='Tela inicial';
+ }
+ return `<div class="beginner14 ${run.m===0?'firstContactsLessonScreen':''}"><div class="b14Top"><button class="b14Back" onclick="openStableModule('A1',${run.m})">‹</button><div class="b14Progress"><span style="width:${p}%"></span></div></div>${run.m===0?'':top()}<div class="b14Card"><div class="b14Eyebrow">A1 · ${run.i+1} de ${run.lesson.steps.length}</div>${inner}<div id="a15Voice" class="b14VoiceWarn"></div></div></div>`;
+}
 const next=()=>`<div class="b14Footer"><button class="b14Next" onclick="a15Next()">Continuar</button></div>`;
 window.a15Next=()=>{if(++run.i>=run.lesson.steps.length)return finish();run.built=[];run.checked=false;run.used=[];render()};
 window.a15Speak=e=>speak(decodeURIComponent(e));
@@ -117,6 +125,9 @@ function firstContactsCards(){
 }
 function moduleView(m){
  m=Number(m)||0;
+ document.querySelector('#course')?.classList.remove('first-contacts-lesson-active');
+ const screenTitle=document.querySelector('#course > .top h2');
+ if(screenTitle)screenTitle.textContent='Curso de Inglês';
  if(m===0){
    $('#courseBody').innerHTML=`<div class="firstContactsView">
      <div class="firstContactsHead">
