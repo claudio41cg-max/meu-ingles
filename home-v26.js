@@ -74,10 +74,9 @@ function render(){
  <p class="homeConversationIntro">Pratique com a IA no tema de um módulo ou converse livremente.</p>
  <div class="homeRobotStage"><img class="homeRobot" src="assets/robot-professor.svg?v=26" alt="Robô professor"></div>
  <div class="homeConversationChoices">
-   <button class="homeConversationChoice ${mode==='module'?'active':''}" data-v26mode="module" onclick="chooseV26Mode('module')"><span class="ico">🧩</span><span><b>Tema dos módulos</b><small>Escolha um módulo e pratique por áudio</small></span></button>
-   <button class="homeConversationChoice ${mode==='free'?'active':''}" data-v26mode="free" onclick="chooseV26Mode('free')"><span class="ico">∞</span><span><b>Modo livre</b><small>Converse sobre qualquer assunto</small></span></button>
+   <button class="homeConversationChoice ${mode==='module'?'active':''}" data-v26mode="module" onclick="startV26FromCard('module')"><span class="ico">🧩</span><span><b>Tema dos módulos</b><small>Escolha um módulo e pratique por áudio</small></span></button>
+   <button class="homeConversationChoice ${mode==='free'?'active':''}" data-v26mode="free" onclick="startV26FromCard('free')"><span class="ico">∞</span><span><b>Modo livre</b><small>Converse sobre qualquer assunto</small></span></button>
  </div>
- <button class="homeStartConversation" onclick="startV26Conversation()">💬 Conversar agora</button>
  <div class="homeInlineChat">
    <div class="homeChatHead"><b>Professor ${esc(personaLabel())}</b><button class="homeChatClose" onclick="closeV26Conversation(event)">Sair</button></div>
    <button id="homeTopicPill" class="homeTopicPill" onclick="changeV26Topic()"></button>
@@ -91,25 +90,44 @@ function render(){
  const inp=document.querySelector('#homeChatInput');inp?.addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();window.v26Send()}});
 }
 window.chooseV26Mode=m=>{if(phase!=='idle')return;mode=m==='free'?'free':'module';document.querySelectorAll('[data-v26mode]').forEach(b=>b.classList.toggle('active',b.dataset.v26mode===mode))};
+window.startV26FromCard=async m=>{
+ if(phase!=='idle')return;
+ mode=m==='free'?'free':'module';
+ document.querySelectorAll('[data-v26mode]').forEach(b=>b.classList.toggle('active',b.dataset.v26mode===mode));
+ await window.startV26Conversation();
+};
 window.openTeacherTypes=()=>{window.stableShow?.('settings');setTimeout(()=>{[...document.querySelectorAll('#settings h3')].find(x=>/Personalidade do professor/i.test(x.textContent||''))?.scrollIntoView({behavior:'smooth',block:'start'})},120)};
 window.startV26Conversation=async()=>{
  if(phase!=='idle')return;
- phase=mode==='module'?'live_course':'choose_free';topic='';history=[];turn=0;errorStreak=0;render();
+ phase=mode==='module'?'live_course':'live_free';topic='';history=[];turn=0;errorStreak=0;render();
 
- /* No modo Curso, a única voz é o Gemini 3.1 Live.
-    O TTS 2.5 não faz abertura nem participa desta sessão. */
- if(mode==='module'&&window.MeuInglesGeminiLiveV38?.available){
+ /* A esfera usa exclusivamente Gemini 3.1 Live.
+    Gemini 2.5 TTS fica somente nas aulas normais/botões Ouvir. */
+ if(window.MeuInglesGeminiLiveV38?.available){
+   try{window.stopGeminiTTS?.()}catch{}
    try{window.speechSynthesis?.cancel?.()}catch{}
    const pill=document.querySelector('#homeTopicPill');
-   if(pill)pill.textContent='📚 Escolhendo curso';
+   if(pill)pill.textContent=mode==='module'?'📚 Escolhendo curso':'💬 Escolhendo assunto';
    document.querySelector('#homeModulePicker')?.classList.remove('open');
-   await window.MeuInglesGeminiLiveV38.start();
+   await window.MeuInglesGeminiLiveV38.start({kind:mode==='module'?'course':'free'});
    return;
  }
 
  const prompt=pickOpening();addMsg(prompt,'bot');setTopicPill();await say(prompt,'happy');
 };
-window.closeV26Conversation=e=>{e?.preventDefault?.();e?.stopPropagation?.();phase='idle';topic='';history=[];turn=0;errorStreak=0;setBusy(false);setRobotState('');setFocus(false);render();setTimeout(()=>card()?.scrollIntoView({behavior:'smooth',block:'start'}),30)};
+window.closeV26Conversation=e=>{e?.preventDefault?.();e?.stopPropagation?.();try{window.MeuInglesGeminiLiveV38?.stop?.()}catch{}try{window.stopGeminiTTS?.()}catch{}phase='idle';topic='';history=[];turn=0;errorStreak=0;setBusy(false);setRobotState('');setFocus(false);render();setTimeout(()=>card()?.scrollIntoView({behavior:'smooth',block:'start'}),30)};
+window.startV26LiveContext=async context=>{
+ try{await window.MeuInglesGeminiLiveV38?.stop?.()}catch{}
+ try{window.stopGeminiTTS?.()}catch{}
+ mode='free';
+ phase='live_external';
+ topic=String(context?.topic||'').trim();
+ history=[];turn=0;errorStreak=0;
+ render();
+ const pill=document.querySelector('#homeTopicPill');
+ if(pill&&topic)pill.textContent=`💬 Tema: ${topic}`;
+ await window.MeuInglesGeminiLiveV38?.start?.(context||{kind:'free'});
+};
 window.changeV26Topic=()=>{
  if(phase==='idle'||busy)return;
  const picker=document.querySelector('#homeModulePicker');
