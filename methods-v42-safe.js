@@ -183,7 +183,7 @@ function wrap(){
  const close=window.closeV26Conversation,start=window.startV26Conversation;
  if(typeof close==='function')window.closeV26Conversation=function(...a){const r=close.apply(this,a);if(session)clearSession();setTimeout(ensureUI,0);return r};
  if(typeof start==='function')window.startV26Conversation=async function(...a){const r=await start.apply(this,a);setTimeout(ensureUI,0);return r};
- window.addEventListener('meu-ingles-live-input',e=>handleLiveMethodInput(e?.detail?.text||''));
+ window.addEventListener('meu-ingles-live-user-turn',e=>handleLiveMethodInput(e?.detail?.text||''));
  window.__methodsV42Wrapped=true;
 }
 function init(){wrap();ensureUI();document.addEventListener('click',e=>{if(!starting&&e.target.closest('#home .homeConversationChoice[data-v26mode="free"]'))clearSession()});window.addEventListener('pageshow',()=>setTimeout(ensureUI,50));document.addEventListener('visibilitychange',()=>!document.hidden&&setTimeout(ensureUI,50));setTimeout(ensureUI,300)}
