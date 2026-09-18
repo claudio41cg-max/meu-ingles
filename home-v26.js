@@ -74,6 +74,7 @@ function render(){
  <p class="homeConversationIntro">Pratique com a IA no tema de um módulo ou converse livremente.</p>
  <div class="homeRobotStage"><img class="homeRobot" src="assets/robot-professor.svg?v=26" alt="Robô professor"></div>
  <div class="homeConversationChoices">
+   <button class="homeConversationChoice methodsCard" data-v26mode="methods" onclick="openMethodsRobot(event)"><span class="ico">🧭</span><span><b>Métodos</b><small>Escolha um tema e uma aula particular</small></span><span class="choiceArrow">›</span></button>
    <button class="homeConversationChoice ${mode==='module'?'active':''}" data-v26mode="module" onclick="startV26FromCard('module')"><span class="ico">🧩</span><span><b>Tema dos módulos</b><small>Escolha um módulo e pratique por áudio</small></span></button>
    <button class="homeConversationChoice ${mode==='free'?'active':''}" data-v26mode="free" onclick="startV26FromCard('free')"><span class="ico">∞</span><span><b>Modo livre</b><small>Converse sobre qualquer assunto</small></span></button>
  </div>
