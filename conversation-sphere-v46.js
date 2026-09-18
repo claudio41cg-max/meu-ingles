@@ -7,7 +7,9 @@ let renderer=null;
 let scene=null;
 let camera=null;
 let resizeObserver=null;
+let mountObserver=null;
 let stopped=false;
+let animating=false;
 
 function getCard(){
   return document.querySelector('#home .professorPanel.homeTalkCard');
@@ -29,11 +31,23 @@ function getVisualState(){
 }
 
 function start(){
-  if(!window.THREE)return false;
+  if(!window.THREE||stopped)return false;
 
-  mount=document.querySelector(HOST);
-  if(!mount)return false;
-  if(mount.querySelector('.conversationSphereV46'))return true;
+  const nextMount=document.querySelector(HOST);
+  if(!nextMount)return false;
+
+  if(nextMount.querySelector('.conversationSphereV46')){
+    mount=nextMount;
+    return true;
+  }
+
+  if(renderer){
+    try{resizeObserver?.disconnect()}catch{}
+    try{renderer.dispose()}catch{}
+    renderer=null;
+  }
+
+  mount=nextMount;
 
   const sphereMount=document.createElement('div');
   sphereMount.className='conversationSphereV46';
@@ -1967,21 +1981,35 @@ function start(){
   resizeObserver.observe(mount);
   resize();
 
-  animate();
+  if(!animating){
+    animating=true;
+    animate();
+  }
 
   return true;
 }
 
+function ensureMounted(){
+  if(stopped)return;
+  start();
+}
+
 function boot(){
-  let attempts=0;
-  const timer=setInterval(()=>{
-    attempts++;
-    if(start()||attempts>40)clearInterval(timer);
-  },150);
+  ensureMounted();
+
+  const home=document.querySelector('#home');
+  if(home){
+    mountObserver=new MutationObserver(()=>ensureMounted());
+    mountObserver.observe(home,{childList:true,subtree:true,attributes:true,attributeFilter:['class']});
+  }
+
+  window.addEventListener('resize',ensureMounted,{passive:true});
+  document.addEventListener('visibilitychange',()=>{if(!document.hidden)ensureMounted()});
 }
 
 window.addEventListener('pagehide',()=>{
   stopped=true;
+  try{mountObserver?.disconnect()}catch{}
   try{resizeObserver?.disconnect()}catch{}
   try{renderer?.dispose()}catch{}
 });
