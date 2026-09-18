@@ -61,6 +61,13 @@ function stopCurrent(){
     currentSource=null;
   }
 }
+function stopGeminiTTS(){
+  currentSeq++;
+  stopCurrent();
+  try{window.speechSynthesis?.cancel()}catch{}
+  document.querySelectorAll('.bot').forEach(b=>b.classList.remove('speaking'));
+  return true;
+}
 async function playPCM(data,voice,seq){
   await unlock();
   if(seq!==currentSeq)return false;
@@ -176,6 +183,7 @@ window.stableSpeakEnglish=enc=>geminiSpeak(
   ENGLISH_VOICE
 );
 window.geminiSpeak=geminiSpeak;
+window.stopGeminiTTS=stopGeminiTTS;
 
 try{
   if(window.speechSynthesis&&typeof window.speechSynthesis.speak==='function'){
