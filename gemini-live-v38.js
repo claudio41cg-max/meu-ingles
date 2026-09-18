@@ -12,6 +12,128 @@ const COURSE_MODULES={
  C1:['Nuances de tempo e aspecto','Ênfase e inversão','Modalidade avançada','Registro e nominalização','Colocações e idiomaticidade','Escrita profissional e acadêmica','Apresentações de alto nível','Debate e pensamento crítico','Inglês social e humor','Inglês profissional avançado','Escuta rápida e sotaques','Projeto C1: painel profissional'],
  C2:['Precisão e escolha de registro','Modalidade e posicionamento','Retórica e persuasão','Linguagem figurada','Idiomaticidade profunda','Argumentação complexa','Edição e precisão','Mediação e paráfrase','Velocidade, sotaques e ruído','Cultura, humor e pragmática','Domínio profissional','Projeto C2: domínio total']
 };
+const A1_LESSONS=[
+ [
+  'Aula 1 — Suas 3 primeiras palavras: coffee = café; water = água; milk = leite.',
+  'Aula 2 — Pedindo uma bebida: please = por favor; Coffee, please.; Water, please.; Milk, please.',
+  'Aula 3 — Eu quero...: I want = eu quero; I want coffee.; I want water.; I want milk.',
+  'Aula 4 — Olá!: hello = olá.',
+  'Aula 5 — Obrigado: thank you = obrigado.',
+  'Aula 6 — Sim, por favor: yes, please = sim, por favor.',
+  'Aula 7 — Não, obrigado: no, thank you = não, obrigado.',
+  'Aula 8 — Até logo: goodbye = adeus/até logo.'
+ ],
+ [
+  'Aula 1 — Meu nome é: my name is.',
+  'Aula 2 — Um: one.',
+  'Aula 3 — Dois: two.',
+  'Aula 4 — Três: three.',
+  'Aula 5 — Telefone: phone.',
+  'Aula 6 — Eu sou: I am.',
+  'Aula 7 — Eu sou do Brasil: I am from Brazil.',
+  'Aula 8 — Prazer em conhecer: nice to meet you.'
+ ],
+ [
+  'Aula 1 — Mãe: mother.',
+  'Aula 2 — Pai: father.',
+  'Aula 3 — Irmão: brother.',
+  'Aula 4 — Irmã: sister.',
+  'Aula 5 — Amigo: friend.',
+  'Aula 6 — Família: family.',
+  'Aula 7 — Este é: this is.',
+  'Aula 8 — Esta é minha família: this is my family.'
+ ],
+ [
+  'Aula 1 — Manhã: morning.',
+  'Aula 2 — Trabalho: work.',
+  'Aula 3 — Comer: eat.',
+  'Aula 4 — Beber: drink.',
+  'Aula 5 — Casa: home.',
+  'Aula 6 — Noite: night.',
+  'Aula 7 — Dormir: sleep.',
+  'Aula 8 — Hoje: today.'
+ ],
+ [
+  'Aula 1 — Eu gosto: I like.',
+  'Aula 2 — Eu gosto de café: I like coffee.',
+  'Aula 3 — Você gosta?: do you like?',
+  'Aula 4 — Você quer?: do you want?',
+  'Aula 5 — Você trabalha?: do you work?',
+  'Aula 6 — Onde?: where?',
+  'Aula 7 — O quê?: what?',
+  'Aula 8 — Sim: yes.'
+ ],
+ [
+  'Aula 1 — Casa: house.',
+  'Aula 2 — Quarto: room.',
+  'Aula 3 — Cozinha: kitchen.',
+  'Aula 4 — Banheiro: bathroom.',
+  'Aula 5 — Rua: street.',
+  'Aula 6 — Mercado: market.',
+  'Aula 7 — Aqui: here.',
+  'Aula 8 — Ali: there.'
+ ],
+ [
+  'Aula 1 — Pão: bread.',
+  'Aula 2 — Arroz: rice.',
+  'Aula 3 — Frango: chicken.',
+  'Aula 4 — Peixe: fish.',
+  'Aula 5 — Suco: juice.',
+  'Aula 6 — Cardápio: menu.',
+  'Aula 7 — Conta: bill.',
+  'Aula 8 — Estou com fome: I am hungry.'
+ ],
+ [
+  'Aula 1 — Isto: this.',
+  'Aula 2 — Aquilo: that.',
+  'Aula 3 — Quanto custa?: how much?',
+  'Aula 4 — Barato: cheap.',
+  'Aula 5 — Caro: expensive.',
+  'Aula 6 — Pequeno: small.',
+  'Aula 7 — Grande: big.',
+  'Aula 8 — Comprar: buy.'
+ ],
+ [
+  'Aula 1 — Esquerda: left.',
+  'Aula 2 — Direita: right.',
+  'Aula 3 — Em frente: straight.',
+  'Aula 4 — Ônibus: bus.',
+  'Aula 5 — Carro: car.',
+  'Aula 6 — Estação: station.',
+  'Aula 7 — Pare aqui: stop here.',
+  'Aula 8 — É perto?: is it near?'
+ ],
+ [
+  'Aula 1 — Música: music.',
+  'Aula 2 — Filme: movie.',
+  'Aula 3 — Jogo: game.',
+  'Aula 4 — Futebol: football.',
+  'Aula 5 — Cozinhar: cook.',
+  'Aula 6 — Nadar: swim.',
+  'Aula 7 — Eu consigo: I can.',
+  'Aula 8 — Você consegue nadar?: can you swim?'
+ ],
+ [
+  'Aula 1 — Ontem: yesterday.',
+  'Aula 2 — Trabalhei: worked.',
+  'Aula 3 — Comi: ate.',
+  'Aula 4 — Bebi: drank.',
+  'Aula 5 — Assisti: watched.',
+  'Aula 6 — Fui: went.',
+  'Aula 7 — Fiquei: stayed.',
+  'Aula 8 — Fim de semana: weekend.'
+ ],
+ [
+  'Aula 1 — Revisão: hello.',
+  'Aula 2 — Revisão: my name is...',
+  'Aula 3 — Água, por favor: water, please.',
+  'Aula 4 — Onde fica o mercado?: where is the market?',
+  'Aula 5 — Quanto custa?: how much?',
+  'Aula 6 — Vire à esquerda: turn left.',
+  'Aula 7 — Obrigado: thank you.',
+  'Aula 8 — Até logo: goodbye.'
+ ]
+];
 const MIC_SELECTOR='#homeChatMic';
 const MODULE_BTN_SELECTOR='#homeModulePicker .modulePickBtn';
 const CLOSE_SELECTOR='#home .homeChatClose';
@@ -67,6 +189,22 @@ function personaInstruction(){
 function courseCatalog(){
  return Object.entries(COURSE_MODULES).map(([level,mods])=>level+': '+mods.map((m,i)=>(i+1)+'. '+m).join(' | ')).join('\n');
 }
+function a1Curriculum(){
+ return COURSE_MODULES.A1.map((name,m)=>[
+  'A1 · Módulo '+(m+1)+' — '+name,
+  ...(A1_LESSONS[m]||[])
+ ].join('\n')).join('\n\n');
+}
+function a1Progress(){
+ const s=state(),done=s.done&&typeof s.done==='object'?s.done:{};
+ return COURSE_MODULES.A1.map((name,m)=>{
+   let count=0,next=0;
+   for(let n=0;n<8;n++)if(done[`A1-${m}-${n}`])count++;
+   while(next<8&&done[`A1-${m}-${next}`])next++;
+   if(next>=8)return 'Módulo '+(m+1)+' — '+name+': 8/8 concluídas.';
+   return 'Módulo '+(m+1)+' — '+name+': '+count+'/8 concluídas; próxima aula = '+(A1_LESSONS[m]?.[next]||('Aula '+(next+1)))+'.';
+ }).join('\n');
+}
 function systemText(){
  const currentMode=mode();
  if(currentMode==='course'){
@@ -81,6 +219,14 @@ function systemText(){
    courseCatalog(),
    'Quando o aluno disser o curso, confirme em uma frase curta e pergunte qual módulo desse curso ele quer. Se disser apenas um número de módulo, use exatamente a posição correspondente da lista daquele curso.',
    'Depois que o módulo for escolhido, permaneça exclusivamente nele durante a aula. Não mude para outro módulo sem o aluno pedir.',
+   'IMPORTANTE PARA A1: o conteúdo interno abaixo é o currículo REAL do aplicativo. Não improvise outra aula, não troque vocabulário e não use uma sequência criada por você.',
+   'CURRÍCULO INTERNO REAL DO A1:',
+   a1Curriculum(),
+   'PROGRESSO REAL DO ALUNO NO A1:',
+   a1Progress(),
+   'Quando o aluno escolher A1 e um módulo, comece pela próxima aula não concluída indicada no progresso. Se ele pedir uma aula específica, use exatamente essa aula.',
+   'Durante uma aula A1, pratique primeiro SOMENTE as palavras e frases daquela aula. Você pode variar as perguntas e os exemplos, mas não introduza conteúdo de aulas posteriores antes de concluir a atual.',
+   'Só avance para a aula seguinte quando o aluno demonstrar que entendeu ou pedir para avançar.',
    'No A1, use vocabulário e estruturas realmente simples. Faça uma pergunta curta por vez e espere a resposta.',
    'Corrija um erro por vez. Se o aluno acertar, avance aos poucos dentro do mesmo módulo.',
    'Use português do Brasil somente quando ajudar a compreensão. A prática deve priorizar inglês compatível com o nível escolhido.',
