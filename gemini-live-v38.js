@@ -213,13 +213,23 @@ function systemText(){
    'Esta sessão usa Gemini 3.1 Live em mãos livres. Não use, não espere e não dependa de nenhum TTS externo.',
    `Personalidade ativa: ${teacherLabel()}. ${personaInstruction()}`,
    `MÉTODO ESCOLHIDO: ${externalContext.topic||'assunto definido pelo aluno'}.`,
-   `AULA DO MÉTODO: ${externalContext.lesson||''}.`,
-   `FOCO DA AULA: ${externalContext.lessonTitle||externalContext.topic||''}.`,
-   'Comece diretamente nessa aula. Não pergunte qual curso ou módulo ele quer.',
+   `PROGRESSO REAL: ${externalContext.completedCount||0}/40 aulas concluídas.`,
+   `PRÓXIMA AULA REAL: ${externalContext.nextLesson||1}.`,
+   `AULA DE ENTRADA: ${externalContext.lesson||''}.`,
+   `FOCO DE ENTRADA: ${externalContext.lessonTitle||externalContext.topic||''}.`,
+   externalContext.recentTitles?`ÚLTIMAS AULAS CONCLUÍDAS PARA REVISÃO: ${externalContext.recentTitles}.`:'',
+   externalContext.lessonMap?`MAPA OFICIAL DAS 40 AULAS: ${externalContext.lessonMap}.`:'',
+   externalContext.askProgressChoice
+     ?'REGRA DE ENTRADA: primeiro diga quantas aulas o aluno já concluiu e pergunte se ele quer CONTINUAR da próxima aula real ou REVISAR alguma aula já estudada. Espere a resposta antes de começar o exercício.'
+     :'REGRA DE ENTRADA: o aluno abriu uma aula específica. Comece diretamente nela.',
+   'Se o aluno disser "continuar", "seguir", "próxima" ou equivalente, use a PRÓXIMA AULA REAL.',
+   'Se o aluno pedir revisão e disser um número, use exatamente a aula desse número no MAPA OFICIAL. Se pedir revisão sem número, sugira uma das últimas aulas concluídas.',
+   'Durante revisão, não finja que uma aula nova foi concluída. Apenas revise o conteúdo escolhido.',
+   'Durante continuação, permaneça na aula atual até o aluno demonstrar domínio ou pedir para avançar.',
    'Faça uma pergunta curta por vez, corrija um erro por vez e aumente a dificuldade aos poucos.',
    'Priorize conversação e pronúncia. Use português do Brasil apenas quando ajudar a compreensão.',
    'Se o aluno interromper você, pare e ouça.'
-  ].join('\n');
+  ].filter(Boolean).join('\n');
  }
  const currentMode=mode();
  if(currentMode==='course'){
@@ -265,6 +275,9 @@ function systemText(){
 }
 function introText(){
  if(externalContext?.kind==='method'){
+  if(externalContext.askProgressChoice){
+   return `O aluno abriu o tema ${externalContext.topic||'inglês'}. Diga em português, de forma natural e curta, que ele já concluiu ${externalContext.completedCount||0} de 40 aulas e que a próxima é a aula ${externalContext.nextLesson||1}, ${externalContext.lessonTitle||''}. Pergunte se ele quer continuar de onde parou ou revisar alguma aula anterior. Não comece o exercício até ele responder.`;
+  }
   return `Comece agora a aula particular de ${externalContext.topic||'inglês'}, ${externalContext.lessonTitle||''}. Cumprimente brevemente e faça a primeira pergunta simples em inglês, com ajuda curta em português se necessário.`;
  }
  if(mode()==='course'){
