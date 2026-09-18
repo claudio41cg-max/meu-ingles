@@ -35,7 +35,7 @@ function closeScreen(){screen?.classList.remove('open');document.body.classList.
 function back(){if(view==='lesson'){view='theme';renderTheme(active)}else if(view==='theme'){view='themes';renderThemes()}else closeScreen()}
 function renderThemes(){view='themes';const m=screen.querySelector('main');screen.querySelector('h2').textContent='Métodos';screen.querySelector('header span').textContent='40 aulas por tema';m.innerHTML='<section class="methodsHeroV42"><h1>Aprenda por temas</h1><p>Estudos independentes do curso A1–C2.</p></section><section class="methodsThemesV42">'+THEMES.map(t=>`<button data-theme="${t.id}" style="--tc:${t.color}"><h3>${esc(t.title)}</h3><strong>${done(t.id).size}/40 <small>aulas</small></strong><em>${t.emoji}</em><i><u style="width:${done(t.id).size*2.5}%"></u></i></button>`).join('')+'</section>';m.querySelectorAll('[data-theme]').forEach(b=>b.onclick=()=>{active=b.dataset.theme;renderTheme(active)})}
 function renderTheme(id){view='theme';active=id;const t=theme(id),d=done(id),cur=current(id),m=screen.querySelector('main');screen.querySelector('h2').textContent=t.title;screen.querySelector('header span').textContent=`${d.size}/40`;m.innerHTML=`<section class="methodsThemeHeadV42"><h1>${t.emoji} ${esc(t.title)}</h1><p>Escolha onde quer começar ou continue de onde parou.</p></section><section class="methodsActionsV42"><button class="cont">▶ Continuar da aula ${cur}</button><button class="start">Do início</button><button class="random">Aleatória</button></section><section class="methodsLessonsV42">${Array.from({length:40},(_,i)=>{const n=i+1;return `<button data-lesson="${n}" class="${d.has(n)?'done':''}"><b>${d.has(n)?'✓':n}</b><span>${esc(title(t,n))}<small>Aula ${n} de 40</small></span><i>›</i></button>`}).join('')}</section>`;m.querySelector('.cont').onclick=()=>openLesson(id,cur);m.querySelector('.start').onclick=()=>openLesson(id,1);m.querySelector('.random').onclick=()=>openLesson(id,1+Math.floor(Math.random()*40));m.querySelectorAll('[data-lesson]').forEach(b=>b.onclick=()=>openLesson(id,Number(b.dataset.lesson)))}
-function openLesson(id,n){view='lesson';active=id;setCurrent(id,n);const t=theme(id),m=screen.querySelector('main'),rows=[0,1,2].map(i=>t.examples[(n+i)%t.examples.length]);screen.querySelector('h2').textContent=`${t.title} · Aula ${n}`;screen.querySelector('header span').textContent=`${n}/40`;m.innerHTML=`<section class="methodsLessonV42"><div><small>AULA ${n} DE 40</small><h2>${esc(title(t,n))}</h2><p>Treino de vocabulário e conversação sobre ${esc(t.title)}.</p><i><u style="width:${Math.round(n/40*100)}%"></u></i></div>${rows.map((r,i)=>`<article><b>${esc(r[0])}</b><span>${esc(r[1])}</span><button data-speak="${i}">🔊 Ouvir</button></article>`).join('')}<footer><button class="robot">🤖 Aula particular com o robô</button><button class="finish">✓ Concluir aula</button></footer></section>`;m.querySelectorAll('[data-speak]').forEach((b,i)=>b.onclick=()=>speak(rows[i][0]));m.querySelector('.robot').onclick=()=>startRobot(id,n);m.querySelector('.finish').onclick=()=>{complete(id,n);n<40?openLesson(id,n+1):renderTheme(id)}}
+function openLesson(id,n){view='lesson';active=id;setCurrent(id,n);const t=theme(id),m=screen.querySelector('main'),rows=[0,1,2].map(i=>t.examples[(n+i)%t.examples.length]);screen.querySelector('h2').textContent=`${t.title} · Aula ${n}`;screen.querySelector('header span').textContent=`${n}/40`;m.innerHTML=`<section class="methodsLessonV42"><div><small>AULA ${n} DE 40</small><h2>${esc(title(t,n))}</h2><p>Treino de vocabulário e conversação sobre ${esc(t.title)}.</p><i><u style="width:${Math.round(n/40*100)}%"></u></i></div>${rows.map((r,i)=>`<article><b>${esc(r[0])}</b><span>${esc(r[1])}</span><button data-speak="${i}">🔊 Ouvir</button></article>`).join('')}<footer><button class="robot">🤖 Aula particular com o robô</button><button class="finish">✓ Concluir aula</button></footer></section>`;m.querySelectorAll('[data-speak]').forEach((b,i)=>b.onclick=()=>speak(rows[i][0]));m.querySelector('.robot').onclick=()=>startMethodSphere(id,n,'lesson');m.querySelector('.finish').onclick=()=>{complete(id,n);n<40?openLesson(id,n+1):renderTheme(id)}}
 async function speak(text){try{const v=JSON.parse(localStorage.getItem('meuInglesStableV2')||'{}').voice||'Aoede';await window.geminiSpeak?.(text,'en-US',v)}catch{}}
 function refresh(){if(!screen?.classList.contains('open'))return;view==='themes'?renderThemes():view==='theme'&&renderTheme(active)}
 function ensureSheet(c){if(sheet?.isConnected)return;sheet=document.createElement('div');sheet.className='robotMethodsSheetV42';sheet.innerHTML='<header><button>‹</button><h3>Métodos</h3></header><main></main>';c.appendChild(sheet);sheet.querySelector('header button').onclick=()=>sheetView==='lessons'?renderRobotThemes():closeRobot()}
@@ -60,13 +60,132 @@ function renderRobotThemes(){
      <i>›</i>
    </button>`;
  }).join('');
- m.querySelectorAll('[data-theme]').forEach(b=>b.onclick=()=>renderRobotLessons(b.dataset.theme));
+ m.querySelectorAll('[data-theme]').forEach(b=>b.onclick=()=>startMethodSphere(b.dataset.theme,null,'theme'));
 }
-function renderRobotLessons(id){sheetView='lessons';const t=theme(id),cur=current(id),d=done(id),m=sheet.querySelector('main');sheet.querySelector('h3').textContent=t.title;m.innerHTML=`<section class="robotQuickV42"><button class="cont">▶ Continuar ${cur}</button><button class="start">Do início</button><button class="random">Aleatória</button></section><section class="robotNumsV42">${Array.from({length:40},(_,i)=>{const n=i+1;return `<button data-n="${n}" class="${d.has(n)?'done ':''}${cur===n?'current':''}">${n}</button>`}).join('')}</section>`;m.querySelector('.cont').onclick=()=>startRobot(id,cur);m.querySelector('.start').onclick=()=>startRobot(id,1);m.querySelector('.random').onclick=()=>startRobot(id,1+Math.floor(Math.random()*40));m.querySelectorAll('[data-n]').forEach(b=>b.onclick=()=>startRobot(id,Number(b.dataset.n)))}
-async function startRobot(id,n){const t=theme(id);starting=true;setCurrent(id,n);session={themeId:id,lesson:n,turns:0,booting:true};saveSession();closeRobot();closeScreen();window.stableShow?.('home');await wait(90);try{window.stopGeminiTTS?.()}catch{}await window.startV26LiveContext?.({kind:'method',topic:t.title,lesson:`Aula ${n} de 40`,lessonTitle:title(t,n),instruction:`Aula particular somente sobre ${t.title}. Comece fácil, faça uma pergunta curta por vez, corrija meus erros e aumente a dificuldade aos poucos.`});session.booting=false;saveSession();starting=false;setTimeout(decoratePill,120);setTimeout(decoratePill,900)}
+
+function normalizeSpeech(s){
+ return String(s||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().replace(/[^a-z0-9 ]/g,' ').replace(/\s+/g,' ').trim();
+}
+function lessonMap(t){
+ return Array.from({length:40},(_,i)=>`${i+1}: ${title(t,i+1)}`).join(' | ');
+}
+function recentCompleted(id){
+ const arr=[...done(id)].sort((a,b)=>a-b);
+ return arr.slice(-5);
+}
+async function startMethodSphere(id,requestedLesson=null,source='theme'){
+ const t=theme(id),completed=done(id),cur=requestedLesson?Math.max(1,Math.min(40,Number(requestedLesson)||1)):current(id);
+ const askChoice=!requestedLesson;
+ starting=true;
+ session={
+   themeId:id,
+   lesson:cur,
+   mode:askChoice?'pending':'continue',
+   reviewLesson:null,
+   turns:0,
+   booting:true,
+   source
+ };
+ saveSession();
+ closeRobot();
+ closeScreen();
+ window.stableShow?.('home');
+ await wait(90);
+ try{window.stopGeminiTTS?.()}catch{}
+ const recent=recentCompleted(id);
+ await window.startV26LiveContext?.({
+   kind:'method',
+   topic:t.title,
+   lesson:`Aula ${cur} de 40`,
+   lessonTitle:title(t,cur),
+   completedCount:completed.size,
+   nextLesson:current(id),
+   recentCompleted:recent,
+   recentTitles:recent.map(n=>`${n}: ${title(t,n)}`).join(' | '),
+   lessonMap:lessonMap(t),
+   askProgressChoice:askChoice,
+   exactLesson:requestedLesson?cur:null,
+   instruction:askChoice
+     ?`O aluno entrou em ${t.title}. Use o progresso real. Pergunte se quer continuar da aula ${cur} ou revisar uma aula já concluída. Se pedir revisão por número, use exatamente o mapa de aulas fornecido.`
+     :`O aluno abriu diretamente a aula ${cur} de ${t.title}. Comece por essa aula, sem perguntar qual aula quer.`
+ });
+ session.booting=false;
+ saveSession();
+ starting=false;
+ setTimeout(decoratePill,120);
+ setTimeout(decoratePill,900);
+}
+
+function handleLiveMethodInput(raw){
+ if(!session||session.booting)return;
+ const n=normalizeSpeech(raw);
+ if(!n)return;
+ const t=theme(session.themeId);
+
+ if(session.mode==='pending'){
+   const num=(n.match(/(?:aula|numero|revisar|revisao)?\s*(\d{1,2})/)||[])[1];
+   const wantsReview=/revis|voltar|anterior|refazer/.test(n);
+   const wantsContinue=/continu|seguir|proxim|avancar|onde parei|de onde parei/.test(n);
+
+   if(wantsReview){
+     let lesson=num?Number(num):Math.max(1,current(session.themeId)-1);
+     lesson=Math.max(1,Math.min(40,lesson));
+     session.mode='review';
+     session.reviewLesson=lesson;
+     session.lesson=lesson;
+     session.turns=0;
+     saveSession();
+     setTimeout(decoratePill,20);
+     return;
+   }
+   if(wantsContinue){
+     session.mode='continue';
+     session.reviewLesson=null;
+     session.lesson=current(session.themeId);
+     session.turns=0;
+     saveSession();
+     setTimeout(decoratePill,20);
+     return;
+   }
+ }
+
+ if(session.mode==='review'){
+   if(/continu|seguir|proxim|avancar|voltar pro curso|onde parei/.test(n)){
+     session.mode='continue';
+     session.reviewLesson=null;
+     session.lesson=current(session.themeId);
+     session.turns=0;
+     saveSession();
+     setTimeout(decoratePill,20);
+   }
+   return;
+ }
+
+ if(session.mode==='continue'){
+   session.turns=(session.turns||0)+1;
+   const explicitAdvance=/proxim|avancar|pode avancar|concluir|terminei|ja entendi|entendi essa/.test(n);
+   if(explicitAdvance||session.turns>=8){
+     const lesson=Math.max(1,Math.min(40,Number(session.lesson)||current(session.themeId)));
+     complete(session.themeId,lesson);
+     session.lesson=current(session.themeId);
+     session.turns=0;
+     saveSession();
+     setTimeout(decoratePill,20);
+   }else{
+     saveSession();
+   }
+ }
+}
 const wait=ms=>new Promise(r=>setTimeout(r,ms));
-function decoratePill(){if(!session)return;const p=document.querySelector('#homeTopicPill');if(!p)return;const t=theme(session.themeId);p.textContent=`← ${t.title} · Aula ${session.lesson}/40`;p.classList.add('methodSessionPill');p.onclick=e=>{e.preventDefault();e.stopPropagation();openRobot();setTimeout(()=>renderRobotLessons(session.themeId),0)}}
-function wrap(){if(window.__methodsV42Wrapped)return;const close=window.closeV26Conversation,start=window.startV26Conversation,send=window.v26Send;if(typeof close==='function')window.closeV26Conversation=function(...a){const r=close.apply(this,a);if(session)clearSession();setTimeout(ensureUI,0);return r};if(typeof start==='function')window.startV26Conversation=async function(...a){const r=await start.apply(this,a);setTimeout(ensureUI,0);return r};if(typeof send==='function')window.v26Send=function(...a){const count=session&&!session.booting,r=send.apply(this,a);if(count){session.turns=(session.turns||0)+1;if(session.turns>=8){complete(session.themeId,session.lesson);session.lesson=Math.min(40,session.lesson+1);session.turns=0;setCurrent(session.themeId,session.lesson);setTimeout(decoratePill,50)}saveSession()}return r};window.__methodsV42Wrapped=true}
+function decoratePill(){if(!session)return;const p=document.querySelector('#homeTopicPill');if(!p)return;const t=theme(session.themeId);const label=session.mode==='review'?`Revisão · Aula ${session.lesson}`:session.mode==='pending'?`Continuar ou revisar`:`Aula ${session.lesson}/40`;p.textContent=`← ${t.title} · ${label}`;p.classList.add('methodSessionPill');p.onclick=e=>{e.preventDefault();e.stopPropagation();openRobot()}}
+function wrap(){
+ if(window.__methodsV42Wrapped)return;
+ const close=window.closeV26Conversation,start=window.startV26Conversation;
+ if(typeof close==='function')window.closeV26Conversation=function(...a){const r=close.apply(this,a);if(session)clearSession();setTimeout(ensureUI,0);return r};
+ if(typeof start==='function')window.startV26Conversation=async function(...a){const r=await start.apply(this,a);setTimeout(ensureUI,0);return r};
+ window.addEventListener('meu-ingles-live-input',e=>handleLiveMethodInput(e?.detail?.text||''));
+ window.__methodsV42Wrapped=true;
+}
 function init(){wrap();ensureUI();document.addEventListener('click',e=>{if(!starting&&e.target.closest('#home .homeConversationChoice[data-v26mode="free"]'))clearSession()});window.addEventListener('pageshow',()=>setTimeout(ensureUI,50));document.addEventListener('visibilitychange',()=>!document.hidden&&setTimeout(ensureUI,50));setTimeout(ensureUI,300)}
 document.readyState==='loading'?document.addEventListener('DOMContentLoaded',()=>setTimeout(init,420),{once:true}):setTimeout(init,420);
 })();
