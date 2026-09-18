@@ -1,0 +1,127 @@
+/* A1 visual v53 — reforma somente da tela de módulos A1 */
+.a1ModuleGrid{
+  display:grid;
+  gap:14px;
+  margin-top:14px;
+}
+.a1ModuleCard{
+  position:relative;
+  min-height:152px;
+  padding:18px 150px 16px 18px;
+  border-radius:26px;
+  overflow:hidden;
+  cursor:pointer;
+  border:1px solid rgba(255,255,255,.16);
+  box-shadow:0 14px 34px rgba(0,0,0,.28);
+  transition:transform .18s ease,box-shadow .18s ease,filter .18s ease;
+}
+.a1ModuleCard:active{transform:scale(.985)}
+.a1ModuleCard:focus-visible{
+  outline:3px solid rgba(255,255,255,.8);
+  outline-offset:3px;
+}
+.a1ModuleCopy{position:relative;z-index:2}
+.a1ModuleNumber{
+  font-size:11px;
+  font-weight:950;
+  letter-spacing:.10em;
+  opacity:.72;
+}
+.a1ModuleCard h3{
+  margin:6px 0 8px;
+  max-width:420px;
+  font-size:22px;
+  line-height:1.08;
+  color:#fff;
+  text-shadow:0 1px 10px rgba(0,0,0,.18);
+}
+.a1ModuleCount{
+  font-size:13px;
+  font-weight:850;
+  color:rgba(255,255,255,.86);
+  margin-bottom:9px;
+}
+.a1ModuleCard .moduleProgress{
+  width:min(320px,100%);
+  height:8px;
+  margin-top:0;
+  background:rgba(5,15,28,.24);
+  border:1px solid rgba(255,255,255,.14);
+}
+.a1ModuleCard .moduleProgress span{
+  background:linear-gradient(90deg,#fff,#dff7ff);
+  box-shadow:0 0 14px rgba(255,255,255,.35);
+}
+.a1ModuleArt{
+  position:absolute;
+  right:12px;
+  top:50%;
+  width:126px;
+  height:126px;
+  transform:translateY(-50%);
+  display:grid;
+  place-items:center;
+  z-index:1;
+}
+.a1ArtIcon{
+  position:relative;
+  z-index:3;
+  font-size:64px;
+  line-height:1;
+  filter:drop-shadow(0 8px 12px rgba(0,0,0,.26));
+}
+.a1ArtBlob{
+  position:absolute;
+  border-radius:50%;
+  background:rgba(255,255,255,.18);
+  backdrop-filter:blur(2px);
+}
+.a1ArtBlobOne{
+  width:104px;
+  height:104px;
+  right:5px;
+  bottom:2px;
+}
+.a1ArtBlobTwo{
+  width:52px;
+  height:52px;
+  left:0;
+  top:7px;
+  background:rgba(255,255,255,.10);
+}
+.a1ModuleCard.tone-0{background:linear-gradient(135deg,#11a78d 0%,#087d89 58%,#075f7c 100%)}
+.a1ModuleCard.tone-1{background:linear-gradient(135deg,#6b4fd2 0%,#4638a9 58%,#2e2a83 100%)}
+.a1ModuleCard.tone-2{background:linear-gradient(135deg,#e09521 0%,#cb6e24 58%,#a74d2c 100%)}
+.a1ModuleCard.tone-3{background:linear-gradient(135deg,#d44e86 0%,#a93874 58%,#742f68 100%)}
+.a1ModuleCard.tone-4{background:linear-gradient(135deg,#2997df 0%,#1878c9 58%,#1557a8 100%)}
+.a1ModuleCard.tone-5{background:linear-gradient(135deg,#6cad3c 0%,#498e36 58%,#2f7034 100%)}
+.a1ModuleCard.complete{
+  box-shadow:0 14px 34px rgba(0,0,0,.28),inset 0 0 0 2px rgba(255,255,255,.28);
+}
+@media(max-width:520px){
+  .a1ModuleCard{
+    min-height:142px;
+    padding:16px 118px 14px 16px;
+    border-radius:23px;
+  }
+  .a1ModuleCard h3{
+    font-size:19px;
+    max-width:100%;
+  }
+  .a1ModuleArt{
+    width:104px;
+    height:104px;
+    right:7px;
+  }
+  .a1ArtIcon{font-size:52px}
+  .a1ArtBlobOne{width:88px;height:88px}
+  .a1ArtBlobTwo{width:44px;height:44px}
+}
+@media(max-width:370px){
+  .a1ModuleCard{
+    padding-right:100px;
+  }
+  .a1ModuleCard h3{font-size:17px}
+  .a1ModuleArt{width:90px;height:90px}
+  .a1ArtIcon{font-size:46px}
+}
