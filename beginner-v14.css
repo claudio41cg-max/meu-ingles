@@ -133,3 +133,26 @@
   #course.first-contacts-lesson-active .beginner14 .b14Word{font-size:30px}
   #course.first-contacts-lesson-active .beginner14 h2{font-size:22px}
 }
+
+
+/* Primeiros contatos — identidade visual verde/azulada */
+#course.first-contacts-lesson-active .beginner14 .b14Choice.correct{
+  border-color:#2fd6a0;
+  background:linear-gradient(135deg,rgba(17,167,141,.30),rgba(8,125,137,.22));
+}
+#course.first-contacts-lesson-active .beginner14 .b14Feedback.good{
+  border-color:#2fd6a0;
+  background:linear-gradient(135deg,rgba(17,167,141,.28),rgba(8,125,137,.20));
+}
+#course.first-contacts-lesson-active .beginner14 .b14Token.correct{
+  border-color:#2fd6a0;
+  background:linear-gradient(135deg,rgba(17,167,141,.28),rgba(8,125,137,.18));
+}
+#course.first-contacts-lesson-active .beginner14 .b14Conversation button.correct{
+  border-color:#2fd6a0;
+  background:linear-gradient(135deg,rgba(17,167,141,.28),rgba(8,125,137,.18));
+}
+#course.first-contacts-lesson-active .beginner14 .b14CorrectOrder{
+  background:linear-gradient(135deg,rgba(17,167,141,.24),rgba(8,125,137,.18));
+  color:#d7fff7;
+}
