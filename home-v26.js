@@ -18,6 +18,66 @@ function norm(s){return String(s||'').normalize('NFD').replace(/[\u0300-\u036f]/
 function currentLevel(){return (st().level||'A1').toUpperCase()}
 function currentTeacher(){return st().teacher||'media'}
 function currentVoice(){return st().voice||'Aoede'}
+function currentName(){return String(st().name||'aluno').trim()||'aluno'}
+const HOME_GUIDES=[
+  n=>`Oi, ${n}! Aqui você pode escolher três caminhos. Em Métodos, você treina um assunto específico. Em Temas dos módulos, revisa o que está estudando no curso. E no Modo livre, conversa sobre o que quiser. O que você gostaria de fazer?`,
+  n=>`${n}, quer estudar de um jeito mais focado ou mais solto? Métodos serve para escolher um assunto. Temas dos módulos acompanha o seu curso. E Modo livre é para conversar sem roteiro. Qual você quer agora?`,
+  n=>`Vamos escolher seu caminho, ${n}. Métodos é bom para praticar temas específicos. Temas dos módulos trabalha o conteúdo do seu curso. E Modo livre deixa a conversa aberta. O que você gostaria de fazer?`,
+  n=>`Aqui é simples, ${n}. Se quiser um assunto específico, entre em Métodos. Se quiser revisar o curso, use Temas dos módulos. Se quiser só conversar, vá de Modo livre. Por onde você quer começar?`,
+  n=>`${n}, você pode aprender por tema, pelo curso ou conversando livremente. Métodos é por assunto, Temas dos módulos segue seu aprendizado, e Modo livre é conversa sem roteiro. O que combina mais com você agora?`,
+  n=>`Tem três jeitos de praticar aqui. Métodos para uma aula particular sobre um tema, Temas dos módulos para reforçar o curso, e Modo livre para conversar à vontade. ${n}, o que você gostaria de fazer hoje?`,
+  n=>`Se estiver em dúvida, eu te ajudo, ${n}. Métodos foca em um assunto. Temas dos módulos revisa suas aulas. Modo livre deixa você escolher qualquer conversa. Qual opção você quer experimentar?`,
+  n=>`${n}, escolha o tipo de prática que está com vontade de fazer. Tema específico? Métodos. Revisar o curso? Temas dos módulos. Conversar sem roteiro? Modo livre. O que você prefere?`,
+  n=>`Bora escolher, ${n}. Em Métodos você pega um tema e treina. Em Temas dos módulos você pratica o conteúdo do curso. Em Modo livre a conversa é aberta. Qual caminho você quer seguir?`,
+  n=>`Você não precisa estudar sempre do mesmo jeito, ${n}. Pode usar Métodos, revisar Temas dos módulos ou entrar no Modo livre. O que você gostaria de fazer agora?`,
+  n=>`${n}, quer que eu te guie? Métodos é para assuntos específicos, Temas dos módulos é para o curso que você está fazendo, e Modo livre é para conversar sem limites de tema. Qual deles você escolhe?`,
+  n=>`Hoje você manda, ${n}. Pode estudar um assunto em Métodos, revisar seu curso em Temas dos módulos ou simplesmente conversar no Modo livre. O que você gostaria de fazer?`
+];
+let homeGuideBusy=false;
+function pickHomeGuide(){
+  let last=-1;
+  try{last=Number(localStorage.getItem('meuInglesHomeGuideLastV1'))}catch{}
+  let i=Math.floor(Math.random()*HOME_GUIDES.length);
+  if(HOME_GUIDES.length>1&&i===last)i=(i+1)%HOME_GUIDES.length;
+  try{localStorage.setItem('meuInglesHomeGuideLastV1',String(i))}catch{}
+  return {i,text:HOME_GUIDES[i](currentName())};
+}
+function clearGuideHighlight(){
+  document.querySelectorAll('#home .homeConversationChoice').forEach(x=>x.classList.remove('guide-highlight'));
+}
+function pulseGuideChoice(sel,delay){
+  setTimeout(()=>{
+    clearGuideHighlight();
+    document.querySelector(sel)?.classList.add('guide-highlight');
+  },delay);
+}
+window.playHomeRobotGuide=async()=>{
+  if(homeGuideBusy||phase!=='idle')return;
+  const robot=document.querySelector('#home .homeRobotStage');
+  if(!robot)return;
+  const {i,text}=pickHomeGuide();
+  homeGuideBusy=true;
+  robot.classList.add('home-guide-speaking','guide-mood-'+(i%4));
+  setRobotState('happy');
+  pulseGuideChoice('#home [data-v26mode="methods"]',900);
+  pulseGuideChoice('#home [data-v26mode="module"]',3600);
+  pulseGuideChoice('#home [data-v26mode="free"]',6500);
+  try{
+    window.stopGeminiTTS?.();
+    setRobotState('speaking');
+    if(typeof window.geminiSpeak==='function'){
+      await window.geminiSpeak(text,'pt-BR',currentVoice());
+    }else{
+      await say(text,'happy');
+    }
+  }finally{
+    clearGuideHighlight();
+    robot.classList.remove('home-guide-speaking','guide-mood-0','guide-mood-1','guide-mood-2','guide-mood-3');
+    setRobotState('happy');
+    setTimeout(()=>setRobotState(''),650);
+    homeGuideBusy=false;
+  }
+};
 function currentModule(){const t=(document.querySelector('#nextLessonTitle')?.textContent||'').trim();return (t.split('·')[0]||'Primeiros contatos').trim()}
 function card(){return document.querySelector('#home .professorPanel')}
 function setFocus(on){document.querySelector('#home')?.classList.toggle('conversation-focus',!!on)}
@@ -70,9 +130,12 @@ function render(){
  const c=card();if(!c)return;
  c.classList.add('homeTalkCard');
  c.innerHTML=`
- <div class="homeConversationTop"><h2>Converse em inglês</h2><button class="teacherTypesBtn" onclick="openTeacherTypes()">🤖 Tipos de professor</button></div>
- <p class="homeConversationIntro">Pratique com a IA no tema de um módulo ou converse livremente.</p>
- <div class="homeRobotStage"><img class="homeRobot" src="assets/robot-professor.svg?v=26" alt="Robô professor"></div>
+ <div class="homeConversationTop"><h2>Converse e Divirta-se</h2><button class="teacherTypesBtn" onclick="openTeacherTypes()">🤖 Tipos de professor</button></div>
+ <p class="homeConversationIntro">Em Métodos, Temas dos módulos e Modo livre, escolha como quer praticar hoje.</p>
+ <button class="homeRobotStage homeRobotGuideButton" type="button" onclick="playHomeRobotGuide()" aria-label="Ouvir mini tutorial">
+   <img class="homeRobot" src="assets/robot-professor.svg?v=26" alt="Robô professor">
+   <span class="homeRobotGuideHint">🔊 Toque em mim</span>
+ </button>
  <div class="homeConversationChoices">
    <button class="homeConversationChoice methodsCard" data-v26mode="methods" onclick="openMethodsRobot(event)"><span class="ico">🧭</span><span><b>Métodos</b><small>Escolha um tema e uma aula particular</small></span><span class="choiceArrow">›</span></button>
    <button class="homeConversationChoice ${mode==='module'?'active':''}" data-v26mode="module" onclick="startV26FromCard('module')"><span class="ico">🧩</span><span><b>Tema dos módulos</b><small>Escolha um módulo e pratique por áudio</small></span></button>
