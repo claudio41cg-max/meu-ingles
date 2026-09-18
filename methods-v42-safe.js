@@ -13,7 +13,7 @@ const THEMES=[
  ['saude','Saúde','🩺','#81d9e7',['corpo','como se sente','sintomas','farmácia','consulta','dor','hábitos','orientações','marcando consulta','conversa completa'],[['I have a headache.','Estou com dor de cabeça.'],['I need a pharmacy.','Preciso de uma farmácia.'],['I feel better today.','Estou melhor hoje.']]],
  ['casa','Casa e rotina','🏠','#d6a5ff',['cômodos','objetos','onde está','minha casa','tarefas','manhã','noite','convidando alguém','problemas','conversa completa'],[['The kitchen is small.','A cozinha é pequena.'],['My keys are on the table.','Minhas chaves estão na mesa.'],['I make coffee every morning.','Faço café toda manhã.']]]
 ].map(x=>({id:x[0],title:x[1],emoji:x[2],color:x[3],stages:x[4],examples:x[5]}));
-let screen=null,view='themes',active=null,sheet=null,sheetView='themes',session=readSession(),starting=false;
+let screen=null,view='themes',screenMode='study',active=null,session=readSession(),starting=false;
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const theme=id=>THEMES.find(t=>t.id===id)||THEMES[0];
 const title=(t,n)=>`${t.stages[Math.floor((Math.max(1,Math.min(40,n))-1)/4)]} · parte ${((n-1)%4)+1}`;
@@ -30,37 +30,52 @@ function clearSession(){session=null;saveSession()}
 function ensureHome(){const h=document.querySelector('#home'),a=h?.querySelector('.allCoursesCard');if(!a||h.querySelector('.methodsHomeCardV42'))return;const b=document.createElement('button');b.type='button';b.className='methodsHomeCardV42';b.innerHTML='<span>🧭</span><span><small>ESTUDO POR ASSUNTO</small><b>Métodos</b><em>Família, viagens, comida, hotel e muito mais.</em></span><i>›</i>';b.onclick=openScreen;a.insertAdjacentElement('afterend',b)}
 function ensureUI(){ensureHome();decoratePill()}
 function createScreen(){if(screen)return;screen=document.createElement('div');screen.className='methodsScreenV42';screen.innerHTML='<div class="methodsInnerV42"><header><button class="methodsBackV42">‹</button><h2>Métodos</h2><span></span></header><main></main></div>';document.body.appendChild(screen);screen.querySelector('.methodsBackV42').onclick=back}
-function openScreen(){createScreen();view='themes';active=null;renderThemes();screen.classList.add('open');document.body.classList.add('methodsLockV42')}
+function openScreen(){createScreen();screenMode='study';view='themes';active=null;renderThemes();screen.classList.add('open');document.body.classList.add('methodsLockV42')}
 function closeScreen(){screen?.classList.remove('open');document.body.classList.remove('methodsLockV42')}
-function back(){if(view==='lesson'){view='theme';renderTheme(active)}else if(view==='theme'){view='themes';renderThemes()}else closeScreen()}
+function back(){if(screenMode==='conversation'){closeScreen();return}if(view==='lesson'){view='theme';renderTheme(active)}else if(view==='theme'){view='themes';renderThemes()}else closeScreen()}
 function renderThemes(){view='themes';const m=screen.querySelector('main');screen.querySelector('h2').textContent='Métodos';screen.querySelector('header span').textContent='40 aulas por tema';m.innerHTML='<section class="methodsHeroV42"><h1>Aprenda por temas</h1><p>Estudos independentes do curso A1–C2.</p></section><section class="methodsThemesV42">'+THEMES.map(t=>`<button data-theme="${t.id}" style="--tc:${t.color}"><h3>${esc(t.title)}</h3><strong>${done(t.id).size}/40 <small>aulas</small></strong><em>${t.emoji}</em><i><u style="width:${done(t.id).size*2.5}%"></u></i></button>`).join('')+'</section>';m.querySelectorAll('[data-theme]').forEach(b=>b.onclick=()=>{active=b.dataset.theme;renderTheme(active)})}
 function renderTheme(id){view='theme';active=id;const t=theme(id),d=done(id),cur=current(id),m=screen.querySelector('main');screen.querySelector('h2').textContent=t.title;screen.querySelector('header span').textContent=`${d.size}/40`;m.innerHTML=`<section class="methodsThemeHeadV42"><h1>${t.emoji} ${esc(t.title)}</h1><p>Escolha onde quer começar ou continue de onde parou.</p></section><section class="methodsActionsV42"><button class="cont">▶ Continuar da aula ${cur}</button><button class="start">Do início</button><button class="random">Aleatória</button></section><section class="methodsLessonsV42">${Array.from({length:40},(_,i)=>{const n=i+1;return `<button data-lesson="${n}" class="${d.has(n)?'done':''}"><b>${d.has(n)?'✓':n}</b><span>${esc(title(t,n))}<small>Aula ${n} de 40</small></span><i>›</i></button>`}).join('')}</section>`;m.querySelector('.cont').onclick=()=>openLesson(id,cur);m.querySelector('.start').onclick=()=>openLesson(id,1);m.querySelector('.random').onclick=()=>openLesson(id,1+Math.floor(Math.random()*40));m.querySelectorAll('[data-lesson]').forEach(b=>b.onclick=()=>openLesson(id,Number(b.dataset.lesson)))}
 function openLesson(id,n){view='lesson';active=id;setCurrent(id,n);const t=theme(id),m=screen.querySelector('main'),rows=[0,1,2].map(i=>t.examples[(n+i)%t.examples.length]);screen.querySelector('h2').textContent=`${t.title} · Aula ${n}`;screen.querySelector('header span').textContent=`${n}/40`;m.innerHTML=`<section class="methodsLessonV42"><div><small>AULA ${n} DE 40</small><h2>${esc(title(t,n))}</h2><p>Treino de vocabulário e conversação sobre ${esc(t.title)}.</p><i><u style="width:${Math.round(n/40*100)}%"></u></i></div>${rows.map((r,i)=>`<article><b>${esc(r[0])}</b><span>${esc(r[1])}</span><button data-speak="${i}">🔊 Ouvir</button></article>`).join('')}<footer><button class="robot">🤖 Aula particular com o robô</button><button class="finish">✓ Concluir aula</button></footer></section>`;m.querySelectorAll('[data-speak]').forEach((b,i)=>b.onclick=()=>speak(rows[i][0]));m.querySelector('.robot').onclick=()=>startMethodSphere(id,n,'lesson');m.querySelector('.finish').onclick=()=>{complete(id,n);n<40?openLesson(id,n+1):renderTheme(id)}}
 async function speak(text){try{const v=JSON.parse(localStorage.getItem('meuInglesStableV2')||'{}').voice||'Aoede';await window.geminiSpeak?.(text,'en-US',v)}catch{}}
 function refresh(){if(!screen?.classList.contains('open'))return;view==='themes'?renderThemes():view==='theme'&&renderTheme(active)}
-function ensureSheet(c){if(sheet?.isConnected)return;sheet=document.createElement('div');sheet.className='robotMethodsSheetV42';sheet.innerHTML='<header><button>‹</button><h3>Métodos</h3></header><main></main>';c.appendChild(sheet);sheet.querySelector('header button').onclick=()=>sheetView==='lessons'?renderRobotThemes():closeRobot()}
-function openRobot(){const c=document.querySelector('#home .professorPanel.homeTalkCard');if(!c)return;ensureSheet(c);renderRobotThemes();sheet.classList.add('open')}
-window.openMethodsRobot=e=>{e?.preventDefault?.();e?.stopPropagation?.();openRobot()}
-function closeRobot(){sheet?.classList.remove('open')}
-function renderRobotThemes(){
- sheetView='themes';
- sheet.querySelector('h3').textContent='Escolha um tema';
- const m=sheet.querySelector('main');
- m.classList.add('robotThemeCardsV72');
- m.innerHTML=THEMES.map((t,index)=>{
-   const total=done(t.id).size;
-   const pct=Math.round(total/40*100);
-   return `<button data-theme="${t.id}" class="robotThemeCardV72 tone-${index%8}">
-     <span class="robotThemeArtV72" aria-hidden="true"><em>${t.emoji}</em></span>
-     <span class="robotThemeInfoV72">
-       <b>${esc(t.title)}</b>
-       <small><strong>${total}</strong>/40 aulas concluídas</small>
-       <span class="robotThemeProgressV72"><u style="width:${pct}%"></u></span>
-     </span>
-     <i>›</i>
-   </button>`;
- }).join('');
- m.querySelectorAll('[data-theme]').forEach(b=>b.onclick=()=>startMethodSphere(b.dataset.theme,null,'theme'));
+function openConversationMethods(){
+ createScreen();
+ screenMode='conversation';
+ view='conversationThemes';
+ active=null;
+ renderConversationThemes();
+ screen.classList.add('open');
+ document.body.classList.add('methodsLockV42');
+}
+window.openMethodsRobot=e=>{e?.preventDefault?.();e?.stopPropagation?.();openConversationMethods()}
+
+function renderConversationThemes(){
+ view='conversationThemes';
+ const m=screen.querySelector('main');
+ screen.querySelector('h2').textContent='Escolha um tema';
+ screen.querySelector('header span').textContent='Conversa com a esfera';
+ m.className='conversationMethodsMainV74';
+ m.innerHTML=`<section class="conversationMethodsIntroV74">
+   <span>MÉTODOS</span>
+   <h1>Escolha um tema</h1>
+   <p>Toque em um tema para entrar direto na conversa com a esfera.</p>
+ </section>
+ <section class="conversationMethodsCardsV74">
+   ${THEMES.map((t,index)=>{
+     const total=done(t.id).size;
+     const pct=Math.round(total/40*100);
+     return `<button data-conv-theme="${t.id}" class="conversationThemeCardV74 tone-${index%8}">
+       <span class="conversationThemeArtV74"><em>${t.emoji}</em></span>
+       <span class="conversationThemeInfoV74">
+         <b>${esc(t.title)}</b>
+         <small><strong>${total}</strong>/40 aulas concluídas</small>
+         <span class="conversationThemeProgressV74"><u style="width:${pct}%"></u></span>
+       </span>
+       <i>›</i>
+     </button>`;
+   }).join('')}
+ </section>`;
+ m.querySelectorAll('[data-conv-theme]').forEach(b=>b.onclick=()=>startMethodSphere(b.dataset.convTheme,null,'theme'));
 }
 
 function normalizeSpeech(s){
@@ -87,7 +102,6 @@ async function startMethodSphere(id,requestedLesson=null,source='theme'){
    source
  };
  saveSession();
- closeRobot();
  closeScreen();
  window.stableShow?.('home');
  await wait(90);
@@ -177,7 +191,7 @@ function handleLiveMethodInput(raw){
  }
 }
 const wait=ms=>new Promise(r=>setTimeout(r,ms));
-function decoratePill(){if(!session)return;const p=document.querySelector('#homeTopicPill');if(!p)return;const t=theme(session.themeId);const label=session.mode==='review'?`Revisão · Aula ${session.lesson}`:session.mode==='pending'?`Continuar ou revisar`:`Aula ${session.lesson}/40`;p.textContent=`← ${t.title} · ${label}`;p.classList.add('methodSessionPill');p.onclick=e=>{e.preventDefault();e.stopPropagation();openRobot()}}
+function decoratePill(){if(!session)return;const p=document.querySelector('#homeTopicPill');if(!p)return;const t=theme(session.themeId);const label=session.mode==='review'?`Revisão · Aula ${session.lesson}`:session.mode==='pending'?`Continuar ou revisar`:`Aula ${session.lesson}/40`;p.textContent=`← ${t.title} · ${label}`;p.classList.add('methodSessionPill');p.onclick=e=>{e.preventDefault();e.stopPropagation();openConversationMethods()}}
 function wrap(){
  if(window.__methodsV42Wrapped)return;
  const close=window.closeV26Conversation,start=window.startV26Conversation;
