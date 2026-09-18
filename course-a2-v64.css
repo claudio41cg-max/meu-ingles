@@ -1,0 +1,121 @@
+/* A2 visual completo v64 */
+.a2ModuleGrid{display:grid;gap:14px;margin-top:14px}
+
+.a2ModuleCard,
+.a2ModuleLessons,
+.a2LessonShell{
+  --a2a:#2f8ee5;
+  --a2b:#1b65c2;
+  --a2c:#174b92;
+  --a2soft:rgba(47,142,229,.24);
+  --a2line:rgba(115,190,255,.48);
+  --a2text:#dff2ff;
+}
+
+.a2ModuleCard.tone-0,.a2ModuleLessons.tone-0,.a2LessonShell.tone-0{
+  --a2a:#2f8ee5;--a2b:#1b65c2;--a2c:#174b92;--a2soft:rgba(47,142,229,.24);--a2line:rgba(115,190,255,.48);--a2text:#e4f4ff
+}
+.a2ModuleCard.tone-1,.a2ModuleLessons.tone-1,.a2LessonShell.tone-1{
+  --a2a:#7666df;--a2b:#5547bd;--a2c:#3d358e;--a2soft:rgba(118,102,223,.24);--a2line:rgba(172,159,255,.48);--a2text:#f0edff
+}
+.a2ModuleCard.tone-2,.a2ModuleLessons.tone-2,.a2LessonShell.tone-2{
+  --a2a:#dc8a2f;--a2b:#bb6529;--a2c:#8d4728;--a2soft:rgba(220,138,47,.24);--a2line:rgba(255,190,112,.5);--a2text:#fff2df
+}
+.a2ModuleCard.tone-3,.a2ModuleLessons.tone-3,.a2LessonShell.tone-3{
+  --a2a:#c84f8b;--a2b:#9f3e79;--a2c:#71315f;--a2soft:rgba(200,79,139,.24);--a2line:rgba(255,143,200,.48);--a2text:#ffe8f4
+}
+.a2ModuleCard.tone-4,.a2ModuleLessons.tone-4,.a2LessonShell.tone-4{
+  --a2a:#1fa58e;--a2b:#137b7f;--a2c:#0d5e6f;--a2soft:rgba(31,165,142,.24);--a2line:rgba(98,225,203,.48);--a2text:#e0fff9
+}
+.a2ModuleCard.tone-5,.a2ModuleLessons.tone-5,.a2LessonShell.tone-5{
+  --a2a:#76a83d;--a2b:#568532;--a2c:#3c662e;--a2soft:rgba(118,168,61,.24);--a2line:rgba(177,226,113,.48);--a2text:#efffdf
+}
+
+/* camada 1: módulos */
+.a2ModuleCard{
+  position:relative;min-height:152px;padding:18px 150px 16px 18px;border-radius:26px;
+  overflow:hidden;cursor:pointer;border:1px solid rgba(255,255,255,.17);
+  background:linear-gradient(135deg,var(--a2a) 0%,var(--a2b) 58%,var(--a2c) 100%);
+  box-shadow:0 14px 34px rgba(0,0,0,.28);
+  transition:transform .18s ease,filter .18s ease
+}
+.a2ModuleCard:active{transform:scale(.985)}
+.a2ModuleCard:focus-visible{outline:3px solid rgba(255,255,255,.8);outline-offset:3px}
+.a2ModuleCard.complete{box-shadow:0 14px 34px rgba(0,0,0,.28),inset 0 0 0 2px rgba(255,255,255,.28)}
+.a2ModuleCopy{position:relative;z-index:2}
+.a2ModuleNumber,.a2LessonNumber,.a2ModuleLessonsEyebrow{
+  font-size:11px;font-weight:950;letter-spacing:.10em;color:rgba(255,255,255,.74)
+}
+.a2ModuleCard h3{margin:6px 0 8px;max-width:420px;font-size:22px;line-height:1.08;color:#fff;text-shadow:0 1px 10px rgba(0,0,0,.18)}
+.a2ModuleCount{font-size:13px;font-weight:850;color:rgba(255,255,255,.87);margin-bottom:9px}
+.a2ModuleCard .moduleProgress{width:min(320px,100%);height:8px;margin-top:0;background:rgba(5,15,28,.24);border:1px solid rgba(255,255,255,.14)}
+.a2ModuleCard .moduleProgress span{background:linear-gradient(90deg,#fff,var(--a2text));box-shadow:0 0 14px rgba(255,255,255,.32)}
+.a2ModuleArt{position:absolute;right:12px;top:50%;width:126px;height:126px;transform:translateY(-50%);display:grid;place-items:center;z-index:1}
+.a2ArtIcon{position:relative;z-index:3;font-size:62px;line-height:1;filter:drop-shadow(0 8px 12px rgba(0,0,0,.26))}
+.a2ArtBlob{position:absolute;border-radius:50%;background:rgba(255,255,255,.17)}
+.a2ArtBlobOne{width:104px;height:104px;right:5px;bottom:2px}
+.a2ArtBlobTwo{width:52px;height:52px;left:0;top:7px;background:rgba(255,255,255,.09)}
+
+/* camada 2: aulas do módulo */
+.a2ModuleLessons{display:grid;gap:14px}
+.a2ModuleLessonsHead{display:flex;align-items:center;gap:14px;padding:4px 0 3px}
+.a2ModuleLessonsHead .back{border-color:var(--a2line);background:linear-gradient(145deg,var(--a2b),var(--a2c))}
+.a2ModuleLessonsHead h2{margin:4px 0 0;font-size:29px;line-height:1.08}
+.a2ModuleLessonsEyebrow{color:var(--a2text)}
+.a2LessonGrid{display:grid;gap:13px}
+.a2LessonCard{
+  position:relative;min-height:132px;padding:17px 124px 15px 17px;border-radius:23px;overflow:hidden;
+  cursor:pointer;border:1px solid var(--a2line);
+  background:linear-gradient(135deg,color-mix(in srgb,var(--a2a) 38%,#0b1d2b),color-mix(in srgb,var(--a2c) 56%,#071522));
+  box-shadow:0 12px 28px rgba(0,0,0,.24);transition:transform .18s ease
+}
+.a2LessonCard:active{transform:scale(.986)}
+.a2LessonCard:focus-visible{outline:3px solid var(--a2line);outline-offset:2px}
+.a2LessonCard.done{box-shadow:0 12px 28px rgba(0,0,0,.24),inset 0 0 0 2px var(--a2line)}
+.a2LessonCopy{position:relative;z-index:2}
+.a2LessonNumber{color:var(--a2text)}
+.a2LessonCard h4{margin:7px 0 8px;font-size:20px;line-height:1.12;color:#fff}
+.a2LessonStatus{font-size:13px;font-weight:800;color:rgba(255,255,255,.76)}
+.a2LessonArt{position:absolute;right:10px;top:50%;width:92px;height:92px;transform:translateY(-50%);display:grid;place-items:center;border-radius:50%;background:var(--a2soft)}
+.a2LessonArt span{font-size:46px;filter:drop-shadow(0 6px 9px rgba(0,0,0,.24))}
+
+/* camada 3: conteúdo da aula */
+.a2LessonShell .lessonProgress span{background:linear-gradient(90deg,var(--a2a),var(--a2b),var(--a2c))}
+.a2LessonShell .lessonHeader .back{border-color:var(--a2line);background:linear-gradient(145deg,var(--a2b),var(--a2c))}
+.a2LessonShell .lessonHeaderGrow small{color:var(--a2text)}
+.a2LessonShell .teacherDock{border-color:var(--a2line);background:linear-gradient(145deg,var(--a2soft),rgba(8,20,32,.86))}
+.a2LessonShell .teacherModes button.active:not(.hard){background:var(--a2b);border-color:var(--a2line)}
+.a2LessonShell .lessonStage{border-color:var(--a2line);background:linear-gradient(145deg,color-mix(in srgb,var(--a2a) 12%,#102338),#0b1826)}
+.a2LessonShell .stageBadge{background:var(--a2soft);border-color:var(--a2line);color:var(--a2text)}
+.a2LessonShell .example,.a2LessonShell .vocab{border-color:var(--a2line);background:linear-gradient(145deg,var(--a2soft),#102638)}
+.a2LessonShell .vocab:active{border-color:var(--a2a)}
+.a2LessonShell .choice:hover,.a2LessonShell .choice:active{border-color:var(--a2a)}
+.a2LessonShell .choice.correct{border-color:var(--a2a);background:var(--a2soft);color:#fff}
+.a2LessonShell .audioBig{background:linear-gradient(145deg,var(--a2a),var(--a2b));box-shadow:0 7px 0 var(--a2c)}
+.a2LessonShell .wordChip{border-color:var(--a2line);background:linear-gradient(145deg,var(--a2soft),#10283b)}
+.a2LessonShell .answerLine{border-bottom-color:var(--a2line)}
+.a2LessonShell .answerToken{background:var(--a2soft);border-color:var(--a2line)}
+.a2LessonShell .stageActions .btn.primary,.a2LessonShell .btn.primary.wide{
+  background:linear-gradient(135deg,var(--a2a),var(--a2b) 58%,var(--a2c));border-color:var(--a2line);color:#fff
+}
+.a2LessonShell .coachReaction.good{border-color:var(--a2a);background:var(--a2soft)}
+.a2LessonShell .scorePill{border-color:var(--a2line);background:var(--a2soft);color:var(--a2text)}
+.a2LessonShell .mic{background:linear-gradient(135deg,var(--a2a),var(--a2b));box-shadow:0 0 0 12px var(--a2soft)}
+.a2LessonShell .openAnswer input{border-color:var(--a2line)}
+.a2LessonShell .openAnswer button{background:linear-gradient(135deg,var(--a2a),var(--a2b))}
+.a2LessonShell .feedback.good{border-color:var(--a2a);background:var(--a2soft)}
+
+@media(max-width:520px){
+  .a2ModuleCard{min-height:142px;padding:16px 118px 14px 16px;border-radius:23px}
+  .a2ModuleCard h3{font-size:19px}
+  .a2ModuleArt{width:104px;height:104px;right:7px}
+  .a2ArtIcon{font-size:51px}.a2ArtBlobOne{width:88px;height:88px}.a2ArtBlobTwo{width:44px;height:44px}
+  .a2ModuleLessonsHead h2{font-size:25px}
+  .a2LessonCard{min-height:124px;padding:15px 102px 14px 15px}
+  .a2LessonCard h4{font-size:18px}
+  .a2LessonArt{width:78px;height:78px;right:7px}.a2LessonArt span{font-size:39px}
+}
+@media(max-width:370px){
+  .a2ModuleCard{padding-right:100px}.a2ModuleCard h3{font-size:17px}.a2ModuleArt{width:90px;height:90px}.a2ArtIcon{font-size:45px}
+  .a2LessonCard{padding-right:88px}.a2LessonCard h4{font-size:17px}.a2LessonArt{width:68px;height:68px}.a2LessonArt span{font-size:34px}
+}
