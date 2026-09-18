@@ -18,7 +18,7 @@ const LESSON_TYPES=['Vocabulário e escuta','Gramática em contexto','Frases ess
 const LESSON_ICONS=['🧠','🧩','💬','🎧','📖','✍️','🗣️','🏁'];
 const NEW_KEY='meuInglesStableV2';
 const OLD_KEY='meuInglesStableV1';
-const defaults={name:'Cláudio',level:'A1',teacher:'media',voice:'Aoede',scenario:'Livre',xp:0,done:{},onboarded:false,goal:'Conversar melhor',daily:10,errorStreak:0};
+const defaults={name:'',level:'A1',teacher:'media',voice:'Aoede',scenario:'Livre',xp:0,done:{},onboarded:false,goal:'Conversar melhor',daily:10,errorStreak:0};
 let saved={};
 try{saved=JSON.parse(localStorage.getItem(NEW_KEY)||localStorage.getItem(OLD_KEY)||'{}')||{}}catch(e){saved={}}
 const state=Object.assign({},defaults,saved);
@@ -83,7 +83,7 @@ function setVoice(v){
   state.voice=v;save();
 }
 window.setStableVoice=setVoice;
-window.previewStableVoice=()=>speak('Oi, Cláudio. Essa é a minha voz. Bora aprender inglês de um jeito que não dá sono?', 'pt-BR');
+window.previewStableVoice=()=>speak(`Oi, ${state.name||'aluno'}. Essa é a minha voz. Bora aprender inglês de um jeito que não dá sono?`, 'pt-BR');
 
 function setLevel(l){
   if(!LEVELS[l])return;
@@ -109,7 +109,7 @@ function renderTopStats(){
   if($('#xpStat'))$('#xpStat').textContent=state.xp;
   if($('#doneStat'))$('#doneStat').textContent=all;
   if($('#modeText'))$('#modeText').textContent=modeLabel();
-  if($('#homeName'))$('#homeName').textContent=state.name||'Cláudio';
+  if($('#homeName'))$('#homeName').textContent=state.name||'Aluno';
   if($('#courseProgressBar'))$('#courseProgressBar').style.width=`${Math.round(current/96*100)}%`;
   if($('#courseProgressText'))$('#courseProgressText').textContent=`${current} de 96 aulas deste nível`;
   if($('#dailyGoalText'))$('#dailyGoalText').textContent=`${state.daily} min por dia`;
@@ -142,7 +142,7 @@ window.restartStableOnboarding=()=>{
 };
 
 function onboardingFrame(inner,{back=true,next=true,nextText='Continuar',blue=false,nextAction='nextStableOnboarding()'}={}){
-  const pct=Math.round(((onboardStep+1)/6)*100);
+  const pct=Math.round(((onboardStep+1)/7)*100);
   return `<div class="onboard"><div class="onboardTop">${back?'<button class="onboardBack" onclick="prevStableOnboarding()">‹</button>':'<span style="width:42px"></span>'}<div class="onboardProgress"><span style="width:${pct}%"></span></div></div><div class="onboardMain">${inner}</div>${next?`<div class="onboardFooter"><button class="onboardNext ${blue?'blue':''}" onclick="${nextAction}">${nextText}</button></div>`:''}</div>`;
 }
 function selectedClass(a,b){return a===b?'selected':''}
@@ -153,28 +153,47 @@ function renderOnboarding(){
     return;
   }
   if(onboardStep===1){
+    root.innerHTML=onboardingFrame(`<div class="onboardBubble">Antes de começar, como você gostaria de ser chamado?</div><div class="onboardNameStep"><div class="onboardNameEmoji">👋</div><h1>Qual é o seu nome?</h1><p class="lead">Vou usar esse nome para falar com você e personalizar sua tela inicial.</p><input id="onboardNameInput" class="onboardNameInput" type="text" maxlength="40" autocomplete="name" enterkeyhint="next" placeholder="Digite seu nome" value="${esc(onboardDraft.name||'')}" oninput="setStableOnboardName(this.value)" onkeydown="if(event.key==='Enter'){event.preventDefault();confirmStableOnboardName()}"><div id="onboardNameError" class="onboardNameError"></div></div>`,{nextText:'Continuar',blue:true,nextAction:'confirmStableOnboardName()'});
+    setTimeout(()=>document.querySelector('#onboardNameInput')?.focus(),60);
+    return;
+  }
+  if(onboardStep===2){
     const opts=[['A1','🌱','Estou começando','Começar praticamente do zero'],['A2','🧱','Sei o básico','Palavras e situações do dia a dia'],['B1','🚶','Consigo conversar um pouco','Quero ganhar confiança'],['B2','🚀','Converso sobre vários temas','Quero naturalidade e vocabulário'],['C1','🎯','Falo bem','Quero precisão e fluência'],['C2','🏆','Quero domínio total','Nuance, registro e naturalidade']];
     root.innerHTML=onboardingFrame(`<div class="onboardBubble">Quanto você já entende de inglês?</div><div class="onboardOptions">${opts.map(([v,i,t,s])=>`<button class="onboardOption ${selectedClass(onboardDraft.level,v)}" onclick="selectStableOnboard('level','${v}')"><span class="ico">${i}</span><span><b>${v} · ${t}</b><small>${s}</small></span></button>`).join('')}</div>`);
     return;
   }
-  if(onboardStep===2){
+  if(onboardStep===3){
     const opts=[['Conversar melhor','🗣️','Conversar com pessoas'],['Viajar','✈️','Viajar com mais segurança'],['Trabalho','💼','Crescer no trabalho'],['Estudos','📚','Estudar e ler melhor'],['Entretenimento','🎬','Filmes, jogos e internet'],['Desafio pessoal','🔥','Aprender por prazer e desafio']];
     root.innerHTML=onboardingFrame(`<div class="onboardBubble">Qual é o principal motivo para você aprender inglês?</div><div class="onboardOptions">${opts.map(([v,i,t])=>`<button class="onboardOption ${selectedClass(onboardDraft.goal,v)}" onclick="selectStableOnboard('goal','${v}')"><span class="ico">${i}</span><span><b>${t}</b><small>${v}</small></span></button>`).join('')}</div>`);
     return;
   }
-  if(onboardStep===3){
+  if(onboardStep===4){
     const opts=[[5,'⚡','5 minutos','Leve'],[10,'☕','10 minutos','Fácil de manter'],[15,'🎯','15 minutos','Ritmo forte'],[20,'🔥','20 minutos','Intensivo']];
     root.innerHTML=onboardingFrame(`<div class="onboardBubble">Quanto tempo você quer estudar por dia?</div><div class="onboardOptions">${opts.map(([v,i,t,s])=>`<button class="onboardOption ${Number(onboardDraft.daily)===v?'selected':''}" onclick="selectStableOnboard('daily','${v}')"><span class="ico">${i}</span><span><b>${t}</b><small>${s}</small></span></button>`).join('')}</div>`);
     return;
   }
-  if(onboardStep===4){
+  if(onboardStep===5){
     const opts=[['leve','🙂','Tranquilo','Paciente, claro e sem palavrões.'],['media','🤪','Doideira','Brinca, provoca e tira onda dos erros.'],['pesada','🔥','Hard 18+','Vai ficando mais impaciente e boca-suja quando os erros se repetem.']];
     root.innerHTML=onboardingFrame(`<div class="onboardBubble">Agora escolha a personalidade do professor. Você poderá trocar isso durante qualquer aula.</div><div class="onboardTeacherGrid">${opts.map(([v,i,t,s])=>`<button class="teacherChoice ${v==='pesada'?'hard':''} ${selectedClass(onboardDraft.teacher,v)}" onclick="selectStableOnboardTeacher('${v}')"><span class="teacherEmoji">${i}</span><b>${t}</b><small>${s}</small></button>`).join('')}</div><button class="previewBtn" onclick="previewStableOnboardTeacher()">🔊 Ouvir uma amostra</button>`);
     return;
   }
-  const summary=`<div class="onboardMascot"><div class="bot xl ${modeClass(onboardDraft.teacher)}"><div class="eyes"><i></i><i></i></div><div class="mouth"><i></i><i></i><i></i><i></i><i></i></div></div></div><div class="onboardBubble">Pronto. Eu já sei de onde você vai começar e como devo falar com você.</div><div class="onboardSummary"><div class="summaryRow"><span>Nível</span><b>${onboardDraft.level} · ${LEVELS[onboardDraft.level]}</b></div><div class="summaryRow"><span>Objetivo</span><b>${esc(onboardDraft.goal)}</b></div><div class="summaryRow"><span>Meta</span><b>${onboardDraft.daily} min/dia</b></div><div class="summaryRow"><span>Professor</span><b>${modeLabel(onboardDraft.teacher)}</b></div></div>`;
+  const summary=`<div class="onboardMascot"><div class="bot xl ${modeClass(onboardDraft.teacher)}"><div class="eyes"><i></i><i></i></div><div class="mouth"><i></i><i></i><i></i><i></i><i></i></div></div></div><div class="onboardBubble">Pronto, ${esc(onboardDraft.name)}. Eu já sei de onde você vai começar e como devo falar com você.</div><div class="onboardSummary"><div class="summaryRow"><span>Nome</span><b>${esc(onboardDraft.name)}</b></div><div class="summaryRow"><span>Nível</span><b>${onboardDraft.level} · ${LEVELS[onboardDraft.level]}</b></div><div class="summaryRow"><span>Objetivo</span><b>${esc(onboardDraft.goal)}</b></div><div class="summaryRow"><span>Meta</span><b>${onboardDraft.daily} min/dia</b></div><div class="summaryRow"><span>Professor</span><b>${modeLabel(onboardDraft.teacher)}</b></div></div>`;
   root.innerHTML=onboardingFrame(summary,{nextText:'Entrar no curso',blue:true,nextAction:'finishStableOnboarding()'});
 }
+window.setStableOnboardName=value=>{onboardDraft.name=String(value||'').replace(/\s+/g,' ').slice(0,40)};
+window.confirmStableOnboardName=()=>{
+  const input=document.querySelector('#onboardNameInput');
+  const name=String(input?.value||onboardDraft.name||'').trim().replace(/\s+/g,' ').slice(0,40);
+  const error=document.querySelector('#onboardNameError');
+  if(!name){
+    if(error)error.textContent='Digite seu nome para continuar.';
+    input?.focus();
+    return;
+  }
+  onboardDraft.name=name;
+  onboardStep=2;
+  renderOnboarding();
+};
 window.selectStableOnboard=(key,value)=>{
   if(key==='daily')onboardDraft.daily=Number(value)||10;
   else onboardDraft[key]=value;
@@ -184,14 +203,15 @@ window.selectStableOnboardTeacher=t=>{onboardDraft.teacher=t;onboardDraft.voice=
 window.previewStableOnboardTeacher=async()=>{
   const prevTeacher=state.teacher,prevVoice=state.voice;
   state.teacher=onboardDraft.teacher;state.voice=onboardDraft.voice;
-  const samples={leve:'Cláudio, tranquilo. Errou? A gente corrige e tenta de novo. Bora.',media:'Cláudio, meu amigo, acorda esse inglês aí! Bora mandar essa frase direito.',pesada:'Cláudio, porra, não me abandona agora não! Bora acertar essa frase antes que eu perca a pouca paciência que me resta.'};
+  const n=onboardDraft.name||'meu aluno';
+  const samples={leve:`${n}, tranquilo. Errou? A gente corrige e tenta de novo. Bora.`,media:`${n}, meu amigo, acorda esse inglês aí! Bora mandar essa frase direito.`,pesada:`${n}, porra, não me abandona agora não! Bora acertar essa frase antes que eu perca a pouca paciência que me resta.`};
   await speak(samples[onboardDraft.teacher]||samples.media,'pt-BR');
   state.teacher=prevTeacher;state.voice=prevVoice;
 };
-window.nextStableOnboarding=()=>{onboardStep=Math.min(5,onboardStep+1);renderOnboarding()};
+window.nextStableOnboarding=()=>{onboardStep=Math.min(6,onboardStep+1);renderOnboarding()};
 window.prevStableOnboarding=()=>{onboardStep=Math.max(0,onboardStep-1);renderOnboarding()};
 window.finishStableOnboarding=async()=>{
-  Object.assign(state,{name:onboardDraft.name||'Cláudio',level:onboardDraft.level,goal:onboardDraft.goal,daily:Number(onboardDraft.daily)||10,teacher:onboardDraft.teacher,voice:onboardDraft.voice||voiceForTeacher(onboardDraft.teacher),onboarded:true,errorStreak:0});
+  Object.assign(state,{name:String(onboardDraft.name||'Aluno').trim().slice(0,40),level:onboardDraft.level,goal:onboardDraft.goal,daily:Number(onboardDraft.daily)||10,teacher:onboardDraft.teacher,voice:onboardDraft.voice||voiceForTeacher(onboardDraft.teacher),onboarded:true,errorStreak:0});
   save();setTeacher(state.teacher);show('home');
   await speak(`Fechado, ${state.name}. Seu curso começa no ${state.level}. E lembra: se enjoar de mim, você troca o tipo de professor na hora.`, 'pt-BR');
 };
