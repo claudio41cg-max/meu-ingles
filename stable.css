@@ -7,3 +7,51 @@ nav{position:fixed;z-index:40;left:50%;transform:translateX(-50%);bottom:0;width
 
 @media(max-width:620px){.pathCard{grid-template-columns:auto 1fr}.pathButton{grid-column:1/-1;width:100%}.quickGrid{grid-template-columns:1fr 1fr}.onboardTeacherGrid{grid-template-columns:1fr}.teacherChoice{display:grid;grid-template-columns:auto 1fr;text-align:left;column-gap:12px}.teacherEmoji{grid-row:1/3}.teacherChoice b{margin-top:0}.voiceGrid{grid-template-columns:1fr 1fr}}
 @media(max-width:520px){.coach{grid-template-columns:108px 1fr}.bot{width:100px;height:100px}.bot:before{inset:14px 13px 17px}.bot:after{top:-13px;height:17px}.bot .eyes{top:31px;gap:20px}.bot .eyes i{width:14px;height:19px}.bot .mouth{top:64px}.hero h1{font-size:27px}.mode{font-size:11px;padding:9px 4px}.quickGrid{grid-template-columns:1fr 1fr}.stats{gap:6px}.stat{padding:10px 8px}.stat b{font-size:17px}.stat small{font-size:10px}.teacherModes button{font-size:10px}.lessonStage h2{font-size:22px}.dailyRow{grid-template-columns:1fr 1fr}.onboard h1{font-size:28px}.onboardBubble{font-size:18px}.bot.xl{width:150px;height:150px}.bot.xl .eyes{top:49px}.bot.xl .mouth{top:96px}.onboard{padding:18px 16px 24px}}
+
+
+/* Onboarding — nome personalizado */
+.onboardNameStep{
+  width:100%;
+  max-width:520px;
+  margin:22px auto 0;
+  text-align:center;
+}
+.onboardNameEmoji{
+  font-size:54px;
+  line-height:1;
+  margin-bottom:12px;
+}
+.onboardNameStep h1{
+  margin:0 0 8px;
+}
+.onboardNameStep .lead{
+  margin:0 auto 18px;
+  max-width:420px;
+}
+.onboardNameInput{
+  width:100%;
+  box-sizing:border-box;
+  min-height:58px;
+  border-radius:18px;
+  border:1px solid rgba(74,192,220,.42);
+  background:#0d2233;
+  color:#fff;
+  font:inherit;
+  font-size:19px;
+  font-weight:800;
+  padding:0 18px;
+  outline:none;
+  box-shadow:inset 0 0 0 1px rgba(255,255,255,.025);
+}
+.onboardNameInput::placeholder{color:#7893a7;font-weight:600}
+.onboardNameInput:focus{
+  border-color:#29b9b2;
+  box-shadow:0 0 0 3px rgba(41,185,178,.14),inset 0 0 0 1px rgba(255,255,255,.03);
+}
+.onboardNameError{
+  min-height:22px;
+  margin-top:8px;
+  color:#ff8d9b;
+  font-size:13px;
+  font-weight:800;
+}
