@@ -42,7 +42,26 @@ function ensureSheet(c){if(sheet?.isConnected)return;sheet=document.createElemen
 function openRobot(){const c=document.querySelector('#home .professorPanel.homeTalkCard');if(!c)return;ensureSheet(c);renderRobotThemes();sheet.classList.add('open')}
 window.openMethodsRobot=e=>{e?.preventDefault?.();e?.stopPropagation?.();openRobot()}
 function closeRobot(){sheet?.classList.remove('open')}
-function renderRobotThemes(){sheetView='themes';sheet.querySelector('h3').textContent='Escolha um tema';const m=sheet.querySelector('main');m.innerHTML=THEMES.map(t=>`<button data-theme="${t.id}"><em>${t.emoji}</em><span><b>${esc(t.title)}</b><small>${done(t.id).size}/40 aulas concluídas</small></span><i>›</i></button>`).join('');m.querySelectorAll('[data-theme]').forEach(b=>b.onclick=()=>renderRobotLessons(b.dataset.theme))}
+function renderRobotThemes(){
+ sheetView='themes';
+ sheet.querySelector('h3').textContent='Escolha um tema';
+ const m=sheet.querySelector('main');
+ m.classList.add('robotThemeCardsV72');
+ m.innerHTML=THEMES.map((t,index)=>{
+   const total=done(t.id).size;
+   const pct=Math.round(total/40*100);
+   return `<button data-theme="${t.id}" class="robotThemeCardV72 tone-${index%8}">
+     <span class="robotThemeArtV72" aria-hidden="true"><em>${t.emoji}</em></span>
+     <span class="robotThemeInfoV72">
+       <b>${esc(t.title)}</b>
+       <small><strong>${total}</strong>/40 aulas concluídas</small>
+       <span class="robotThemeProgressV72"><u style="width:${pct}%"></u></span>
+     </span>
+     <i>›</i>
+   </button>`;
+ }).join('');
+ m.querySelectorAll('[data-theme]').forEach(b=>b.onclick=()=>renderRobotLessons(b.dataset.theme));
+}
 function renderRobotLessons(id){sheetView='lessons';const t=theme(id),cur=current(id),d=done(id),m=sheet.querySelector('main');sheet.querySelector('h3').textContent=t.title;m.innerHTML=`<section class="robotQuickV42"><button class="cont">▶ Continuar ${cur}</button><button class="start">Do início</button><button class="random">Aleatória</button></section><section class="robotNumsV42">${Array.from({length:40},(_,i)=>{const n=i+1;return `<button data-n="${n}" class="${d.has(n)?'done ':''}${cur===n?'current':''}">${n}</button>`}).join('')}</section>`;m.querySelector('.cont').onclick=()=>startRobot(id,cur);m.querySelector('.start').onclick=()=>startRobot(id,1);m.querySelector('.random').onclick=()=>startRobot(id,1+Math.floor(Math.random()*40));m.querySelectorAll('[data-n]').forEach(b=>b.onclick=()=>startRobot(id,Number(b.dataset.n)))}
 async function startRobot(id,n){const t=theme(id);starting=true;setCurrent(id,n);session={themeId:id,lesson:n,turns:0,booting:true};saveSession();closeRobot();closeScreen();window.stableShow?.('home');await wait(90);try{window.stopGeminiTTS?.()}catch{}await window.startV26LiveContext?.({kind:'method',topic:t.title,lesson:`Aula ${n} de 40`,lessonTitle:title(t,n),instruction:`Aula particular somente sobre ${t.title}. Comece fácil, faça uma pergunta curta por vez, corrija meus erros e aumente a dificuldade aos poucos.`});session.booting=false;saveSession();starting=false;setTimeout(decoratePill,120);setTimeout(decoratePill,900)}
 const wait=ms=>new Promise(r=>setTimeout(r,ms));
