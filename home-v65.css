@@ -199,3 +199,8 @@
   0%,100%{transform:scale(.96);opacity:.7}
   50%{transform:scale(1.06);opacity:1}
 }
+
+#home .homeConversationChoice.methodsCard{background:linear-gradient(135deg,#d99835,#b8752d 56%,#865523)!important;border-color:rgba(255,205,126,.45)!important;box-shadow:0 10px 24px rgba(102,61,17,.26)!important}
+#home .homeConversationChoice.methodsCard small{color:#fff0cf!important}
+#home .homeConversationChoice .choiceVisual{width:58px;height:58px;display:grid;place-items:center;border-radius:18px;background:rgba(255,255,255,.14);border:1px solid rgba(255,255,255,.16);font-size:32px!important}
+#home .homeTtsProbe{display:none!important}
