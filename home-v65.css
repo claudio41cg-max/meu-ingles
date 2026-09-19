@@ -130,11 +130,14 @@
   border-color:rgba(96,211,244,.28) !important;
 }
 #home .quickCard:nth-child(1) small{color:#c9edf7 !important}
-#home .quickCard:nth-child(2){
-  background:linear-gradient(135deg,#b67a30 0%,#916128 56%,#6c4926 100%) !important;
-  border-color:rgba(255,199,111,.32) !important;
+#home .quickCard:nth-child(2),
+#home .learnGameCard{
+  background:linear-gradient(135deg,#287fd0 0%,#1e67b1 56%,#174d8d 100%) !important;
+  border-color:rgba(126,198,255,.36) !important;
+  box-shadow:0 12px 26px rgba(12,63,118,.24) !important;
 }
-#home .quickCard:nth-child(2) small{color:#ffe6b9 !important}
+#home .quickCard:nth-child(2) small,
+#home .learnGameCard small{color:#d9ecff !important}
 
 #home .homeConversationChoice,
 #home .robotMethodsEntryV42,
