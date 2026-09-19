@@ -98,3 +98,51 @@
 .mg-btn-secondary{background:#eee7ff;color:#7b2cbf;box-shadow:0 4px 0 #cfc0f0}
 .mg-confetti-canvas{position:absolute;inset:0;pointer-events:none;z-index:30}
 .mg-hidden{display:none!important}
+
+
+/* Progressao visual por blocos de 10 fases */
+.mg-overlay{
+  --mg-a:#8c52ff;
+  --mg-b:#00c8ff;
+  --mg-dark1:#0b2265;
+  --mg-dark2:#101a45;
+  --mg-card1:#9a63ff;
+  --mg-card2:#8c52ff;
+}
+.mg-overlay[data-mg-theme="1"]{
+  --mg-a:#8c52ff;--mg-b:#00c8ff;--mg-dark1:#0b2265;--mg-dark2:#101a45;--mg-card1:#9a63ff;--mg-card2:#8c52ff;
+}
+.mg-overlay[data-mg-theme="2"]{
+  --mg-a:#14d3b4;--mg-b:#55e5ff;--mg-dark1:#083f4d;--mg-dark2:#0b2f45;--mg-card1:#28d3b6;--mg-card2:#13a98f;
+}
+.mg-overlay[data-mg-theme="3"]{
+  --mg-a:#ffb23d;--mg-b:#ffd86a;--mg-dark1:#6a3210;--mg-dark2:#4f2412;--mg-card1:#ffad39;--mg-card2:#e17822;
+}
+.mg-overlay[data-mg-theme="4"]{
+  --mg-a:#ff5ca8;--mg-b:#ff8fd1;--mg-dark1:#591a4d;--mg-dark2:#3d153f;--mg-card1:#ef67b0;--mg-card2:#c33b8e;
+}
+.mg-overlay[data-mg-theme="5"]{
+  --mg-a:#4c7dff;--mg-b:#7d5cff;--mg-dark1:#07183e;--mg-dark2:#0b1030;--mg-card1:#5579ee;--mg-card2:#3d49b7;
+}
+.mg-overlay{
+  background:
+    radial-gradient(circle at 20% 15%,rgba(140,82,255,.28),transparent 45%),
+    radial-gradient(circle at 85% 80%,rgba(0,200,255,.20),transparent 50%),
+    linear-gradient(160deg,var(--mg-dark1) 0%,var(--mg-dark2) 55%,#050b26 100%);
+}
+.mg-overlay::before{background:var(--mg-a)}
+.mg-overlay::after{background:var(--mg-b)}
+.mg-card-back{
+  background:repeating-linear-gradient(135deg,var(--mg-card1) 0,var(--mg-card1) 10px,var(--mg-card2) 10px,var(--mg-card2) 20px);
+}
+.mg-menu-list{padding-bottom:36px}
+.mg-level-card{border-left-color:var(--mg-a)}
+.mg-level-card:nth-child(n+11):nth-child(-n+20){border-left-color:#14d3b4}
+.mg-level-card:nth-child(n+21):nth-child(-n+30){border-left-color:#ffb23d}
+.mg-level-card:nth-child(n+31):nth-child(-n+40){border-left-color:#ff5ca8}
+.mg-level-card:nth-child(n+41){border-left-color:#4c7dff}
+@media(max-width:430px){
+  .mg-level-card{padding:14px 15px}
+  .mg-level-name{font-size:16px}
+  .mg-level-pairs{font-size:11px;line-height:1.35}
+}
