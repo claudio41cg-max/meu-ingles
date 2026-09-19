@@ -164,22 +164,35 @@ function create(){
   screen.className='wordMatchV84';
   screen.innerHTML=`
     <div class="wmInnerV84">
-      <header class="wmTopV84">
-        <button type="button" class="wmCloseV84" aria-label="Sair">‹</button>
-        <div class="wmObjectiveV84">
-          <small>OBJETIVO</small>
-          <b>Combine todos<br>os pares</b>
+      <header class="wmHudV86">
+        <div class="wmHudTopV86">
+          <button type="button" class="wmCloseV84" aria-label="Sair">‹</button>
+          <div class="wmHudCenterV86">
+            <div class="wmStageBadgeV86">
+              <span>FASE</span><b id="wmLevelV84">1</b><em>/40</em>
+            </div>
+            <div class="wmDifficultyV84" id="wmDifficultyV84">Fácil</div>
+          </div>
+          <button type="button" class="wmResetV84" aria-label="Reiniciar">↻</button>
         </div>
-        <div class="wmMovesV84">
-          <b id="wmMovesV84">0</b>
-          <small>MOVIMENTOS</small>
+
+        <div class="wmHudStatsV86">
+          <div class="wmStatV86 objective">
+            <span class="wmStatIconV86">🎯</span>
+            <div><small>OBJETIVO</small><b id="wmObjectiveV86">Encontre 3 pares</b></div>
+          </div>
+          <div class="wmStatV86 moves">
+            <span class="wmStatIconV86">🎲</span>
+            <div><small>MOVIMENTOS</small><b id="wmMovesV84">0</b></div>
+          </div>
         </div>
-        <button type="button" class="wmResetV84" aria-label="Reiniciar">↻</button>
+
+        <div class="wmProgressV86">
+          <div class="wmProgressTextV86"><span>PROGRESSO</span><b id="wmProgressTextV86">0/3 pares</b></div>
+          <div class="wmProgressTrackV86"><i id="wmProgressBarV86"></i></div>
+        </div>
       </header>
-      <div class="wmProgressRowV84">
-        <div class="wmLevelV84"><span>FASE</span><b id="wmLevelV84">1</b><em>/40</em></div>
-        <div class="wmDifficultyV84" id="wmDifficultyV84">Fácil</div>
-      </div>
+
       <main>
         <div id="wmBoardV84" class="wmBoardV84"></div>
         <div id="wmStatusV84" class="wmStatusV84" aria-live="polite"></div>
@@ -197,6 +210,16 @@ function close(){
 function difficultyLabel(t){
   return t===1?'Bem fácil':t===2?'Fácil':t===3?'Intermediário': 'Desafio leve';
 }
+function updateHudProgress(){
+  if(!screen)return;
+  const total=configForStage(stage).pairs;
+  const remaining=itemsEn.length;
+  const done=Math.max(0,total-remaining);
+  const text=screen.querySelector('#wmProgressTextV86');
+  const bar=screen.querySelector('#wmProgressBarV86');
+  if(text)text.textContent=`${done}/${total} pares`;
+  if(bar)bar.style.width=`${Math.round(done/Math.max(1,total)*100)}%`;
+}
 function start(nextStage=1){
   create();
   stage=Math.max(1,Math.min(40,Number(nextStage)||1));
@@ -213,7 +236,9 @@ function start(nextStage=1){
   screen.querySelector('#wmLevelV84').textContent=String(stage);
   screen.querySelector('#wmMovesV84').textContent=String(moves);
   screen.querySelector('#wmDifficultyV84').textContent=difficultyLabel(cfg.tier);
+  screen.querySelector('#wmObjectiveV86').textContent=`Encontre ${cfg.pairs} pares`;
   screen.querySelector('#wmStatusV84').innerHTML='';
+  updateHudProgress();
   renderBoard(false);
 }
 function buttonHtml(x,side,index){
@@ -285,6 +310,7 @@ async function select(side,id,button){
       itemsPt=itemsPt.filter(x=>x.id!==idMatch);
       selectedEn=null;selectedPt=null;
       renderBoard(true,previous);
+      updateHudProgress();
       locked=false;
       screen.querySelector('#wmStatusV84').innerHTML='';
       if(itemsEn.length===0)win();
