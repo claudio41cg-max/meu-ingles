@@ -1,0 +1,113 @@
+/* Práticas v82 — Alfabeto e Pronúncia */
+#home .practiceSplitHome{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:10px;
+  grid-column:1/-1;
+}
+#home .practiceHomeChoice{
+  min-height:148px;
+  border:1px solid rgba(255,255,255,.15);
+  border-radius:24px;
+  color:#fff;
+  text-align:left;
+  padding:16px;
+  display:flex;
+  flex-direction:column;
+  justify-content:space-between;
+  box-shadow:0 12px 26px rgba(0,0,0,.18);
+}
+#home .practiceHomeChoice.alphabet{
+  background:linear-gradient(135deg,#df9d36 0%,#c47d2c 55%,#95582a 100%);
+}
+#home .practiceHomeChoice.pronunciation{
+  background:linear-gradient(135deg,#8b80d6 0%,#7167bc 54%,#554e9c 100%);
+}
+#home .practiceChoiceIcon{
+  width:50px;height:50px;border-radius:16px;
+  display:grid;place-items:center;
+  background:rgba(255,255,255,.14);
+  font-size:29px;
+  border:1px solid rgba(255,255,255,.16);
+}
+#home .practiceHomeChoice small{
+  display:block;font-size:10px;font-weight:900;letter-spacing:.08em;color:rgba(255,255,255,.78);
+}
+#home .practiceHomeChoice b{
+  display:block;font-size:21px;line-height:1.05;margin-top:3px;
+}
+#home .practiceHomeChoice em{
+  display:block;font-style:normal;font-size:13px;color:rgba(255,255,255,.88);margin-top:4px;
+}
+#home .practiceHomeChoice:active{transform:scale(.985);filter:brightness(1.05)}
+
+.livePracticeScreenV82{
+  position:fixed;inset:0;z-index:12000;
+  background:#071522;
+  color:#fff;
+  display:none;
+  overflow:auto;
+}
+.livePracticeScreenV82.open{display:block}
+.practiceLockV82{overflow:hidden!important}
+.livePracticeInnerV82{max-width:760px;margin:0 auto;min-height:100%;padding-bottom:40px}
+.livePracticeInnerV82>header{
+  position:sticky;top:0;z-index:5;
+  display:flex;align-items:center;gap:13px;
+  padding:18px 18px 14px;
+  background:rgba(7,21,34,.96);
+  border-bottom:1px solid rgba(115,205,235,.18);
+  backdrop-filter:blur(12px);
+}
+.practiceBackV82{
+  width:46px;height:46px;border:0;border-radius:15px;
+  background:#15334a;color:#fff;font-size:31px;line-height:1;
+}
+.livePracticeInnerV82 header small{font-size:10px;font-weight:900;letter-spacing:.12em;color:#79cfe8}
+.livePracticeInnerV82 header h2{margin:1px 0 0;font-size:22px}
+#practiceBodyV82{padding:18px}
+.practiceHeroV82{
+  display:flex;align-items:center;gap:14px;
+  border-radius:24px;padding:18px;margin-bottom:16px;
+  border:1px solid rgba(255,255,255,.12);
+}
+.practiceHeroV82>span{font-size:46px}
+.practiceHeroV82 h1{margin:0 0 5px;font-size:24px}
+.practiceHeroV82 p{margin:0;color:rgba(255,255,255,.8);font-size:14px;line-height:1.4}
+.alphabetHeroV82{background:linear-gradient(135deg,#b77827,#8d5524)}
+.pronunciationHeroV82{background:linear-gradient(135deg,#6259ad,#494382)}
+
+.alphabetGridV82{
+  display:grid;
+  grid-template-columns:repeat(5,1fr);
+  gap:10px;
+}
+.alphabetGridV82 button{
+  min-height:78px;border-radius:18px;border:1px solid #31516a;
+  background:#0d2639;color:#fff;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;
+}
+.alphabetGridV82 button b{font-size:27px}
+.alphabetGridV82 button small{font-size:10px;color:#86a7bd}
+.alphabetGridV82 button.active{
+  background:linear-gradient(135deg,#d69331,#b86e25);
+  border-color:#ffd58e;
+}
+
+.pronunciationGroupV82{margin-top:17px}
+.pronunciationGroupV82 h3{margin:0 0 9px;font-size:16px;color:#a8c7da}
+.pronunciationGroupV82 article{
+  display:grid;grid-template-columns:1fr auto;gap:12px;align-items:center;
+  background:#0d2232;border:1px solid #29495f;border-radius:18px;padding:14px;margin-bottom:9px;
+}
+.pronunciationGroupV82 article b{display:block;font-size:17px}
+.pronunciationGroupV82 article small{display:block;color:#8ea8b9;margin-top:4px}
+.pronunciationGroupV82 article button{
+  min-width:88px;min-height:45px;border:0;border-radius:14px;
+  background:#1b668f;color:#fff;font-weight:900;
+}
+@media(max-width:430px){
+  #home .practiceHomeChoice{min-height:138px;padding:14px}
+  #home .practiceHomeChoice b{font-size:19px}
+  .alphabetGridV82{grid-template-columns:repeat(4,1fr)}
+}
