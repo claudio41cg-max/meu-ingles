@@ -42,27 +42,38 @@ export default async function handler(req, res) {
       ? `Fale apenas em português brasileiro. Soe como uma pessoa conversando cara a cara, com ritmo natural, pequenas pausas e entonação espontânea. Não use voz de locutor, assistente virtual ou robô. ${style}\n\nDiga somente isto: ${text}`
       : `Speak only in natural American English for a complete beginner. Use clear pronunciation, warm human rhythm and small natural pauses. Do not sound like an announcer, screen reader or robot. ${style}\n\nSay only this: ${text}`;
 
-    const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${MODEL}:generateContent`, {
-      method: 'POST',
-      headers: {
-        'x-goog-api-key': apiKey,
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({
-        contents: [{ parts: [{ text: instruction }] }],
-        generationConfig: {
-          responseModalities: ['AUDIO'],
-          speechConfig: {
-            languageCode: lang,
-            voiceConfig: {
-              prebuiltVoiceConfig: { voiceName: voice }
-            }
-          }
+    async function request(includeLanguageCode) {
+      const speechConfig = {
+        voiceConfig: {
+          prebuiltVoiceConfig: { voiceName: voice }
         }
-      })
-    });
+      };
+      if (includeLanguageCode) speechConfig.languageCode = lang;
 
-    const raw = await response.text();
+      const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${MODEL}:generateContent`, {
+        method: 'POST',
+        headers: {
+          'x-goog-api-key': apiKey,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          contents: [{ parts: [{ text: instruction }] }],
+          generationConfig: {
+            responseModalities: ['AUDIO'],
+            speechConfig
+          }
+        })
+      });
+      return { response, raw: await response.text() };
+    }
+
+    let attempt = await request(true);
+    if (!attempt.response.ok && attempt.response.status === 400) {
+      attempt = await request(false);
+    }
+
+    const response = attempt.response;
+    const raw = attempt.raw;
     if (!response.ok) {
       const err = new Error(`${MODEL}_${response.status}:${raw.slice(0, 500)}`);
       err.statusCode = response.status;
