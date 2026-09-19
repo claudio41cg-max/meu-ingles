@@ -2,7 +2,7 @@
 'use strict';
 
 const MAIN_KEY='meuInglesStableV2';
-const API_BASE=location.hostname.endsWith('github.io')?'https://meu-ingles-claudio.netlify.app':'';
+const API_BASE='https://meu-ingles-livid.vercel.app';
 const CHAT=API_BASE+'/api/groq-chat';
 const TTS=API_BASE+'/api/gemini-tts';
 const originalOpen=window.openStableLesson;
