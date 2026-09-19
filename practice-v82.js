@@ -35,12 +35,12 @@ function voice(){
 }
 async function speak(text){
   try{
-    if(window.geminiSpeak)await window.geminiSpeak(text,'en-US','Achird');
-    else{
-      speechSynthesis.cancel();
-      const u=new SpeechSynthesisUtterance(text);u.lang='en-US';u.rate=.82;speechSynthesis.speak(u);
-    }
-  }catch{}
+    if(typeof window.geminiSpeak!=='function')throw new Error('Gemini TTS indisponível');
+    const ok=await window.geminiSpeak(text,'en-US','Achird');
+    if(!ok)throw new Error('Gemini TTS não reproduziu o áudio');
+  }catch(e){
+    console.warn('Prática sem fallback de voz do navegador:',e);
+  }
 }
 function create(){
   if(screen)return;
