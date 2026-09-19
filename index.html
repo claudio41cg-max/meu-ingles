@@ -58,7 +58,7 @@
       <span><small>PRÁTICA</small><b>Pronúncia</b><em>Ouça e repita</em></span>
     </button>
   </div>
-  <button class="quickCard" onclick="stableShow('settings')"><span>🎯</span><b>Minha meta</b><small id="dailyGoalText">10 min por dia</small></button>
+  <button class="quickCard learnGameCard" onclick="stableShow('settings')"><span>🎯</span><b>Aprenda inglês jogando</b><small id="dailyGoalText">10 min por dia</small></button>
 </div></section>
 <section id="course" class="screen"><div class="top"><button class="back" onclick="stableShow('home')">‹</button><h2>Curso de Inglês</h2></div><div id="courseBody"></div></section>
 <section id="chat" class="screen"><div class="top"><button class="back" onclick="stableShow('home')">‹</button><h2>Conversa com IA</h2></div><div class="panel"><div class="coach chatCoach"><div class="bot" id="chatBot"><div class="eyes"><i></i><i></i></div><div class="mouth"><i></i><i></i><i></i><i></i><i></i></div></div><div><h2 style="margin:0 0 5px">Professor ao vivo</h2><p class="muted" style="margin:0">Modo <b id="chatMode">Doideira</b> · nível <b id="chatLevel">A1</b></p></div></div><button id="chatMic" class="mic" onclick="stableChatMic()">🎙️</button><div id="chatBox" class="chatbox"></div><div class="chatCompose"><input id="chatText" maxlength="500" placeholder="Ou escreva aqui…"><button onclick="stableChatSend()">➤</button></div></div></section>
