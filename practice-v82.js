@@ -35,7 +35,7 @@ function voice(){
 }
 async function speak(text){
   try{
-    if(window.geminiSpeak)await window.geminiSpeak(text,'en-US',voice());
+    if(window.geminiSpeak)await window.geminiSpeak(text,'en-US','Achird');
     else{
       speechSynthesis.cancel();
       const u=new SpeechSynthesisUtterance(text);u.lang='en-US';u.rate=.82;speechSynthesis.speak(u);
