@@ -8,8 +8,6 @@ const TTS=API_BASE+'/api/gemini-tts';
 const originalOpen=window.openStableLesson;
 let run=null;
 let teacherMenuOpen=false;
-let audioCtx=null;
-let audioSource=null;
 
 const lessons={
   0:{title:'Suas 3 primeiras palavras',steps:[
@@ -56,27 +54,28 @@ function modeLabel(m){return m==='pesada'?'Hard 18+':m==='media'?'Doideira':'Tra
 function esc(v){return String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
 function shuffle(a){a=[...a];for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a}
 
-function speakEnglish(text){if(window.stableSpeakEnglish)window.stableSpeakEnglish(encodeURIComponent(text))}
-function bytes(b64){const bin=atob(b64),u=new Uint8Array(bin.length);for(let i=0;i<bin.length;i++)u[i]=bin.charCodeAt(i);return u}
-async function playPCM(b64,rate=24000){
-  const u=bytes(b64),samples=Math.floor(u.length/2),arr=new Float32Array(samples),v=new DataView(u.buffer,u.byteOffset,u.byteLength);
-  for(let i=0;i<samples;i++)arr[i]=Math.max(-1,Math.min(1,v.getInt16(i*2,true)/32768));
-  audioCtx=audioCtx||new (window.AudioContext||window.webkitAudioContext)();if(audioCtx.state==='suspended')await audioCtx.resume();
-  if(audioSource){try{audioSource.stop()}catch{}}
-  const buf=audioCtx.createBuffer(1,arr.length,rate);buf.copyToChannel(arr,0);audioSource=audioCtx.createBufferSource();audioSource.buffer=buf;audioSource.connect(audioCtx.destination);
-  await new Promise(res=>{audioSource.onended=()=>{audioSource=null;res()};audioSource.start()});
+async function speakEnglish(text){
+  if(typeof window.geminiSpeak!=='function')return false;
+  try{
+    return await window.geminiSpeak(String(text||''),'en-US','Achird');
+  }catch(e){
+    console.error('Beginner TTS English',e);
+    return false;
+  }
 }
-function browserSay(text){try{speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(text);u.lang='pt-BR';u.rate=1;u.pitch=1;speechSynthesis.speak(u)}catch{}}
 async function sayTeacher(text){
   const s=readState();
+  if(typeof window.geminiSpeak!=='function')return false;
   try{
-    if(typeof window.geminiSpeak==='function'){
-      const ok=await window.geminiSpeak(text,'pt-BR',s.voice||'Aoede');
-      if(ok)return;
-    }
-    const r=await fetch(TTS,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({text,lang:'pt-BR',voice:s.voice||'Aoede',style:'Voz brasileira humana, natural, curta, espontânea e conversacional. Sem tom de robô.'})});
-    if(!r.ok)throw new Error('tts');const d=await r.json();if(!d.audio)throw new Error('audio');await playPCM(d.audio,d.sample_rate||24000);
-  }catch{browserSay(text)}
+    return await window.geminiSpeak(
+      String(text||''),
+      'pt-BR',
+      s.voice||'Aoede'
+    );
+  }catch(e){
+    console.error('Beginner TTS Teacher',e);
+    return false;
+  }
 }
 function localReaction(ok){
   const m=readState().teacher||'media';
