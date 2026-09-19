@@ -7,13 +7,6 @@ const OLD_CHAT='https://meu-ingles-claudio.netlify.app/api/groq-chat';
 const NEW_CHAT='https://meu-ingles-livid.vercel.app/api/groq-chat';
 const nativeFetch=window.fetch.bind(window);
 
-try{
-  if(window.speechSynthesis){
-    window.speechSynthesis.cancel();
-    window.speechSynthesis.speak=()=>{};
-  }
-}catch(e){}
-
 function routedUrl(url){
   if(!url)return null;
   const s=String(url);
