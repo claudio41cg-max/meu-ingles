@@ -6,8 +6,9 @@ const TTS=(window.MEU_INGLES_TTS_URL||API+'/api/gemini-tts');
 const KEY='meuInglesStableV2';
 const MIN_API_GAP=150;
 const ENGLISH_VOICE='Achird';
-const REQUEST_TIMEOUT=12000;
+const REQUEST_TIMEOUT=30000;
 
+const nativeSpeechSpeak=window.speechSynthesis?.speak?.bind(window.speechSynthesis);
 let audioCtx=null;
 let currentSource=null;
 let currentSeq=0;
@@ -184,6 +185,15 @@ window.stableSpeakEnglish=enc=>geminiSpeak(
 );
 window.geminiSpeak=geminiSpeak;
 window.stopGeminiTTS=stopGeminiTTS;
+window.nativeSpeechFallback=(text,lang='pt-BR')=>{
+  try{
+    if(!nativeSpeechSpeak||!window.SpeechSynthesisUtterance)return false;
+    const u=new SpeechSynthesisUtterance(String(text||''));
+    u.lang=lang;u.rate=.95;u.pitch=1;
+    nativeSpeechSpeak(u);
+    return true;
+  }catch{return false}
+};
 
 try{
   if(window.speechSynthesis&&typeof window.speechSynthesis.speak==='function'){
