@@ -1,0 +1,97 @@
+{
+  "levels": [
+    {
+      "id": 1,
+      "name": "Fácil",
+      "timeSeconds": 60,
+      "pairs": [
+        [
+          "APPLE",
+          "MAÇÃ"
+        ],
+        [
+          "DOG",
+          "CÃO"
+        ],
+        [
+          "HOME",
+          "CASA"
+        ],
+        [
+          "FRIEND",
+          "AMIGO"
+        ]
+      ]
+    },
+    {
+      "id": 2,
+      "name": "Médio",
+      "timeSeconds": 90,
+      "pairs": [
+        [
+          "GIRL",
+          "GAROTA"
+        ],
+        [
+          "BOY",
+          "GAROTO"
+        ],
+        [
+          "CAT",
+          "GATO"
+        ],
+        [
+          "WATER",
+          "ÁGUA"
+        ],
+        [
+          "BOOK",
+          "LIVRO"
+        ],
+        [
+          "SUN",
+          "SOL"
+        ]
+      ]
+    },
+    {
+      "id": 3,
+      "name": "Difícil",
+      "timeSeconds": 120,
+      "pairs": [
+        [
+          "TIME",
+          "TEMPO"
+        ],
+        [
+          "WORK",
+          "TRABALHO"
+        ],
+        [
+          "NIGHT",
+          "NOITE"
+        ],
+        [
+          "FOOD",
+          "COMIDA"
+        ],
+        [
+          "CITY",
+          "CIDADE"
+        ],
+        [
+          "ROAD",
+          "ESTRADA"
+        ],
+        [
+          "MONEY",
+          "DINHEIRO"
+        ],
+        [
+          "HAPPY",
+          "FELIZ"
+        ]
+      ]
+    }
+  ]
+}
