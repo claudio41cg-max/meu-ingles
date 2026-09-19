@@ -93,13 +93,30 @@
 
 /* Métodos grande, abaixo de Todos os Cursos */
 #home .methodsHomeCardV42{
-  background:linear-gradient(135deg,#25808b 0%,#1a6679 55%,#164c67 100%) !important;
-  border-color:rgba(108,222,227,.34) !important;
-  box-shadow:0 12px 28px rgba(8,68,75,.22) !important;
+  background:linear-gradient(135deg,#d982ad 0%,#c86fa2 52%,#a95b91 100%) !important;
+  border-color:rgba(255,194,225,.46) !important;
+  box-shadow:0 12px 28px rgba(105,40,83,.24) !important;
 }
-#home .methodsHomeCardV42 small{color:#a8eff0 !important}
-#home .methodsHomeCardV42 em{color:#d1f8f8 !important}
-#home .methodsHomeCardV42 i{color:#79e5ec !important}
+#home .methodsHomeCardV42 small{color:#fff0f8 !important}
+#home .methodsHomeCardV42 em{color:#fff6fb !important}
+#home .methodsHomeCardV42 i{color:#ffe6f3 !important}
+#home .methodsHomeArtV42{
+  width:72px;
+  height:72px;
+  display:grid;
+  place-items:center;
+  border-radius:20px;
+  background:rgba(255,255,255,.14);
+  border:1px solid rgba(255,255,255,.20);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.16),0 7px 16px rgba(91,37,73,.18);
+  flex:0 0 72px;
+}
+#home .methodsHomeArtV42 svg{
+  width:62px;
+  height:62px;
+  display:block;
+  filter:drop-shadow(0 5px 8px rgba(75,31,61,.18));
+}
 
 /* Cards inferiores */
 #home .quickCard{
