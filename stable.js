@@ -4,7 +4,6 @@
 const API_BASE='https://meu-ingles-livid.vercel.app';
 const CHAT=API_BASE+'/api/groq-chat';
 const COURSE=API_BASE+'/api/course-lesson';
-const TTS=API_BASE+'/api/gemini-tts';
 
 const LEVELS={A1:'Iniciante',A2:'Básico',B1:'Intermediário',B2:'Avançado',C1:'Fluente',C2:'Domínio total'};
 const MODULES={
