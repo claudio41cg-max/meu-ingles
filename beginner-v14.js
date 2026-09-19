@@ -4,7 +4,6 @@
 const MAIN_KEY='meuInglesStableV2';
 const API_BASE='https://meu-ingles-livid.vercel.app';
 const CHAT=API_BASE+'/api/groq-chat';
-const TTS=API_BASE+'/api/gemini-tts';
 const originalOpen=window.openStableLesson;
 let run=null;
 let teacherMenuOpen=false;
