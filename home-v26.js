@@ -1,7 +1,7 @@
 (()=>{
 'use strict';
 const KEY='meuInglesStableV2';
-const API=location.hostname.endsWith('github.io')?'https://meu-ingles-claudio.netlify.app':'';
+const API='https://meu-ingles-livid.vercel.app';
 const CHAT=API+'/api/groq-chat';
 const PROMPT_KEY='meuInglesLastOpeningV36';
 const LEVEL_MODULES={
