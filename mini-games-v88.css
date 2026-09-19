@@ -1,0 +1,55 @@
+/* Hub de mini jogos v88 */
+.miniGamesHubLockV88{overflow:hidden!important}
+.miniGamesHubV88{
+  position:fixed;inset:0;z-index:13000;
+  display:none;overflow:auto;
+  background:
+    radial-gradient(circle at 50% 0%,rgba(43,107,214,.18),transparent 34%),
+    #071522;
+  color:#fff;
+}
+.miniGamesHubV88.open{display:block}
+.miniGamesHubInnerV88{max-width:760px;margin:0 auto;padding:18px}
+.miniGamesHubInnerV88>header{
+  display:flex;align-items:center;gap:13px;
+  margin-bottom:18px;
+}
+.miniGamesBackV88{
+  width:46px;height:46px;border:0;border-radius:15px;
+  background:#17364e;color:#fff;font-size:30px;font-weight:900;
+}
+.miniGamesHubInnerV88 header small{
+  font-size:10px;font-weight:900;letter-spacing:.1em;color:#79c9ef;
+}
+.miniGamesHubInnerV88 header h2{margin:2px 0 0;font-size:27px}
+.miniGamesGridV88{display:grid;gap:14px}
+.miniGameCardV88{
+  width:100%;min-height:138px;
+  display:grid;grid-template-columns:76px minmax(0,1fr) auto;
+  gap:14px;align-items:center;
+  border-radius:24px;border:1px solid rgba(255,255,255,.15);
+  color:#fff;text-align:left;padding:18px;
+  box-shadow:0 14px 28px rgba(0,0,0,.22);
+}
+.miniGameCardV88.match{
+  background:linear-gradient(135deg,#745fd5,#5b48b2 58%,#40368b);
+}
+.miniGameCardV88.memory{
+  background:linear-gradient(135deg,#227dc6,#17649d 58%,#10466f);
+}
+.miniGameArtV88{
+  width:72px;height:72px;display:grid;place-items:center;
+  border-radius:20px;background:rgba(255,255,255,.13);
+  border:1px solid rgba(255,255,255,.16);font-size:37px;
+}
+.miniGameCardV88 small{display:block;font-size:10px;font-weight:900;letter-spacing:.08em;color:rgba(255,255,255,.78)}
+.miniGameCardV88 b{display:block;font-size:23px;margin-top:3px}
+.miniGameCardV88 em{display:block;font-style:normal;font-size:14px;color:rgba(255,255,255,.85);margin-top:5px}
+.miniGameCardV88 i{font-style:normal;font-size:34px;color:rgba(255,255,255,.75)}
+.miniGameCardV88:active{transform:scale(.985);filter:brightness(1.05)}
+@media(max-width:430px){
+  .miniGamesHubInnerV88{padding:14px}
+  .miniGameCardV88{grid-template-columns:64px minmax(0,1fr) auto;min-height:126px;padding:15px}
+  .miniGameArtV88{width:62px;height:62px;font-size:32px}
+  .miniGameCardV88 b{font-size:20px}
+}
