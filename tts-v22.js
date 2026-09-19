@@ -6,9 +6,8 @@ const TTS=(window.MEU_INGLES_TTS_URL||API+'/api/gemini-tts');
 const KEY='meuInglesStableV2';
 const MIN_API_GAP=150;
 const ENGLISH_VOICE='Achird';
-const REQUEST_TIMEOUT=30000;
+const REQUEST_TIMEOUT=12000;
 
-const nativeSpeechSpeak=window.speechSynthesis?.speak?.bind(window.speechSynthesis);
 let audioCtx=null;
 let currentSource=null;
 let currentSeq=0;
@@ -165,12 +164,9 @@ async function geminiSpeak(text,lang='pt-BR',voice=currentVoice()){
     return await playPCM(d,voice,seq);
   }catch(e){
     if(seq===currentSeq){
-      const msg=String(e&&e.message||e).slice(0,260);
-      window.MEU_INGLES_TTS_LAST_ERROR=msg;
       console.error('Gemini TTS frontend',e);
-      status('❌ '+msg,false);
+      status('❌ '+String(e&&e.message||e).slice(0,180),false);
       document.querySelectorAll('.bot').forEach(b=>b.classList.remove('speaking'));
-      try{window.dispatchEvent(new CustomEvent('meu-ingles-tts-error',{detail:{message:msg}}))}catch{}
     }
     return false;
   }
@@ -181,24 +177,13 @@ window.previewStableVoice=()=>geminiSpeak(
   'pt-BR',
   currentVoice()
 );
-window.stableSpeakEnglish=async enc=>{
-  const text=decodeURIComponent(String(enc||''));
-  const ok=await geminiSpeak(text,'en-US',ENGLISH_VOICE);
-  if(ok)return true;
-  window.nativeSpeechFallback?.(text,'en-US');
-  return false;
-};
+window.stableSpeakEnglish=enc=>geminiSpeak(
+  decodeURIComponent(String(enc||'')),
+  'en-US',
+  ENGLISH_VOICE
+);
 window.geminiSpeak=geminiSpeak;
 window.stopGeminiTTS=stopGeminiTTS;
-window.nativeSpeechFallback=(text,lang='pt-BR')=>{
-  try{
-    if(!nativeSpeechSpeak||!window.SpeechSynthesisUtterance)return false;
-    const u=new SpeechSynthesisUtterance(String(text||''));
-    u.lang=lang;u.rate=.95;u.pitch=1;
-    nativeSpeechSpeak(u);
-    return true;
-  }catch{return false}
-};
 
 try{
   if(window.speechSynthesis&&typeof window.speechSynthesis.speak==='function'){
