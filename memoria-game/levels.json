@@ -2,94 +2,1741 @@
   "levels": [
     {
       "id": 1,
-      "name": "Fácil",
-      "timeSeconds": 60,
+      "name": "Fase 1",
+      "section": "A1 · Primeiros passos",
+      "difficulty": "Iniciante",
+      "theme": 1,
+      "timeSeconds": 67,
       "pairs": [
         [
-          "APPLE",
-          "MAÇÃ"
+          "HELLO",
+          "OLÁ"
+        ],
+        [
+          "YES",
+          "SIM"
+        ],
+        [
+          "PLEASE",
+          "POR FAVOR"
+        ],
+        [
+          "CAT",
+          "GATO"
+        ]
+      ]
+    },
+    {
+      "id": 2,
+      "name": "Fase 2",
+      "section": "A1 · Primeiros passos",
+      "difficulty": "Iniciante",
+      "theme": 1,
+      "timeSeconds": 67,
+      "pairs": [
+        [
+          "NO",
+          "NÃO"
+        ],
+        [
+          "THANK YOU",
+          "OBRIGADO"
         ],
         [
           "DOG",
           "CÃO"
         ],
         [
-          "HOME",
-          "CASA"
-        ],
-        [
-          "FRIEND",
-          "AMIGO"
+          "FISH",
+          "PEIXE"
         ]
       ]
     },
     {
-      "id": 2,
-      "name": "Médio",
-      "timeSeconds": 90,
+      "id": 3,
+      "name": "Fase 3",
+      "section": "A1 · Primeiros passos",
+      "difficulty": "Iniciante",
+      "theme": 1,
+      "timeSeconds": 67,
       "pairs": [
-        [
-          "GIRL",
-          "GAROTA"
-        ],
-        [
-          "BOY",
-          "GAROTO"
-        ],
         [
           "CAT",
           "GATO"
         ],
         [
-          "WATER",
-          "ÁGUA"
+          "BIRD",
+          "PÁSSARO"
+        ],
+        [
+          "HOUSE",
+          "CASA"
+        ],
+        [
+          "WINDOW",
+          "JANELA"
+        ]
+      ]
+    },
+    {
+      "id": 4,
+      "name": "Fase 4",
+      "section": "A1 · Primeiros passos",
+      "difficulty": "Iniciante",
+      "theme": 1,
+      "timeSeconds": 67,
+      "pairs": [
+        [
+          "FISH",
+          "PEIXE"
+        ],
+        [
+          "DOOR",
+          "PORTA"
         ],
         [
           "BOOK",
           "LIVRO"
         ],
         [
-          "SUN",
-          "SOL"
+          "TABLE",
+          "MESA"
         ]
       ]
     },
     {
-      "id": 3,
-      "name": "Difícil",
-      "timeSeconds": 120,
+      "id": 5,
+      "name": "Fase 5",
+      "section": "A1 · Primeiros passos",
+      "difficulty": "Iniciante",
+      "theme": 1,
+      "timeSeconds": 67,
       "pairs": [
         [
-          "TIME",
-          "TEMPO"
+          "WINDOW",
+          "JANELA"
+        ],
+        [
+          "PEN",
+          "CANETA"
+        ],
+        [
+          "CHAIR",
+          "CADEIRA"
+        ],
+        [
+          "BLUE",
+          "AZUL"
+        ]
+      ]
+    },
+    {
+      "id": 6,
+      "name": "Fase 6",
+      "section": "A1 · Primeiros passos",
+      "difficulty": "Iniciante",
+      "theme": 1,
+      "timeSeconds": 80,
+      "pairs": [
+        [
+          "TABLE",
+          "MESA"
+        ],
+        [
+          "RED",
+          "VERMELHO"
+        ],
+        [
+          "GREEN",
+          "VERDE"
+        ],
+        [
+          "TWO",
+          "DOIS"
+        ],
+        [
+          "FOUR",
+          "QUATRO"
+        ]
+      ]
+    },
+    {
+      "id": 7,
+      "name": "Fase 7",
+      "section": "A1 · Primeiros passos",
+      "difficulty": "Iniciante",
+      "theme": 1,
+      "timeSeconds": 80,
+      "pairs": [
+        [
+          "BLUE",
+          "AZUL"
+        ],
+        [
+          "ONE",
+          "UM"
+        ],
+        [
+          "THREE",
+          "TRÊS"
+        ],
+        [
+          "FIVE",
+          "CINCO"
+        ],
+        [
+          "MILK",
+          "LEITE"
+        ]
+      ]
+    },
+    {
+      "id": 8,
+      "name": "Fase 8",
+      "section": "A1 · Primeiros passos",
+      "difficulty": "Iniciante",
+      "theme": 1,
+      "timeSeconds": 80,
+      "pairs": [
+        [
+          "TWO",
+          "DOIS"
+        ],
+        [
+          "FOUR",
+          "QUATRO"
+        ],
+        [
+          "WATER",
+          "ÁGUA"
+        ],
+        [
+          "BREAD",
+          "PÃO"
+        ],
+        [
+          "BYE",
+          "TCHAU"
+        ]
+      ]
+    },
+    {
+      "id": 9,
+      "name": "Fase 9",
+      "section": "A1 · Primeiros passos",
+      "difficulty": "Iniciante",
+      "theme": 1,
+      "timeSeconds": 80,
+      "pairs": [
+        [
+          "FIVE",
+          "CINCO"
+        ],
+        [
+          "MILK",
+          "LEITE"
+        ],
+        [
+          "HELLO",
+          "OLÁ"
+        ],
+        [
+          "YES",
+          "SIM"
+        ],
+        [
+          "PLEASE",
+          "POR FAVOR"
+        ]
+      ]
+    },
+    {
+      "id": 10,
+      "name": "Fase 10",
+      "section": "A1 · Primeiros passos",
+      "difficulty": "Iniciante",
+      "theme": 1,
+      "timeSeconds": 80,
+      "pairs": [
+        [
+          "BREAD",
+          "PÃO"
+        ],
+        [
+          "BYE",
+          "TCHAU"
+        ],
+        [
+          "NO",
+          "NÃO"
+        ],
+        [
+          "THANK YOU",
+          "OBRIGADO"
+        ],
+        [
+          "DOG",
+          "CÃO"
+        ]
+      ]
+    },
+    {
+      "id": 11,
+      "name": "Fase 11",
+      "section": "A1 · Dia a dia",
+      "difficulty": "Fácil",
+      "theme": 2,
+      "timeSeconds": 85,
+      "pairs": [
+        [
+          "FAMILY",
+          "FAMÍLIA"
+        ],
+        [
+          "AFTERNOON",
+          "TARDE"
+        ],
+        [
+          "SLEEP",
+          "DORMIR"
+        ],
+        [
+          "DRINK",
+          "BEBER"
+        ],
+        [
+          "SCHOOL",
+          "ESCOLA"
+        ]
+      ]
+    },
+    {
+      "id": 12,
+      "name": "Fase 12",
+      "section": "A1 · Dia a dia",
+      "difficulty": "Fácil",
+      "theme": 2,
+      "timeSeconds": 85,
+      "pairs": [
+        [
+          "NIGHT",
+          "NOITE"
+        ],
+        [
+          "EAT",
+          "COMER"
         ],
         [
           "WORK",
           "TRABALHO"
         ],
         [
+          "MARKET",
+          "MERCADO"
+        ],
+        [
+          "CAR",
+          "CARRO"
+        ]
+      ]
+    },
+    {
+      "id": 13,
+      "name": "Fase 13",
+      "section": "A1 · Dia a dia",
+      "difficulty": "Fácil",
+      "theme": 2,
+      "timeSeconds": 85,
+      "pairs": [
+        [
+          "DRINK",
+          "BEBER"
+        ],
+        [
+          "SCHOOL",
+          "ESCOLA"
+        ],
+        [
+          "STREET",
+          "RUA"
+        ],
+        [
+          "BUS",
+          "ÔNIBUS"
+        ],
+        [
+          "JUICE",
+          "SUCO"
+        ]
+      ]
+    },
+    {
+      "id": 14,
+      "name": "Fase 14",
+      "section": "A1 · Dia a dia",
+      "difficulty": "Fácil",
+      "theme": 2,
+      "timeSeconds": 85,
+      "pairs": [
+        [
+          "MARKET",
+          "MERCADO"
+        ],
+        [
+          "CAR",
+          "CARRO"
+        ],
+        [
+          "COFFEE",
+          "CAFÉ"
+        ],
+        [
+          "CHICKEN",
+          "FRANGO"
+        ],
+        [
+          "APPLE",
+          "MAÇÃ"
+        ]
+      ]
+    },
+    {
+      "id": 15,
+      "name": "Fase 15",
+      "section": "A1 · Dia a dia",
+      "difficulty": "Fácil",
+      "theme": 2,
+      "timeSeconds": 85,
+      "pairs": [
+        [
+          "BUS",
+          "ÔNIBUS"
+        ],
+        [
+          "JUICE",
+          "SUCO"
+        ],
+        [
+          "RICE",
+          "ARROZ"
+        ],
+        [
+          "BANANA",
+          "BANANA"
+        ],
+        [
+          "RIGHT",
+          "DIREITA"
+        ]
+      ]
+    },
+    {
+      "id": 16,
+      "name": "Fase 16",
+      "section": "A1 · Dia a dia",
+      "difficulty": "Fácil",
+      "theme": 2,
+      "timeSeconds": 98,
+      "pairs": [
+        [
+          "CHICKEN",
+          "FRANGO"
+        ],
+        [
+          "APPLE",
+          "MAÇÃ"
+        ],
+        [
+          "LEFT",
+          "ESQUERDA"
+        ],
+        [
+          "OPEN",
+          "ABRIR"
+        ],
+        [
+          "BIG",
+          "GRANDE"
+        ],
+        [
+          "MOTHER",
+          "MÃE"
+        ]
+      ]
+    },
+    {
+      "id": 17,
+      "name": "Fase 17",
+      "section": "A1 · Dia a dia",
+      "difficulty": "Fácil",
+      "theme": 2,
+      "timeSeconds": 98,
+      "pairs": [
+        [
+          "BANANA",
+          "BANANA"
+        ],
+        [
+          "RIGHT",
+          "DIREITA"
+        ],
+        [
+          "CLOSE",
+          "FECHAR"
+        ],
+        [
+          "SMALL",
+          "PEQUENO"
+        ],
+        [
+          "FATHER",
+          "PAI"
+        ],
+        [
+          "SISTER",
+          "IRMÃ"
+        ]
+      ]
+    },
+    {
+      "id": 18,
+      "name": "Fase 18",
+      "section": "A1 · Dia a dia",
+      "difficulty": "Fácil",
+      "theme": 2,
+      "timeSeconds": 98,
+      "pairs": [
+        [
+          "OPEN",
+          "ABRIR"
+        ],
+        [
+          "BIG",
+          "GRANDE"
+        ],
+        [
+          "MOTHER",
+          "MÃE"
+        ],
+        [
+          "BROTHER",
+          "IRMÃO"
+        ],
+        [
+          "FRIEND",
+          "AMIGO"
+        ],
+        [
+          "MORNING",
+          "MANHÃ"
+        ]
+      ]
+    },
+    {
+      "id": 19,
+      "name": "Fase 19",
+      "section": "A1 · Dia a dia",
+      "difficulty": "Fácil",
+      "theme": 2,
+      "timeSeconds": 98,
+      "pairs": [
+        [
+          "SMALL",
+          "PEQUENO"
+        ],
+        [
+          "FATHER",
+          "PAI"
+        ],
+        [
+          "SISTER",
+          "IRMÃ"
+        ],
+        [
+          "FAMILY",
+          "FAMÍLIA"
+        ],
+        [
+          "AFTERNOON",
+          "TARDE"
+        ],
+        [
+          "SLEEP",
+          "DORMIR"
+        ]
+      ]
+    },
+    {
+      "id": 20,
+      "name": "Fase 20",
+      "section": "A1 · Dia a dia",
+      "difficulty": "Fácil",
+      "theme": 2,
+      "timeSeconds": 98,
+      "pairs": [
+        [
+          "BROTHER",
+          "IRMÃO"
+        ],
+        [
+          "FRIEND",
+          "AMIGO"
+        ],
+        [
+          "MORNING",
+          "MANHÃ"
+        ],
+        [
           "NIGHT",
           "NOITE"
         ],
         [
-          "FOOD",
-          "COMIDA"
+          "EAT",
+          "COMER"
         ],
         [
-          "CITY",
-          "CIDADE"
+          "WORK",
+          "TRABALHO"
+        ]
+      ]
+    },
+    {
+      "id": 21,
+      "name": "Fase 21",
+      "section": "A1/A2 · Frases úteis",
+      "difficulty": "Intermediário leve",
+      "theme": 3,
+      "timeSeconds": 103,
+      "pairs": [
+        [
+          "I WANT WATER",
+          "EU QUERO ÁGUA"
         ],
         [
-          "ROAD",
-          "ESTRADA"
+          "HOW MUCH?",
+          "QUANTO CUSTA?"
         ],
         [
-          "MONEY",
-          "DINHEIRO"
+          "GO STRAIGHT",
+          "SIGA EM FRENTE"
         ],
         [
-          "HAPPY",
-          "FELIZ"
+          "TURN RIGHT",
+          "VIRE À DIREITA"
+        ],
+        [
+          "COME WITH ME",
+          "VENHA COMIGO"
+        ],
+        [
+          "EXCUSE ME",
+          "COM LICENÇA"
+        ]
+      ]
+    },
+    {
+      "id": 22,
+      "name": "Fase 22",
+      "section": "A1/A2 · Frases úteis",
+      "difficulty": "Intermediário leve",
+      "theme": 3,
+      "timeSeconds": 103,
+      "pairs": [
+        [
+          "WHERE IS IT?",
+          "ONDE FICA?"
+        ],
+        [
+          "TURN LEFT",
+          "VIRE À ESQUERDA"
+        ],
+        [
+          "WAIT HERE",
+          "ESPERE AQUI"
+        ],
+        [
+          "I NEED HELP",
+          "PRECISO DE AJUDA"
+        ],
+        [
+          "I UNDERSTAND",
+          "EU ENTENDO"
+        ],
+        [
+          "SPEAK SLOWLY",
+          "FALE DEVAGAR"
+        ]
+      ]
+    },
+    {
+      "id": 23,
+      "name": "Fase 23",
+      "section": "A1/A2 · Frases úteis",
+      "difficulty": "Intermediário leve",
+      "theme": 3,
+      "timeSeconds": 103,
+      "pairs": [
+        [
+          "TURN RIGHT",
+          "VIRE À DIREITA"
+        ],
+        [
+          "COME WITH ME",
+          "VENHA COMIGO"
+        ],
+        [
+          "EXCUSE ME",
+          "COM LICENÇA"
+        ],
+        [
+          "I DON'T KNOW",
+          "EU NÃO SEI"
+        ],
+        [
+          "ONE MOMENT",
+          "UM MOMENTO"
+        ],
+        [
+          "NO PROBLEM",
+          "SEM PROBLEMA"
+        ]
+      ]
+    },
+    {
+      "id": 24,
+      "name": "Fase 24",
+      "section": "A1/A2 · Frases úteis",
+      "difficulty": "Intermediário leve",
+      "theme": 3,
+      "timeSeconds": 103,
+      "pairs": [
+        [
+          "I NEED HELP",
+          "PRECISO DE AJUDA"
+        ],
+        [
+          "I UNDERSTAND",
+          "EU ENTENDO"
+        ],
+        [
+          "SPEAK SLOWLY",
+          "FALE DEVAGAR"
+        ],
+        [
+          "LET'S GO",
+          "VAMOS"
+        ],
+        [
+          "GOOD MORNING",
+          "BOM DIA"
+        ],
+        [
+          "HOW ARE YOU?",
+          "COMO VOCÊ ESTÁ?"
+        ]
+      ]
+    },
+    {
+      "id": 25,
+      "name": "Fase 25",
+      "section": "A1/A2 · Frases úteis",
+      "difficulty": "Intermediário leve",
+      "theme": 3,
+      "timeSeconds": 103,
+      "pairs": [
+        [
+          "I DON'T KNOW",
+          "EU NÃO SEI"
+        ],
+        [
+          "ONE MOMENT",
+          "UM MOMENTO"
+        ],
+        [
+          "NO PROBLEM",
+          "SEM PROBLEMA"
+        ],
+        [
+          "GOOD NIGHT",
+          "BOA NOITE"
+        ],
+        [
+          "I AM FINE",
+          "EU ESTOU BEM"
+        ],
+        [
+          "MY NAME IS...",
+          "MEU NOME É..."
+        ]
+      ]
+    },
+    {
+      "id": 26,
+      "name": "Fase 26",
+      "section": "A1/A2 · Frases úteis",
+      "difficulty": "Intermediário leve",
+      "theme": 3,
+      "timeSeconds": 103,
+      "pairs": [
+        [
+          "LET'S GO",
+          "VAMOS"
+        ],
+        [
+          "GOOD MORNING",
+          "BOM DIA"
+        ],
+        [
+          "HOW ARE YOU?",
+          "COMO VOCÊ ESTÁ?"
+        ],
+        [
+          "WHAT IS YOUR NAME?",
+          "QUAL É O SEU NOME?"
+        ],
+        [
+          "NICE TO MEET YOU",
+          "PRAZER EM CONHECER"
+        ],
+        [
+          "I AM HUNGRY",
+          "ESTOU COM FOME"
+        ]
+      ]
+    },
+    {
+      "id": 27,
+      "name": "Fase 27",
+      "section": "A1/A2 · Frases úteis",
+      "difficulty": "Intermediário leve",
+      "theme": 3,
+      "timeSeconds": 103,
+      "pairs": [
+        [
+          "GOOD NIGHT",
+          "BOA NOITE"
+        ],
+        [
+          "I AM FINE",
+          "EU ESTOU BEM"
+        ],
+        [
+          "MY NAME IS...",
+          "MEU NOME É..."
+        ],
+        [
+          "SEE YOU LATER",
+          "ATÉ MAIS"
+        ],
+        [
+          "I AM THIRSTY",
+          "ESTOU COM SEDE"
+        ],
+        [
+          "I LIKE COFFEE",
+          "EU GOSTO DE CAFÉ"
+        ]
+      ]
+    },
+    {
+      "id": 28,
+      "name": "Fase 28",
+      "section": "A1/A2 · Frases úteis",
+      "difficulty": "Intermediário leve",
+      "theme": 3,
+      "timeSeconds": 103,
+      "pairs": [
+        [
+          "WHAT IS YOUR NAME?",
+          "QUAL É O SEU NOME?"
+        ],
+        [
+          "NICE TO MEET YOU",
+          "PRAZER EM CONHECER"
+        ],
+        [
+          "I AM HUNGRY",
+          "ESTOU COM FOME"
+        ],
+        [
+          "I WANT WATER",
+          "EU QUERO ÁGUA"
+        ],
+        [
+          "HOW MUCH?",
+          "QUANTO CUSTA?"
+        ],
+        [
+          "GO STRAIGHT",
+          "SIGA EM FRENTE"
+        ]
+      ]
+    },
+    {
+      "id": 29,
+      "name": "Fase 29",
+      "section": "A1/A2 · Frases úteis",
+      "difficulty": "Intermediário leve",
+      "theme": 3,
+      "timeSeconds": 103,
+      "pairs": [
+        [
+          "SEE YOU LATER",
+          "ATÉ MAIS"
+        ],
+        [
+          "I AM THIRSTY",
+          "ESTOU COM SEDE"
+        ],
+        [
+          "I LIKE COFFEE",
+          "EU GOSTO DE CAFÉ"
+        ],
+        [
+          "WHERE IS IT?",
+          "ONDE FICA?"
+        ],
+        [
+          "TURN LEFT",
+          "VIRE À ESQUERDA"
+        ],
+        [
+          "WAIT HERE",
+          "ESPERE AQUI"
+        ]
+      ]
+    },
+    {
+      "id": 30,
+      "name": "Fase 30",
+      "section": "A1/A2 · Frases úteis",
+      "difficulty": "Intermediário leve",
+      "theme": 3,
+      "timeSeconds": 103,
+      "pairs": [
+        [
+          "I WANT WATER",
+          "EU QUERO ÁGUA"
+        ],
+        [
+          "HOW MUCH?",
+          "QUANTO CUSTA?"
+        ],
+        [
+          "GO STRAIGHT",
+          "SIGA EM FRENTE"
+        ],
+        [
+          "TURN RIGHT",
+          "VIRE À DIREITA"
+        ],
+        [
+          "COME WITH ME",
+          "VENHA COMIGO"
+        ],
+        [
+          "EXCUSE ME",
+          "COM LICENÇA"
+        ]
+      ]
+    },
+    {
+      "id": 31,
+      "name": "Fase 31",
+      "section": "A2 · Situações reais",
+      "difficulty": "Intermediário",
+      "theme": 4,
+      "timeSeconds": 121,
+      "pairs": [
+        [
+          "I'M LOOKING FOR THIS",
+          "ESTOU PROCURANDO ISTO"
+        ],
+        [
+          "I'M JUST LOOKING",
+          "ESTOU SÓ OLHANDO"
+        ],
+        [
+          "SEE YOU TOMORROW",
+          "ATÉ AMANHÃ"
+        ],
+        [
+          "COULD YOU REPEAT?",
+          "PODE REPETIR?"
+        ],
+        [
+          "I AGREE WITH YOU",
+          "EU CONCORDO COM VOCÊ"
+        ],
+        [
+          "I HAVE A RESERVATION",
+          "TENHO UMA RESERVA"
+        ],
+        [
+          "CAN YOU HELP ME?",
+          "PODE ME AJUDAR?"
+        ]
+      ]
+    },
+    {
+      "id": 32,
+      "name": "Fase 32",
+      "section": "A2 · Situações reais",
+      "difficulty": "Intermediário",
+      "theme": 4,
+      "timeSeconds": 121,
+      "pairs": [
+        [
+          "WHAT'S YOUR PHONE NUMBER?",
+          "QUAL É O SEU TELEFONE?"
+        ],
+        [
+          "I'M LEARNING ENGLISH",
+          "ESTOU APRENDENDO INGLÊS"
+        ],
+        [
+          "THAT'S A GOOD IDEA",
+          "ESSA É UMA BOA IDEIA"
+        ],
+        [
+          "WHERE IS THE HOTEL?",
+          "ONDE FICA O HOTEL?"
+        ],
+        [
+          "THE BILL, PLEASE",
+          "A CONTA, POR FAVOR"
+        ],
+        [
+          "WHAT TIME IS IT?",
+          "QUE HORAS SÃO?"
+        ],
+        [
+          "HOW DO I GET THERE?",
+          "COMO EU CHEGO LÁ?"
+        ]
+      ]
+    },
+    {
+      "id": 33,
+      "name": "Fase 33",
+      "section": "A2 · Situações reais",
+      "difficulty": "Intermediário",
+      "theme": 4,
+      "timeSeconds": 121,
+      "pairs": [
+        [
+          "COULD YOU REPEAT?",
+          "PODE REPETIR?"
+        ],
+        [
+          "I AGREE WITH YOU",
+          "EU CONCORDO COM VOCÊ"
+        ],
+        [
+          "I HAVE A RESERVATION",
+          "TENHO UMA RESERVA"
+        ],
+        [
+          "CAN YOU HELP ME?",
+          "PODE ME AJUDAR?"
+        ],
+        [
+          "WHERE IS THE BATHROOM?",
+          "ONDE FICA O BANHEIRO?"
+        ],
+        [
+          "I WOULD LIKE COFFEE",
+          "EU GOSTARIA DE CAFÉ"
+        ],
+        [
+          "WHAT DO YOU RECOMMEND?",
+          "O QUE VOCÊ RECOMENDA?"
+        ]
+      ]
+    },
+    {
+      "id": 34,
+      "name": "Fase 34",
+      "section": "A2 · Situações reais",
+      "difficulty": "Intermediário",
+      "theme": 4,
+      "timeSeconds": 121,
+      "pairs": [
+        [
+          "WHERE IS THE HOTEL?",
+          "ONDE FICA O HOTEL?"
+        ],
+        [
+          "THE BILL, PLEASE",
+          "A CONTA, POR FAVOR"
+        ],
+        [
+          "WHAT TIME IS IT?",
+          "QUE HORAS SÃO?"
+        ],
+        [
+          "HOW DO I GET THERE?",
+          "COMO EU CHEGO LÁ?"
+        ],
+        [
+          "I NEED A TAXI",
+          "PRECISO DE UM TÁXI"
+        ],
+        [
+          "DO YOU SPEAK ENGLISH?",
+          "VOCÊ FALA INGLÊS?"
+        ],
+        [
+          "I DON'T UNDERSTAND",
+          "EU NÃO ENTENDO"
+        ]
+      ]
+    },
+    {
+      "id": 35,
+      "name": "Fase 35",
+      "section": "A2 · Situações reais",
+      "difficulty": "Intermediário",
+      "theme": 4,
+      "timeSeconds": 121,
+      "pairs": [
+        [
+          "CAN YOU HELP ME?",
+          "PODE ME AJUDAR?"
+        ],
+        [
+          "WHERE IS THE BATHROOM?",
+          "ONDE FICA O BANHEIRO?"
+        ],
+        [
+          "I WOULD LIKE COFFEE",
+          "EU GOSTARIA DE CAFÉ"
+        ],
+        [
+          "WHAT DO YOU RECOMMEND?",
+          "O QUE VOCÊ RECOMENDA?"
+        ],
+        [
+          "PLEASE SPEAK SLOWLY",
+          "FALE DEVAGAR, POR FAVOR"
+        ],
+        [
+          "HOW LONG DOES IT TAKE?",
+          "QUANTO TEMPO LEVA?"
+        ],
+        [
+          "I'M LOOKING FOR THIS",
+          "ESTOU PROCURANDO ISTO"
+        ]
+      ]
+    },
+    {
+      "id": 36,
+      "name": "Fase 36",
+      "section": "A2 · Situações reais",
+      "difficulty": "Intermediário",
+      "theme": 4,
+      "timeSeconds": 121,
+      "pairs": [
+        [
+          "HOW DO I GET THERE?",
+          "COMO EU CHEGO LÁ?"
+        ],
+        [
+          "I NEED A TAXI",
+          "PRECISO DE UM TÁXI"
+        ],
+        [
+          "DO YOU SPEAK ENGLISH?",
+          "VOCÊ FALA INGLÊS?"
+        ],
+        [
+          "I DON'T UNDERSTAND",
+          "EU NÃO ENTENDO"
+        ],
+        [
+          "WHERE IS THE STATION?",
+          "ONDE FICA A ESTAÇÃO?"
+        ],
+        [
+          "CAN I PAY BY CARD?",
+          "POSSO PAGAR COM CARTÃO?"
+        ],
+        [
+          "WHAT'S YOUR PHONE NUMBER?",
+          "QUAL É O SEU TELEFONE?"
+        ]
+      ]
+    },
+    {
+      "id": 37,
+      "name": "Fase 37",
+      "section": "A2 · Situações reais",
+      "difficulty": "Intermediário",
+      "theme": 4,
+      "timeSeconds": 121,
+      "pairs": [
+        [
+          "WHAT DO YOU RECOMMEND?",
+          "O QUE VOCÊ RECOMENDA?"
+        ],
+        [
+          "PLEASE SPEAK SLOWLY",
+          "FALE DEVAGAR, POR FAVOR"
+        ],
+        [
+          "HOW LONG DOES IT TAKE?",
+          "QUANTO TEMPO LEVA?"
+        ],
+        [
+          "I'M LOOKING FOR THIS",
+          "ESTOU PROCURANDO ISTO"
+        ],
+        [
+          "I'M JUST LOOKING",
+          "ESTOU SÓ OLHANDO"
+        ],
+        [
+          "SEE YOU TOMORROW",
+          "ATÉ AMANHÃ"
+        ],
+        [
+          "COULD YOU REPEAT?",
+          "PODE REPETIR?"
+        ]
+      ]
+    },
+    {
+      "id": 38,
+      "name": "Fase 38",
+      "section": "A2 · Situações reais",
+      "difficulty": "Intermediário",
+      "theme": 4,
+      "timeSeconds": 121,
+      "pairs": [
+        [
+          "I DON'T UNDERSTAND",
+          "EU NÃO ENTENDO"
+        ],
+        [
+          "WHERE IS THE STATION?",
+          "ONDE FICA A ESTAÇÃO?"
+        ],
+        [
+          "CAN I PAY BY CARD?",
+          "POSSO PAGAR COM CARTÃO?"
+        ],
+        [
+          "WHAT'S YOUR PHONE NUMBER?",
+          "QUAL É O SEU TELEFONE?"
+        ],
+        [
+          "I'M LEARNING ENGLISH",
+          "ESTOU APRENDENDO INGLÊS"
+        ],
+        [
+          "THAT'S A GOOD IDEA",
+          "ESSA É UMA BOA IDEIA"
+        ],
+        [
+          "WHERE IS THE HOTEL?",
+          "ONDE FICA O HOTEL?"
+        ]
+      ]
+    },
+    {
+      "id": 39,
+      "name": "Fase 39",
+      "section": "A2 · Situações reais",
+      "difficulty": "Intermediário",
+      "theme": 4,
+      "timeSeconds": 121,
+      "pairs": [
+        [
+          "I'M LOOKING FOR THIS",
+          "ESTOU PROCURANDO ISTO"
+        ],
+        [
+          "I'M JUST LOOKING",
+          "ESTOU SÓ OLHANDO"
+        ],
+        [
+          "SEE YOU TOMORROW",
+          "ATÉ AMANHÃ"
+        ],
+        [
+          "COULD YOU REPEAT?",
+          "PODE REPETIR?"
+        ],
+        [
+          "I AGREE WITH YOU",
+          "EU CONCORDO COM VOCÊ"
+        ],
+        [
+          "I HAVE A RESERVATION",
+          "TENHO UMA RESERVA"
+        ],
+        [
+          "CAN YOU HELP ME?",
+          "PODE ME AJUDAR?"
+        ]
+      ]
+    },
+    {
+      "id": 40,
+      "name": "Fase 40",
+      "section": "A2 · Situações reais",
+      "difficulty": "Intermediário",
+      "theme": 4,
+      "timeSeconds": 121,
+      "pairs": [
+        [
+          "WHAT'S YOUR PHONE NUMBER?",
+          "QUAL É O SEU TELEFONE?"
+        ],
+        [
+          "I'M LEARNING ENGLISH",
+          "ESTOU APRENDENDO INGLÊS"
+        ],
+        [
+          "THAT'S A GOOD IDEA",
+          "ESSA É UMA BOA IDEIA"
+        ],
+        [
+          "WHERE IS THE HOTEL?",
+          "ONDE FICA O HOTEL?"
+        ],
+        [
+          "THE BILL, PLEASE",
+          "A CONTA, POR FAVOR"
+        ],
+        [
+          "WHAT TIME IS IT?",
+          "QUE HORAS SÃO?"
+        ],
+        [
+          "HOW DO I GET THERE?",
+          "COMO EU CHEGO LÁ?"
+        ]
+      ]
+    },
+    {
+      "id": 41,
+      "name": "Fase 41",
+      "section": "A2 · Conversação",
+      "difficulty": "Desafio leve",
+      "theme": 5,
+      "timeSeconds": 139,
+      "pairs": [
+        [
+          "WHAT DOES THIS MEAN?",
+          "O QUE ISSO SIGNIFICA?"
+        ],
+        [
+          "CAN YOU WRITE IT DOWN?",
+          "PODE ESCREVER?"
+        ],
+        [
+          "LET ME THINK",
+          "DEIXE-ME PENSAR"
+        ],
+        [
+          "WHAT ARE YOU DOING?",
+          "O QUE VOCÊ ESTÁ FAZENDO?"
+        ],
+        [
+          "WHAT DO YOU DO?",
+          "COM O QUE VOCÊ TRABALHA?"
+        ],
+        [
+          "I USUALLY WAKE UP EARLY",
+          "GERALMENTE ACORDO CEDO"
+        ],
+        [
+          "I'LL CALL YOU LATER",
+          "EU TE LIGO MAIS TARDE"
+        ],
+        [
+          "I'VE NEVER BEEN THERE",
+          "NUNCA ESTIVE LÁ"
+        ]
+      ]
+    },
+    {
+      "id": 42,
+      "name": "Fase 42",
+      "section": "A2 · Conversação",
+      "difficulty": "Desafio leve",
+      "theme": 5,
+      "timeSeconds": 139,
+      "pairs": [
+        [
+          "I'M TRYING TO LEARN",
+          "ESTOU TENTANDO APRENDER"
+        ],
+        [
+          "THAT'S INTERESTING",
+          "ISSO É INTERESSANTE"
+        ],
+        [
+          "WHERE ARE YOU FROM?",
+          "DE ONDE VOCÊ É?"
+        ],
+        [
+          "WHAT DO YOU LIKE TO DO?",
+          "O QUE VOCÊ GOSTA DE FAZER?"
+        ],
+        [
+          "I'M GOING TO WORK",
+          "ESTOU INDO TRABALHAR"
+        ],
+        [
+          "WE CAN GO TOGETHER",
+          "PODEMOS IR JUNTOS"
+        ],
+        [
+          "IT'S CLOSE TO HERE",
+          "É PERTO DAQUI"
+        ],
+        [
+          "I'M NOT SURE",
+          "NÃO TENHO CERTEZA"
+        ]
+      ]
+    },
+    {
+      "id": 43,
+      "name": "Fase 43",
+      "section": "A2 · Conversação",
+      "difficulty": "Desafio leve",
+      "theme": 5,
+      "timeSeconds": 139,
+      "pairs": [
+        [
+          "WHAT ARE YOU DOING?",
+          "O QUE VOCÊ ESTÁ FAZENDO?"
+        ],
+        [
+          "WHAT DO YOU DO?",
+          "COM O QUE VOCÊ TRABALHA?"
+        ],
+        [
+          "I USUALLY WAKE UP EARLY",
+          "GERALMENTE ACORDO CEDO"
+        ],
+        [
+          "I'LL CALL YOU LATER",
+          "EU TE LIGO MAIS TARDE"
+        ],
+        [
+          "I'VE NEVER BEEN THERE",
+          "NUNCA ESTIVE LÁ"
+        ],
+        [
+          "IT'S FAR FROM HERE",
+          "É LONGE DAQUI"
+        ],
+        [
+          "THAT SOUNDS GOOD",
+          "ISSO PARECE BOM"
+        ],
+        [
+          "DON'T WORRY",
+          "NÃO SE PREOCUPE"
+        ]
+      ]
+    },
+    {
+      "id": 44,
+      "name": "Fase 44",
+      "section": "A2 · Conversação",
+      "difficulty": "Desafio leve",
+      "theme": 5,
+      "timeSeconds": 139,
+      "pairs": [
+        [
+          "WHAT DO YOU LIKE TO DO?",
+          "O QUE VOCÊ GOSTA DE FAZER?"
+        ],
+        [
+          "I'M GOING TO WORK",
+          "ESTOU INDO TRABALHAR"
+        ],
+        [
+          "WE CAN GO TOGETHER",
+          "PODEMOS IR JUNTOS"
+        ],
+        [
+          "IT'S CLOSE TO HERE",
+          "É PERTO DAQUI"
+        ],
+        [
+          "I'M NOT SURE",
+          "NÃO TENHO CERTEZA"
+        ],
+        [
+          "WHAT HAPPENED?",
+          "O QUE ACONTECEU?"
+        ],
+        [
+          "TAKE YOUR TIME",
+          "VÁ COM CALMA"
+        ],
+        [
+          "I'LL BE RIGHT BACK",
+          "JÁ VOLTO"
+        ]
+      ]
+    },
+    {
+      "id": 45,
+      "name": "Fase 45",
+      "section": "A2 · Conversação",
+      "difficulty": "Desafio leve",
+      "theme": 5,
+      "timeSeconds": 139,
+      "pairs": [
+        [
+          "I'LL CALL YOU LATER",
+          "EU TE LIGO MAIS TARDE"
+        ],
+        [
+          "I'VE NEVER BEEN THERE",
+          "NUNCA ESTIVE LÁ"
+        ],
+        [
+          "IT'S FAR FROM HERE",
+          "É LONGE DAQUI"
+        ],
+        [
+          "THAT SOUNDS GOOD",
+          "ISSO PARECE BOM"
+        ],
+        [
+          "DON'T WORRY",
+          "NÃO SE PREOCUPE"
+        ],
+        [
+          "I'M READY",
+          "ESTOU PRONTO"
+        ],
+        [
+          "CAN WE START?",
+          "PODEMOS COMEÇAR?"
+        ],
+        [
+          "WHAT DOES THIS MEAN?",
+          "O QUE ISSO SIGNIFICA?"
+        ]
+      ]
+    },
+    {
+      "id": 46,
+      "name": "Fase 46",
+      "section": "A2 · Conversação",
+      "difficulty": "Desafio leve",
+      "theme": 5,
+      "timeSeconds": 139,
+      "pairs": [
+        [
+          "IT'S CLOSE TO HERE",
+          "É PERTO DAQUI"
+        ],
+        [
+          "I'M NOT SURE",
+          "NÃO TENHO CERTEZA"
+        ],
+        [
+          "WHAT HAPPENED?",
+          "O QUE ACONTECEU?"
+        ],
+        [
+          "TAKE YOUR TIME",
+          "VÁ COM CALMA"
+        ],
+        [
+          "I'LL BE RIGHT BACK",
+          "JÁ VOLTO"
+        ],
+        [
+          "I NEED MORE TIME",
+          "PRECISO DE MAIS TEMPO"
+        ],
+        [
+          "HOW DO YOU SAY THIS?",
+          "COMO SE DIZ ISSO?"
+        ],
+        [
+          "I'M TRYING TO LEARN",
+          "ESTOU TENTANDO APRENDER"
+        ]
+      ]
+    },
+    {
+      "id": 47,
+      "name": "Fase 47",
+      "section": "A2 · Conversação",
+      "difficulty": "Desafio leve",
+      "theme": 5,
+      "timeSeconds": 139,
+      "pairs": [
+        [
+          "THAT SOUNDS GOOD",
+          "ISSO PARECE BOM"
+        ],
+        [
+          "DON'T WORRY",
+          "NÃO SE PREOCUPE"
+        ],
+        [
+          "I'M READY",
+          "ESTOU PRONTO"
+        ],
+        [
+          "CAN WE START?",
+          "PODEMOS COMEÇAR?"
+        ],
+        [
+          "WHAT DOES THIS MEAN?",
+          "O QUE ISSO SIGNIFICA?"
+        ],
+        [
+          "CAN YOU WRITE IT DOWN?",
+          "PODE ESCREVER?"
+        ],
+        [
+          "LET ME THINK",
+          "DEIXE-ME PENSAR"
+        ],
+        [
+          "WHAT ARE YOU DOING?",
+          "O QUE VOCÊ ESTÁ FAZENDO?"
+        ]
+      ]
+    },
+    {
+      "id": 48,
+      "name": "Fase 48",
+      "section": "A2 · Conversação",
+      "difficulty": "Desafio leve",
+      "theme": 5,
+      "timeSeconds": 139,
+      "pairs": [
+        [
+          "TAKE YOUR TIME",
+          "VÁ COM CALMA"
+        ],
+        [
+          "I'LL BE RIGHT BACK",
+          "JÁ VOLTO"
+        ],
+        [
+          "I NEED MORE TIME",
+          "PRECISO DE MAIS TEMPO"
+        ],
+        [
+          "HOW DO YOU SAY THIS?",
+          "COMO SE DIZ ISSO?"
+        ],
+        [
+          "I'M TRYING TO LEARN",
+          "ESTOU TENTANDO APRENDER"
+        ],
+        [
+          "THAT'S INTERESTING",
+          "ISSO É INTERESSANTE"
+        ],
+        [
+          "WHERE ARE YOU FROM?",
+          "DE ONDE VOCÊ É?"
+        ],
+        [
+          "WHAT DO YOU LIKE TO DO?",
+          "O QUE VOCÊ GOSTA DE FAZER?"
+        ]
+      ]
+    },
+    {
+      "id": 49,
+      "name": "Fase 49",
+      "section": "A2 · Conversação",
+      "difficulty": "Desafio leve",
+      "theme": 5,
+      "timeSeconds": 139,
+      "pairs": [
+        [
+          "CAN WE START?",
+          "PODEMOS COMEÇAR?"
+        ],
+        [
+          "WHAT DOES THIS MEAN?",
+          "O QUE ISSO SIGNIFICA?"
+        ],
+        [
+          "CAN YOU WRITE IT DOWN?",
+          "PODE ESCREVER?"
+        ],
+        [
+          "LET ME THINK",
+          "DEIXE-ME PENSAR"
+        ],
+        [
+          "WHAT ARE YOU DOING?",
+          "O QUE VOCÊ ESTÁ FAZENDO?"
+        ],
+        [
+          "WHAT DO YOU DO?",
+          "COM O QUE VOCÊ TRABALHA?"
+        ],
+        [
+          "I USUALLY WAKE UP EARLY",
+          "GERALMENTE ACORDO CEDO"
+        ],
+        [
+          "I'LL CALL YOU LATER",
+          "EU TE LIGO MAIS TARDE"
+        ]
+      ]
+    },
+    {
+      "id": 50,
+      "name": "Fase 50",
+      "section": "A2 · Conversação",
+      "difficulty": "Desafio leve",
+      "theme": 5,
+      "timeSeconds": 139,
+      "pairs": [
+        [
+          "HOW DO YOU SAY THIS?",
+          "COMO SE DIZ ISSO?"
+        ],
+        [
+          "I'M TRYING TO LEARN",
+          "ESTOU TENTANDO APRENDER"
+        ],
+        [
+          "THAT'S INTERESTING",
+          "ISSO É INTERESSANTE"
+        ],
+        [
+          "WHERE ARE YOU FROM?",
+          "DE ONDE VOCÊ É?"
+        ],
+        [
+          "WHAT DO YOU LIKE TO DO?",
+          "O QUE VOCÊ GOSTA DE FAZER?"
+        ],
+        [
+          "I'M GOING TO WORK",
+          "ESTOU INDO TRABALHAR"
+        ],
+        [
+          "WE CAN GO TOGETHER",
+          "PODEMOS IR JUNTOS"
+        ],
+        [
+          "IT'S CLOSE TO HERE",
+          "É PERTO DAQUI"
         ]
       ]
     }
