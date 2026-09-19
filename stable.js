@@ -1,7 +1,7 @@
 (()=>{
 'use strict';
 
-const API_BASE=location.hostname.endsWith('github.io')?'https://meu-ingles-claudio.netlify.app':'';
+const API_BASE='https://meu-ingles-livid.vercel.app';
 const CHAT=API_BASE+'/api/groq-chat';
 const COURSE=API_BASE+'/api/course-lesson';
 const TTS=API_BASE+'/api/gemini-tts';
