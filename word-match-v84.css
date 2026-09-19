@@ -17,146 +17,125 @@
 .wordMatchV84.open{display:block}
 .wmInnerV84{max-width:760px;margin:0 auto;min-height:100%;padding:18px 18px 36px}
 
-.wmHudV86{
-  margin:0 0 10px;
-  padding:12px;
-  border-radius:24px;
-  background:
-    linear-gradient(180deg,rgba(8,35,83,.92),rgba(5,25,65,.92));
-  border:2px solid rgba(94,141,255,.45);
-  box-shadow:
-    inset 0 1px 0 rgba(255,255,255,.08),
-    0 8px 20px rgba(0,0,0,.24);
-}
-.wmHudTopV86{
+.wmHudV87{
   display:grid;
-  grid-template-columns:44px minmax(0,1fr) 44px;
-  gap:10px;
-  align-items:center;
+  grid-template-columns:42px minmax(0,.85fr) minmax(0,1.2fr) minmax(0,.85fr) 42px;
+  gap:8px;
+  align-items:stretch;
+  margin:0 0 8px;
+  padding:10px;
+  border-radius:22px;
+  background:linear-gradient(180deg,rgba(7,35,84,.94),rgba(5,24,61,.94));
+  border:2px solid rgba(91,137,244,.42);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.08),0 7px 18px rgba(0,0,0,.22);
 }
 .wmCloseV84,.wmResetV84{
-  width:44px;height:44px;border-radius:50%;
-  border:2px solid rgba(118,159,255,.75);
-  background:linear-gradient(180deg,#2d60d0,#1a4299);
-  color:#fff;font-size:27px;font-weight:950;
-  box-shadow:
-    inset 0 2px 0 rgba(255,255,255,.23),
-    0 4px 0 #0b2b70,
-    0 7px 14px rgba(0,0,0,.22);
+  width:42px;height:42px;align-self:center;
+  border-radius:50%;
+  border:2px solid rgba(123,162,255,.72);
+  background:linear-gradient(180deg,#2d60ce,#193f96);
+  color:#fff;font-size:25px;font-weight:950;
+  box-shadow:inset 0 2px 0 rgba(255,255,255,.22),0 4px 0 #0a2a6c;
 }
-.wmHudCenterV86{
+.wmHudItemV87{
   min-width:0;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  gap:8px;
+  border-radius:16px;
+  padding:8px 9px;
+  text-align:center;
+  background:rgba(15,53,118,.72);
+  border:1px solid rgba(116,156,255,.30);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.05);
 }
-.wmStageBadgeV86,.wmDifficultyV84{
-  display:flex;
-  align-items:center;
-  gap:6px;
-  min-height:38px;
-  padding:7px 12px;
-  border-radius:999px;
-  background:linear-gradient(180deg,#173d8f,#0f2f72);
-  border:1px solid rgba(108,151,255,.58);
-  box-shadow:inset 0 1px 0 rgba(255,255,255,.08),0 3px 0 #071d4e;
-}
-.wmStageBadgeV86 span{font-size:10px;font-weight:950;color:#9fb9ff}
-.wmStageBadgeV86 b{font-size:20px;line-height:1}
-.wmStageBadgeV86 em{font-style:normal;font-size:11px;color:#9fb9ff}
-.wmDifficultyV84{
-  font-size:12px;
-  font-weight:900;
-  color:#e4ecff;
-}
-.wmHudStatsV86{
-  display:grid;
-  grid-template-columns:minmax(0,1.35fr) minmax(0,.85fr);
-  gap:9px;
-  margin-top:11px;
-}
-.wmStatV86{
-  min-width:0;
-  display:flex;
-  align-items:center;
-  gap:10px;
-  padding:11px 12px;
-  border-radius:17px;
-  background:linear-gradient(180deg,#fdf7ee,#eee2d3);
-  color:#261a11;
-  border:2px solid rgba(255,255,255,.8);
-  box-shadow:
-    inset 0 -3px 0 rgba(108,80,48,.13),
-    0 4px 0 #b28c66,
-    0 7px 13px rgba(0,0,0,.18);
-}
-.wmStatIconV86{
-  width:38px;height:38px;
-  flex:0 0 38px;
-  display:grid;place-items:center;
-  border-radius:13px;
-  background:#fff;
-  box-shadow:inset 0 0 0 2px rgba(53,88,183,.12);
-  font-size:21px;
-}
-.wmStatV86 div{min-width:0}
-.wmStatV86 small{
+.wmHudItemV87 small{
   display:block;
   font-size:9px;
   font-weight:950;
   letter-spacing:.08em;
-  color:#4b5d80;
+  color:#9eb7f5;
 }
-.wmStatV86 b{
+.wmHudItemV87 strong{
   display:block;
   margin-top:2px;
-  font-size:17px;
-  line-height:1.08;
-  white-space:nowrap;
-  overflow:hidden;
-  text-overflow:ellipsis;
+  color:#fff;
+  font-size:23px;
+  line-height:1;
 }
-.wmStatV86.moves{
-  background:linear-gradient(180deg,#eef5ff,#dce8f7);
-}
-.wmStatV86.moves b{
-  font-size:28px;
-  color:#153b8c;
-}
-.wmProgressV86{margin-top:11px}
-.wmProgressTextV86{
+.wmHudItemV87.stage strong{
   display:flex;
-  justify-content:space-between;
-  align-items:center;
-  gap:10px;
+  justify-content:center;
+  align-items:baseline;
+  gap:3px;
+}
+.wmHudItemV87.stage strong em{
+  font-size:11px;
+  font-style:normal;
+  color:#9eb7f5;
+  font-weight:800;
+}
+.wmHudItemV87.stage>i{
+  display:block;
+  margin-top:5px;
+  font-style:normal;
+  font-size:10px;
+  color:#d7e3ff;
+  font-weight:850;
+}
+.wmHudItemV87.goal{
+  background:linear-gradient(180deg,#f8f5ee,#ece3d6);
+  border-color:rgba(255,255,255,.75);
+  color:#1f2736;
+  box-shadow:inset 0 -3px 0 rgba(122,93,54,.12),0 3px 0 #b99369;
+}
+.wmHudItemV87.goal small{color:#5d6e91}
+.wmHudItemV87.goal strong{
+  color:#183d8c;
+  font-size:24px;
+}
+.wmGoalLabelV87{
+  margin-top:2px;
   font-size:10px;
   font-weight:900;
-  color:#b8c9f5;
+  color:#4e5f80;
 }
-.wmProgressTextV86 b{
-  color:#fff;
-  font-size:11px;
+.wmHudItemV87.moves{
+  background:linear-gradient(180deg,#eef5ff,#dbe8f8);
+  border-color:rgba(255,255,255,.75);
+  box-shadow:inset 0 -3px 0 rgba(72,100,137,.10),0 3px 0 #9eb0c7;
+}
+.wmHudItemV87.moves small{color:#617492}
+.wmHudItemV87.moves strong{
+  color:#173f91;
+  font-size:30px;
 }
 .wmProgressTrackV86{
-  height:9px;
+  height:7px;
   margin-top:6px;
   border-radius:999px;
   overflow:hidden;
-  background:#071d4c;
-  border:1px solid rgba(129,166,255,.35);
-  box-shadow:inset 0 2px 4px rgba(0,0,0,.28);
+  background:#cfd8e5;
+  box-shadow:inset 0 1px 3px rgba(0,0,0,.15);
 }
 .wmProgressTrackV86 i{
   display:block;
-  width:0;
-  height:100%;
+  width:0;height:100%;
   border-radius:inherit;
-  background:linear-gradient(90deg,#4fe29f,#7af1c2);
-  box-shadow:0 0 10px rgba(86,231,166,.45);
-  transition:width .3s ease;
+  background:linear-gradient(90deg,#3acb88,#74e7b2);
+  transition:width .28s ease;
 }
-
+@media(max-width:430px){
+  .wmHudV87{
+    grid-template-columns:36px minmax(0,.8fr) minmax(0,1.1fr) minmax(0,.8fr) 36px;
+    gap:6px;
+    padding:8px;
+    border-radius:18px;
+  }
+  .wmCloseV84,.wmResetV84{width:36px;height:36px;font-size:21px}
+  .wmHudItemV87{padding:7px 6px;border-radius:14px}
+  .wmHudItemV87 strong{font-size:20px}
+  .wmHudItemV87.moves strong{font-size:26px}
+  .wmHudItemV87 small{font-size:8px}
+  .wmHudItemV87.stage>i,.wmGoalLabelV87{font-size:9px}
+}
 .wmBoardV84{
   position:relative;
   margin-top:10px;
@@ -315,17 +294,7 @@
 
 @media(max-width:430px){
   .wmInnerV84{padding:14px 12px 26px}
-  .wmHudV86{padding:10px;border-radius:20px}
-  .wmHudTopV86{grid-template-columns:38px minmax(0,1fr) 38px;gap:7px}
   .wmCloseV84,.wmResetV84{width:38px;height:38px;font-size:23px}
-  .wmStageBadgeV86,.wmDifficultyV84{padding:6px 9px;min-height:34px}
-  .wmStageBadgeV86 b{font-size:18px}
-  .wmDifficultyV84{font-size:11px}
-  .wmHudStatsV86{gap:7px;margin-top:9px}
-  .wmStatV86{padding:9px 10px;gap:8px}
-  .wmStatIconV86{width:34px;height:34px;flex-basis:34px;font-size:19px}
-  .wmStatV86 b{font-size:15px}
-  .wmStatV86.moves b{font-size:24px}
   .wmBoardV84{padding:8px;border-width:5px;gap:5px}
   .wmColumnV84{gap:6px}
   .wmColumnV84 button{min-height:82px}
