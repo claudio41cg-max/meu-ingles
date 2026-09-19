@@ -165,9 +165,12 @@ async function geminiSpeak(text,lang='pt-BR',voice=currentVoice()){
     return await playPCM(d,voice,seq);
   }catch(e){
     if(seq===currentSeq){
+      const msg=String(e&&e.message||e).slice(0,260);
+      window.MEU_INGLES_TTS_LAST_ERROR=msg;
       console.error('Gemini TTS frontend',e);
-      status('❌ '+String(e&&e.message||e).slice(0,180),false);
+      status('❌ '+msg,false);
       document.querySelectorAll('.bot').forEach(b=>b.classList.remove('speaking'));
+      try{window.dispatchEvent(new CustomEvent('meu-ingles-tts-error',{detail:{message:msg}}))}catch{}
     }
     return false;
   }
@@ -178,11 +181,13 @@ window.previewStableVoice=()=>geminiSpeak(
   'pt-BR',
   currentVoice()
 );
-window.stableSpeakEnglish=enc=>geminiSpeak(
-  decodeURIComponent(String(enc||'')),
-  'en-US',
-  ENGLISH_VOICE
-);
+window.stableSpeakEnglish=async enc=>{
+  const text=decodeURIComponent(String(enc||''));
+  const ok=await geminiSpeak(text,'en-US',ENGLISH_VOICE);
+  if(ok)return true;
+  window.nativeSpeechFallback?.(text,'en-US');
+  return false;
+};
 window.geminiSpeak=geminiSpeak;
 window.stopGeminiTTS=stopGeminiTTS;
 window.nativeSpeechFallback=(text,lang='pt-BR')=>{
