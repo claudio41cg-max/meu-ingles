@@ -564,29 +564,19 @@ window.stableChatMic=async()=>{
   r.start();
 };
 
-function bytes(b64){const bin=atob(b64),u=new Uint8Array(bin.length);for(let i=0;i<bin.length;i++)u[i]=bin.charCodeAt(i);return u}
-async function playPCM(b64,rate=24000){
-  const u=bytes(b64),samples=Math.floor(u.length/2),arr=new Float32Array(samples),v=new DataView(u.buffer,u.byteOffset,u.byteLength);
-  for(let i=0;i<samples;i++)arr[i]=Math.max(-1,Math.min(1,v.getInt16(i*2,true)/32768));
-  audioCtx=audioCtx||new (window.AudioContext||window.webkitAudioContext)();if(audioCtx.state==='suspended')await audioCtx.resume();
-  if(source){try{source.stop()}catch(e){}}
-  const buf=audioCtx.createBuffer(1,arr.length,rate);buf.copyToChannel(arr,0);source=audioCtx.createBufferSource();source.buffer=buf;source.connect(audioCtx.destination);
-  await new Promise(res=>{source.onended=()=>{source=null;res()};source.start()});
+async function speak(text,lang){
+  text=String(text||'').trim();
+  if(!text)return false;
+  if(typeof window.geminiSpeak!=='function')return false;
+  const voice=String(lang||'').toLowerCase().startsWith('en')?'Achird':(state.voice||'Aoede');
+  try{return await window.geminiSpeak(text,lang,voice)}
+  catch(e){console.error('Stable TTS',e);return false}
 }
-async function speakTTS(text,lang){
-  text=String(text||'').trim();if(!text)return false;
-  try{
-    const r=await fetch(TTS,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({text,lang,voice:state.voice||'Aoede',style:lang.startsWith('pt')?voiceStyle():'Natural American English teaching voice, human, clear, expressive and friendly. Avoid robotic cadence.'})});
-    if(!r.ok)throw new Error('tts');const d=await r.json();if(!d.audio)throw new Error('audio');
-    $$('.bot').forEach(b=>b.classList.add('speaking'));await playPCM(d.audio,d.sample_rate||24000);$$('.bot').forEach(b=>b.classList.remove('speaking'));return true;
-  }catch(e){return false}
-}
-function browserSpeak(text,lang){
-  return new Promise(res=>{try{speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(text);u.lang=lang;u.rate=lang.startsWith('en')?0.88:1;u.pitch=1;u.onstart=()=>$$('.bot').forEach(b=>b.classList.add('speaking'));u.onend=()=>{$$('.bot').forEach(b=>b.classList.remove('speaking'));res()};speechSynthesis.speak(u)}catch(e){res()}})
-}
-async function speak(text,lang){if(!await speakTTS(text,lang))await browserSpeak(text,lang)}
 window.stableSpeakEnglish=enc=>speak(dec(enc),'en-US');
-async function speakBoth(pt,en){if(pt)await speak(pt,'pt-BR');if(en)await speak(en,'en-US')}
+async function speakBoth(pt,en){
+  if(pt)await speak(pt,'pt-BR');
+  if(en)await speak(en,'en-US');
+}
 
 async function checkAI(){
   const badge=$('#aiStatus');if(!badge)return;
