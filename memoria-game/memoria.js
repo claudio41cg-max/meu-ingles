@@ -264,7 +264,7 @@
       nameEl.textContent = level.name || ('Fase ' + level.id);
       var pairsEl = document.createElement('div');
       pairsEl.className = 'mg-level-pairs';
-      pairsEl.textContent = level.pairs.length + ' pares · ' + level.timeSeconds + 's';
+      pairsEl.textContent = (level.section ? level.section + ' · ' : '') + level.pairs.length + ' pares · ' + level.timeSeconds + 's';
       left.appendChild(nameEl);
       left.appendChild(pairsEl);
 
@@ -314,6 +314,9 @@
 
     state.level = levelDef;
     state.totalPairs = levelDef.pairs.length;
+    if (state.mountPoint) {
+      state.mountPoint.setAttribute('data-mg-theme', String(levelDef.theme || Math.ceil((levelDef.id || 1) / 10)));
+    }
     state.matchedPairs = 0;
     state.moves = 0;
     state.timeLeft = levelDef.timeSeconds;
@@ -453,10 +456,13 @@
   }
 
   function computeStars() {
-    var perfectMoves = state.totalPairs;
-    var ratio = perfectMoves / Math.max(state.moves, perfectMoves);
-    if (ratio >= 0.9) return 3;
-    if (ratio >= 0.6) return 2;
+    var pairs = Math.max(1, state.totalPairs);
+    var moves = Math.max(state.moves, pairs);
+    var moveRatio = moves / pairs;
+    var timeRatio = Math.max(0, state.timeLeft / Math.max(1, state.totalTime));
+
+    if (moveRatio <= 1.8 && timeRatio >= 0.25) return 3;
+    if (moveRatio <= 2.8 && timeRatio >= 0.08) return 2;
     return 1;
   }
 
@@ -491,11 +497,11 @@
       var best = saveBest(state.level.id, result.stars);
       els.rEmoji.textContent = '🏆';
       els.rTitle.textContent = 'Você venceu!';
-      els.rSub.textContent = state.moves + ' jogadas · ' + state.timeLeft + 's restantes';
+      els.rSub.textContent = state.moves + ' jogadas · ' + state.timeLeft + 's restantes · ' + (state.level.difficulty || '');
       renderStars(els.rStars, result.stars);
       els.rBest.textContent = 'Melhor resultado: ' + '★'.repeat(best) + '☆'.repeat(3 - best);
       els.btnNext.classList.toggle('mg-hidden', !nextLevel);
-      els.btnNext.textContent = 'Próxima fase' + (nextLevel ? ': ' + nextLevel.name : '');
+      els.btnNext.textContent = nextLevel ? ('Próxima: ' + nextLevel.name) : 'Concluído';
       burstConfetti(els.confettiCanvas);
       updateMenuData(allLevels);
     } else {
