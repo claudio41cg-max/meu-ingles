@@ -1,3 +1,4 @@
+// deploy-trigger: tts-v92
 export default async function handler(req, res) {
   const allowedOrigins = new Set([
     'https://claudio41cg-max.github.io',
