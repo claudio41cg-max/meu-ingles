@@ -280,12 +280,14 @@ window.v26Send=()=>{
  i.value='';handleUser(t);
 };
 window.v26Mic=()=>{
- if(busy||card()?.classList.contains('audio-speaking'))return;
- const SR=window.SpeechRecognition||window.webkitSpeechRecognition;if(!SR){addMsg('Seu navegador não liberou o reconhecimento de voz. Você pode escrever a resposta.','bot');return}
- const mic=document.querySelector('#homeChatMic');const r=new SR();r.lang=phase==='learning'?'en-US':'pt-BR';r.interimResults=false;r.maxAlternatives=1;setRobotState('listening');mic?.classList.add('listening');
- r.onresult=e=>{mic?.classList.remove('listening');setRobotState('');const t=e.results?.[0]?.[0]?.transcript;if(t)handleUser(t)};
- r.onerror=()=>{mic?.classList.remove('listening');setRobotState('oops');setTimeout(()=>setRobotState(''),700)};
- r.onend=()=>{mic?.classList.remove('listening');if(card()?.classList.contains('robot-listening'))setRobotState('')};r.start();
+  /* O microfone da esfera pertence exclusivamente ao Gemini 3.1 Live. */
+  const live=window.MeuInglesGeminiLiveV38;
+  if(!live?.available){
+    console.warn('Gemini Live indisponível: microfone da esfera não usa SpeechRecognition como fallback.');
+    return;
+  }
+  if(live.state?.running||live.state?.starting)live.stop?.();
+  else live.start?.({kind:phase==='live_course'?'course':phase==='live_external'?'external':'free'});
 };
 function hookNav(){
  const goal=document.querySelector('nav button[data-screen="goal"]');
