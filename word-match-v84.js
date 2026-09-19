@@ -164,33 +164,28 @@ function create(){
   screen.className='wordMatchV84';
   screen.innerHTML=`
     <div class="wmInnerV84">
-      <header class="wmHudV86">
-        <div class="wmHudTopV86">
-          <button type="button" class="wmCloseV84" aria-label="Sair">‹</button>
-          <div class="wmHudCenterV86">
-            <div class="wmStageBadgeV86">
-              <span>FASE</span><b id="wmLevelV84">1</b><em>/40</em>
-            </div>
-            <div class="wmDifficultyV84" id="wmDifficultyV84">Fácil</div>
-          </div>
-          <button type="button" class="wmResetV84" aria-label="Reiniciar">↻</button>
+      <header class="wmHudV87">
+        <button type="button" class="wmCloseV84" aria-label="Sair">‹</button>
+
+        <div class="wmHudItemV87 stage">
+          <small>FASE</small>
+          <strong><span id="wmLevelV84">1</span><em>/40</em></strong>
+          <i id="wmDifficultyV84">Fácil</i>
         </div>
 
-        <div class="wmHudStatsV86">
-          <div class="wmStatV86 objective">
-            <span class="wmStatIconV86">🎯</span>
-            <div><small>OBJETIVO</small><b id="wmObjectiveV86">Encontre 3 pares</b></div>
-          </div>
-          <div class="wmStatV86 moves">
-            <span class="wmStatIconV86">🎲</span>
-            <div><small>MOVIMENTOS</small><b id="wmMovesV84">0</b></div>
-          </div>
-        </div>
-
-        <div class="wmProgressV86">
-          <div class="wmProgressTextV86"><span>PROGRESSO</span><b id="wmProgressTextV86">0/3 pares</b></div>
+        <div class="wmHudItemV87 goal">
+          <small>OBJETIVO</small>
+          <strong id="wmProgressTextV86">0/3</strong>
+          <div class="wmGoalLabelV87" id="wmObjectiveV86">pares</div>
           <div class="wmProgressTrackV86"><i id="wmProgressBarV86"></i></div>
         </div>
+
+        <div class="wmHudItemV87 moves">
+          <small>MOVIMENTOS</small>
+          <strong id="wmMovesV84">0</strong>
+        </div>
+
+        <button type="button" class="wmResetV84" aria-label="Reiniciar">↻</button>
       </header>
 
       <main>
@@ -217,7 +212,7 @@ function updateHudProgress(){
   const done=Math.max(0,total-remaining);
   const text=screen.querySelector('#wmProgressTextV86');
   const bar=screen.querySelector('#wmProgressBarV86');
-  if(text)text.textContent=`${done}/${total} pares`;
+  if(text)text.textContent=`${done}/${total}`;
   if(bar)bar.style.width=`${Math.round(done/Math.max(1,total)*100)}%`;
 }
 function start(nextStage=1){
@@ -236,7 +231,7 @@ function start(nextStage=1){
   screen.querySelector('#wmLevelV84').textContent=String(stage);
   screen.querySelector('#wmMovesV84').textContent=String(moves);
   screen.querySelector('#wmDifficultyV84').textContent=difficultyLabel(cfg.tier);
-  screen.querySelector('#wmObjectiveV86').textContent=`Encontre ${cfg.pairs} pares`;
+  screen.querySelector('#wmObjectiveV86').textContent=`${cfg.pairs} pares`;
   screen.querySelector('#wmStatusV84').innerHTML='';
   updateHudProgress();
   renderBoard(false);
