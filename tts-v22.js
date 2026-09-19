@@ -1,8 +1,8 @@
 (()=>{
 'use strict';
 
-const API=location.hostname.endsWith('github.io')?'https://meu-ingles-claudio.netlify.app':'';
-const TTS=(window.MEU_INGLES_TTS_URL||API+'/api/gemini-tts');
+const TTS='https://meu-ingles-livid.vercel.app/api/gemini-tts';
+window.MEU_INGLES_TTS_URL=TTS;
 const KEY='meuInglesStableV2';
 const MIN_API_GAP=150;
 const ENGLISH_VOICE='Achird';
@@ -185,8 +185,39 @@ window.stableSpeakEnglish=enc=>geminiSpeak(
   'en-US',
   ENGLISH_VOICE
 );
+async function preloadGeminiTTS(text,lang='pt-BR',voice=currentVoice()){
+  text=String(text||'').trim();
+  if(!text)return false;
+  const key=[voice,lang,text].join('|');
+  if(audioCache.has(key))return true;
+  let pending=pendingVoice.get(key);
+  if(!pending){
+    const payload={
+      text,
+      lang,
+      voice,
+      style:String(lang).toLowerCase().startsWith('en')
+        ?'Natural American English, very clear, warm, human and conversational. Precise beginner-friendly pronunciation.'
+        :'Português brasileiro natural, humano, expressivo e conversacional.'
+    };
+    pending=requestVoice(payload)
+      .then(d=>{audioCache.set(key,d);return true})
+      .catch(e=>{console.warn('Gemini TTS preload',e);return false})
+      .finally(()=>pendingVoice.delete(key));
+    pendingVoice.set(key,pending);
+  }
+  return await pending;
+}
+
 window.geminiSpeak=geminiSpeak;
+window.preloadGeminiTTS=preloadGeminiTTS;
 window.stopGeminiTTS=stopGeminiTTS;
+window.MeuInglesTTS={
+  speak:geminiSpeak,
+  preload:preloadGeminiTTS,
+  stop:stopGeminiTTS,
+  endpoint:TTS
+};
 
 
 })();
