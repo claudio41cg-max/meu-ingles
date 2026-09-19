@@ -129,7 +129,9 @@ async function say(text,emotion='neutral'){
   if(window.geminiSpeak)await Promise.race([window.geminiSpeak(text,'pt-BR',currentVoice()),wait(18000)]);
   else throw new Error('tts');
  }catch(e){
-  try{speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(text);u.lang='pt-BR';u.rate=1;u.pitch=1;speechSynthesis.speak(u)}catch{}
+  try{
+    window.nativeSpeechFallback?.(text,'pt-BR');
+  }catch{}
  }
  setRobotState('');
 }
