@@ -107,7 +107,44 @@ function renderTheme(id){
  m.querySelector(`[data-group="${currentGroup}"]`)?.classList.add('current');
  m.querySelectorAll('[data-lesson]').forEach(b=>b.onclick=()=>openLesson(id,Number(b.dataset.lesson)));
 }
-function openLesson(id,n){view='lesson';active=id;setCurrent(id,n);const t=theme(id),m=screen.querySelector('main'),rows=[0,1,2].map(i=>t.examples[(n+i)%t.examples.length]);screen.querySelector('h2').textContent=`${t.title} · Aula ${n}`;screen.querySelector('header span').textContent=`${n}/40`;m.innerHTML=`<section class="methodsLessonV42"><div><small>AULA ${n} DE 40</small><h2>${esc(title(t,n))}</h2><p>Treino de vocabulário e conversação sobre ${esc(t.title)}.</p><i><u style="width:${Math.round(n/40*100)}%"></u></i></div>${rows.map((r,i)=>`<article><b>${esc(r[0])}</b><span>${esc(r[1])}</span><button data-speak="${i}">🔊 Ouvir</button></article>`).join('')}<footer><button class="robot">🤖 Aula particular com o robô</button><button class="finish">✓ Concluir aula</button></footer></section>`;m.querySelectorAll('[data-speak]').forEach((b,i)=>b.onclick=()=>speak(rows[i][0]));m.querySelector('.robot').onclick=()=>startMethodSphere(id,n,'lesson');m.querySelector('.finish').onclick=()=>{complete(id,n);n<40?openLesson(id,n+1):renderTheme(id)}}
+function openLesson(id,n){
+ view='lesson';
+ active=id;
+ setCurrent(id,n);
+ const t=theme(id),m=screen.querySelector('main'),rows=[0,1,2].map(i=>t.examples[(n+i)%t.examples.length]);
+ const groupIndex=Math.floor((n-1)/4);
+ const blockName=t.stages[groupIndex]||t.title;
+ screen.querySelector('h2').textContent=`${t.title} · Aula ${n}`;
+ screen.querySelector('header span').textContent=`${n}/40`;
+ m.innerHTML=`
+   <section class="methodsLessonV42 methodsLessonV99 lesson-tone-${groupIndex%10}">
+     <div class="methodsLessonHeroV99">
+       <span class="methodsLessonBlockV99">BLOCO ${groupIndex+1} · ${esc(blockName)}</span>
+       <small>AULA ${n} DE 40</small>
+       <h2>${esc(title(t,n))}</h2>
+       <p>Treino de vocabulário e conversação sobre ${esc(t.title)}.</p>
+       <i><u style="width:${Math.round(n/40*100)}%"></u></i>
+     </div>
+     <div class="methodsLessonCardsV99">
+       ${rows.map((r,i)=>`
+         <article>
+           <span class="methodsPhraseIndexV99">${i+1}</span>
+           <div class="methodsPhraseCopyV99">
+             <b>${esc(r[0])}</b>
+             <span>${esc(r[1])}</span>
+           </div>
+           <button data-speak="${i}">🔊 Ouvir</button>
+         </article>`).join('')}
+     </div>
+     <footer>
+       <button class="robot">🤖 Aula particular com o robô</button>
+       <button class="finish">✓ Concluir aula</button>
+     </footer>
+   </section>`;
+ m.querySelectorAll('[data-speak]').forEach((b,i)=>b.onclick=()=>speak(rows[i][0]));
+ m.querySelector('.robot').onclick=()=>startMethodSphere(id,n,'lesson');
+ m.querySelector('.finish').onclick=()=>{complete(id,n);n<40?openLesson(id,n+1):renderTheme(id)};
+}
 async function speak(text){try{await window.geminiSpeak?.(text,'en-US','Achird')}catch{}}
 function refresh(){if(!screen?.classList.contains('open'))return;view==='themes'?renderThemes():view==='theme'&&renderTheme(active)}
 function openConversationMethods(){
