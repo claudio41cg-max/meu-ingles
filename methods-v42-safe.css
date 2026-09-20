@@ -1609,3 +1609,50 @@
   background:transparent !important;
   box-shadow:none !important;
 }
+
+
+/* Métodos v102 — remove película dos cards das frases */
+.methodsInteractiveCardsV100>article{
+  background:
+    radial-gradient(circle at 90% 10%,rgba(255,255,255,.16),transparent 34%),
+    linear-gradient(135deg,var(--l1),var(--l2)) !important;
+  border:1px solid rgba(255,255,255,.22) !important;
+  box-shadow:0 10px 22px rgba(0,0,0,.14) !important;
+}
+
+.methodStepNumberV100{
+  background:rgba(255,255,255,.18) !important;
+  color:#07131b !important;
+  border:1px solid rgba(255,255,255,.28) !important;
+}
+
+.methodStepPhraseV100 b{
+  color:#07131b !important;
+}
+.methodStepPhraseV100 span{
+  color:rgba(7,19,27,.72) !important;
+}
+
+.methodStepActionsV100 button{
+  background:linear-gradient(145deg,#123b57,#0d2d42) !important;
+  color:#fff !important;
+  border:1px solid rgba(255,255,255,.22) !important;
+}
+
+.methodSpeakFeedbackV100{
+  background:rgba(255,255,255,.14) !important;
+  color:#07131b !important;
+  border:1px solid rgba(255,255,255,.20) !important;
+}
+.methodSpeakFeedbackV100.good{
+  background:rgba(219,255,232,.58) !important;
+  color:#0a4c34 !important;
+}
+.methodSpeakFeedbackV100.bad{
+  background:rgba(255,232,220,.58) !important;
+  color:#6f2c18 !important;
+}
+.methodSpeakFeedbackV100.listening{
+  background:rgba(224,247,255,.58) !important;
+  color:#0b4962 !important;
+}
