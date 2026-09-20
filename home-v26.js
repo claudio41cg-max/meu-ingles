@@ -19,74 +19,93 @@ function currentLevel(){return (st().level||'A1').toUpperCase()}
 function currentTeacher(){return st().teacher||'media'}
 function currentVoice(){return st().voice||'Aoede'}
 function currentName(){return String(st().name||'aluno').trim()||'aluno'}
-const HOME_GUIDES=[
-  n=>`Oi, ${n}! Aqui você pode escolher três caminhos. Em Explorar temas, você treina um assunto específico. Em Cursos com IA, revisa o que está estudando no curso. E no Bate-papo livre, conversa sobre o que quiser. O que você gostaria de fazer?`,
-  n=>`${n}, quer estudar de um jeito mais focado ou mais solto? Explorar temas serve para escolher um assunto. Cursos com IA acompanha o seu curso. E Bate-papo livre é para conversar sem roteiro. Qual você quer agora?`,
-  n=>`Vamos escolher seu caminho, ${n}. Explorar temas é bom para praticar temas específicos. Cursos com IA trabalha o conteúdo do seu curso. E Bate-papo livre deixa a conversa aberta. O que você gostaria de fazer?`,
-  n=>`Aqui é simples, ${n}. Se quiser um assunto específico, entre em Explorar temas. Se quiser revisar o curso, use Cursos com IA. Se quiser só conversar, vá de Bate-papo livre. Por onde você quer começar?`,
-  n=>`${n}, você pode aprender por tema, pelo curso ou conversando livremente. Explorar temas é por assunto, Cursos com IA segue seu aprendizado, e Bate-papo livre é conversa sem roteiro. O que combina mais com você agora?`,
-  n=>`Tem três jeitos de praticar aqui. Explorar temas para uma aula particular sobre um tema, Cursos com IA para reforçar o curso, e Bate-papo livre para conversar à vontade. ${n}, o que você gostaria de fazer hoje?`,
-  n=>`Se estiver em dúvida, eu te ajudo, ${n}. Explorar temas foca em um assunto. Cursos com IA revisa suas aulas. Bate-papo livre deixa você escolher qualquer conversa. Qual opção você quer experimentar?`,
-  n=>`${n}, escolha o tipo de prática que está com vontade de fazer. Tema específico? Explorar temas. Revisar o curso? Cursos com IA. Conversar sem roteiro? Bate-papo livre. O que você prefere?`,
-  n=>`Bora escolher, ${n}. Em Explorar temas você pega um tema e treina. Em Cursos com IA você pratica o conteúdo do curso. Em Bate-papo livre a conversa é aberta. Qual caminho você quer seguir?`,
-  n=>`Você não precisa estudar sempre do mesmo jeito, ${n}. Pode usar Explorar temas, revisar Cursos com IA ou entrar no Bate-papo livre. O que você gostaria de fazer agora?`,
-  n=>`${n}, quer que eu te guie? Explorar temas é para assuntos específicos, Cursos com IA é para o curso que você está fazendo, e Bate-papo livre é para conversar sem limites de tema. Qual deles você escolhe?`,
-  n=>`Hoje você manda, ${n}. Pode estudar um assunto em Explorar temas, revisar seu curso em Cursos com IA ou simplesmente conversar no Bate-papo livre. O que você gostaria de fazer?`
-];
-let homeGuideBusy=false;
-function pickHomeGuide(){
-  let last=-1;
-  try{last=Number(localStorage.getItem('meuInglesHomeGuideLastV1'))}catch{}
-  let i=Math.floor(Math.random()*HOME_GUIDES.length);
-  if(HOME_GUIDES.length>1&&i===last)i=(i+1)%HOME_GUIDES.length;
-  try{localStorage.setItem('meuInglesHomeGuideLastV1',String(i))}catch{}
-  return {i,text:HOME_GUIDES[i](currentName())};
+function homeGuideSteps(){
+  const n=currentName();
+  return [
+    {
+      sel:'#home [data-v26mode="methods"]',
+      text:`Oi, ${n}! Se você quiser praticar um assunto específico, comece por Explorar temas. Lá você escolhe o tema que quer treinar e a inteligência artificial conduz a prática com você. Toque em Explorar temas e vá direto para a IA.`
+    },
+    {
+      sel:'#home [data-v26mode="module"]',
+      text:'Se você quiser continuar o que já está estudando, use Cursos com IA. Ele acompanha o conteúdo do seu curso e ajuda você a revisar e avançar nas aulas. Toque em Cursos com IA e vá direto para a IA.'
+    },
+    {
+      sel:'#home [data-v26mode="free"]',
+      text:'E se você quiser conversar sem roteiro, escolha Bate-papo livre. Você pode falar sobre praticamente qualquer assunto e praticar inglês de forma mais natural. Toque em Bate-papo livre e vá direto para a IA.'
+    }
+  ];
 }
+let homeGuideBusy=false;
+let homeGuidePreloading=false;
+let homeGuidePreloadSignature='';
+
 function clearGuideHighlight(){
   document.querySelectorAll('#home .homeConversationChoice').forEach(x=>x.classList.remove('guide-highlight'));
 }
-function pulseGuideChoice(sel,delay){
-  setTimeout(()=>{
-    clearGuideHighlight();
-    document.querySelector(sel)?.classList.add('guide-highlight');
-  },delay);
+function setGuideHighlight(sel){
+  clearGuideHighlight();
+  document.querySelector(sel)?.classList.add('guide-highlight');
 }
-async function waitHomeTtsStart(){
-  const started=Date.now();
-  while(Date.now()-started<12000){
-    if(document.querySelector('#home .homeTtsProbe.speaking'))return true;
-    await new Promise(r=>setTimeout(r,35));
+async function preloadHomeGuideAudio(){
+  if(homeGuidePreloading||typeof window.preloadGeminiTTS!=='function')return;
+  const voice=currentVoice();
+  const steps=homeGuideSteps();
+  const signature=[voice,currentName(),...steps.map(x=>x.text)].join('|');
+  if(signature===homeGuidePreloadSignature)return;
+  homeGuidePreloading=true;
+  try{
+    for(const step of steps){
+      await window.preloadGeminiTTS(step.text,'pt-BR',voice);
+    }
+    homeGuidePreloadSignature=signature;
+  }catch(e){
+    console.warn('Pré-carga do tutorial do robô',e);
+  }finally{
+    homeGuidePreloading=false;
   }
-  return false;
 }
+
 window.playHomeRobotGuide=async()=>{
   if(homeGuideBusy||phase!=='idle')return;
   const robot=document.querySelector('#home .homeRobotStage');
   if(!robot)return;
-  const {i,text}=pickHomeGuide();
+
   homeGuideBusy=true;
   clearGuideHighlight();
-  setRobotState('thinking');
+  robot.classList.add('home-guide-react');
+  setRobotState('happy');
+
   try{
     window.stopGeminiTTS?.();
-    const speech=typeof window.geminiSpeak==='function'
-      ?window.geminiSpeak(text,'pt-BR',currentVoice())
-      :say(text,'happy');
-    await waitHomeTtsStart();
-    robot.classList.add('home-guide-speaking','guide-mood-'+(i%4));
-    setRobotState('speaking');
-    pulseGuideChoice('#home [data-v26mode="methods"]',0);
-    pulseGuideChoice('#home [data-v26mode="module"]',2800);
-    pulseGuideChoice('#home [data-v26mode="free"]',5600);
-    await speech;
+    await new Promise(r=>setTimeout(r,70));
+
+    const voice=currentVoice();
+    const steps=homeGuideSteps();
+
+    for(let i=0;i<steps.length;i++){
+      const step=steps[i];
+      setGuideHighlight(step.sel);
+      robot.classList.remove('guide-mood-0','guide-mood-1','guide-mood-2');
+      robot.classList.add('home-guide-speaking','guide-mood-'+i);
+      setRobotState('speaking');
+
+      const ok=typeof window.geminiSpeak==='function'
+        ?await window.geminiSpeak(step.text,'pt-BR',voice)
+        :false;
+
+      if(!ok)break;
+    }
   }finally{
     clearGuideHighlight();
-    robot.classList.remove('home-guide-speaking','guide-mood-0','guide-mood-1','guide-mood-2','guide-mood-3');
+    robot.classList.remove('home-guide-speaking','home-guide-react','guide-mood-0','guide-mood-1','guide-mood-2','guide-mood-3');
     setRobotState('happy');
     setTimeout(()=>setRobotState(''),650);
     homeGuideBusy=false;
+    setTimeout(preloadHomeGuideAudio,250);
   }
 }
+
 function currentModule(){const t=(document.querySelector('#nextLessonTitle')?.textContent||'').trim();return (t.split('·')[0]||'Primeiros contatos').trim()}
 function card(){return document.querySelector('#home .professorPanel')}
 function setFocus(on){document.querySelector('#home')?.classList.toggle('conversation-focus',!!on)}
@@ -135,6 +154,12 @@ async function say(text,emotion='neutral'){
  }
  setRobotState('');
 }
+function aiMark(){
+ return '<span class="cardAiMark" aria-hidden="true"><svg viewBox="0 0 32 32"><path d="M16 3c1.25 6.4 4.6 9.75 11 11-6.4 1.25-9.75 4.6-11 11-1.25-6.4-4.6-9.75-11-11 6.4-1.25 9.75-4.6 11-11Z" fill="currentColor"/><path d="M25 3c.55 2.8 2.2 4.45 5 5-2.8.55-4.45 2.2-5 5-.55-2.8-2.2-4.45-5-5 2.8-.55 4.45-2.2 5-5Z" fill="currentColor" opacity=".72"/></svg></span>';
+}
+function exploreVisual(){
+ return '<span class="ico choiceVisual exploreChoiceVisual" aria-hidden="true"><svg viewBox="0 0 48 48"><path d="M24 6a18 18 0 1 0 0 36 18 18 0 0 0 0-36Z" fill="none" stroke="currentColor" stroke-width="2.8"/><path d="m30 17-4 9-9 4 4-9 9-4Z" fill="currentColor"/><circle cx="24" cy="24" r="2.2" fill="#fff"/></svg></span>';
+}
 function micIcon(){return '<svg viewBox="0 0 64 64" aria-hidden="true"><defs><linearGradient id="micg" x1="10" y1="8" x2="54" y2="56"><stop stop-color="#6ee7ff"/><stop offset="1" stop-color="#1688ff"/></linearGradient></defs><rect x="23" y="10" width="18" height="30" rx="9" fill="url(#micg"/><path d="M16 30c0 9 7 16 16 16s16-7 16-16M32 46v9M23 55h18" fill="none" stroke="#dffaff" stroke-width="4" stroke-linecap="round"/></svg>'}
 function moduleButtons(){return (LEVEL_MODULES[currentLevel()]||[]).map((m,i)=>`<button class="modulePickBtn" onclick="pickV26Module(${i})"><b>${i+1}</b><span>${esc(m)}</span></button>`).join('')}
 function render(){
@@ -148,9 +173,9 @@ function render(){
    <span class="homeRobotGuideHint">🔊 Toque em mim</span><span class="bot homeTtsProbe" aria-hidden="true"></span>
  </button>
  <div class="homeConversationChoices">
-   <button class="homeConversationChoice methodsCard" data-v26mode="methods" onclick="openMethodsRobot(event)"><span class="ico choiceVisual">🗂️</span><span><b>Explorar temas</b><small>Escolha um assunto e pratique do seu jeito</small></span><span class="choiceArrow">›</span></button>
-   <button class="homeConversationChoice ${mode==='module'?'active':''}" data-v26mode="module" onclick="startV26FromCard('module')"><span class="ico choiceVisual">🤖</span><span><b>Cursos com IA</b><small>Siga aulas guiadas e avance com a IA</small></span></button>
-   <button class="homeConversationChoice ${mode==='free'?'active':''}" data-v26mode="free" onclick="startV26FromCard('free')"><span class="ico choiceVisual">💬</span><span><b>Bate-papo livre</b><small>Converse sobre qualquer assunto sem roteiro</small></span></button>
+   <button class="homeConversationChoice methodsCard" data-v26mode="methods" onclick="openMethodsRobot(event)">${exploreVisual()}<span class="choiceCopy"><b>Explorar temas</b><small>Escolha um assunto e pratique do seu jeito</small></span>${aiMark()}</button>
+   <button class="homeConversationChoice ${mode==='module'?'active':''}" data-v26mode="module" onclick="startV26FromCard('module')"><span class="ico choiceVisual">📚</span><span class="choiceCopy"><b>Cursos com IA</b><small>Siga aulas guiadas e avance com a IA</small></span>${aiMark()}</button>
+   <button class="homeConversationChoice ${mode==='free'?'active':''}" data-v26mode="free" onclick="startV26FromCard('free')"><span class="ico choiceVisual">💬</span><span class="choiceCopy"><b>Bate-papo livre</b><small>Converse sobre qualquer assunto sem roteiro</small></span>${aiMark()}</button>
  </div>
  <div class="homeInlineChat">
    <div class="homeChatHead"><b>Professor ${esc(personaLabel())}</b><button class="homeChatClose" onclick="closeV26Conversation(event)">Sair</button></div>
@@ -163,6 +188,7 @@ function render(){
  if(phase!=='idle'){c.classList.add('chat-open');setFocus(true)}else{c.classList.remove('chat-open');setFocus(false)}
  setTopicPill();
  const inp=document.querySelector('#homeChatInput');inp?.addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();window.v26Send()}});
+ if(phase==='idle')setTimeout(preloadHomeGuideAudio,180);
 }
 window.chooseV26Mode=m=>{if(phase!=='idle')return;mode=m==='free'?'free':'module';document.querySelectorAll('[data-v26mode]').forEach(b=>b.classList.toggle('active',b.dataset.v26mode===mode))};
 window.startV26FromCard=async m=>{
@@ -317,5 +343,5 @@ function hookShow(){
  }
 }
 function init(){hookShow();hookNav();render()}
-if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',()=>setTimeout(init,120));else setTimeout(init,120);
+if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',()=>setTimeout(init,35));else setTimeout(init,35);
 })();
