@@ -387,3 +387,94 @@
   }
 }
 
+
+
+/* Home v83 — marca IA, card Explorar e reação imediata do tutorial */
+#home .homeConversationChoice{
+  position:relative;
+}
+#home .homeConversationChoice .choiceCopy{
+  min-width:0;
+  flex:1 1 auto;
+}
+#home .cardAiMark{
+  flex:0 0 34px;
+  width:34px;
+  height:34px;
+  margin-left:auto;
+  border-radius:12px;
+  display:grid;
+  place-items:center;
+  color:#e9fdff;
+  background:rgba(255,255,255,.12);
+  border:1px solid rgba(255,255,255,.19);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.12),0 6px 14px rgba(0,0,0,.12);
+}
+#home .cardAiMark svg{
+  width:21px;
+  height:21px;
+  display:block;
+  filter:drop-shadow(0 0 6px rgba(214,252,255,.25));
+}
+#home .methodsCard .cardAiMark{
+  color:#fff7df;
+  background:rgba(255,247,223,.13);
+  border-color:rgba(255,238,194,.23);
+}
+#home .homeConversationChoice[data-v26mode="module"] .cardAiMark{
+  color:#e8fff9;
+  background:rgba(219,255,246,.13);
+  border-color:rgba(211,255,245,.22);
+}
+#home .homeConversationChoice[data-v26mode="free"] .cardAiMark{
+  color:#f2efff;
+  background:rgba(240,235,255,.13);
+  border-color:rgba(234,229,255,.22);
+}
+
+#home .exploreChoiceVisual{
+  color:#fff7df;
+  background:
+    radial-gradient(circle at 30% 25%,rgba(255,255,255,.24),transparent 32%),
+    linear-gradient(145deg,rgba(255,255,255,.18),rgba(122,68,15,.16)) !important;
+  border-color:rgba(255,232,184,.26) !important;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.16),0 8px 16px rgba(87,49,13,.16);
+}
+#home .exploreChoiceVisual svg{
+  width:34px;
+  height:34px;
+  display:block;
+}
+
+#home .homeRobotStage.home-guide-react .homeRobot{
+  transform:scale(.965) translateY(-2px);
+  filter:drop-shadow(0 0 20px rgba(70,235,246,.48)) drop-shadow(0 14px 22px rgba(0,0,0,.25));
+}
+#home .homeRobotStage.home-guide-react:before{
+  transform:scale(1.04);
+  opacity:1;
+}
+
+#home .homeConversationChoice.guide-highlight{
+  transform:scale(1.025);
+  filter:brightness(1.16) saturate(1.06);
+  border-color:rgba(255,255,255,.82)!important;
+  box-shadow:
+    0 0 0 2px rgba(255,255,255,.26) inset,
+    0 0 0 1px rgba(98,235,245,.16),
+    0 0 28px rgba(83,224,232,.28)!important;
+}
+#home .homeConversationChoice.guide-highlight .cardAiMark{
+  transform:scale(1.08);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.16),0 0 16px rgba(220,253,255,.3);
+}
+
+@media(max-width:430px){
+  #home .cardAiMark{
+    flex-basis:31px;
+    width:31px;
+    height:31px;
+    border-radius:11px;
+  }
+  #home .cardAiMark svg{width:19px;height:19px}
+}
