@@ -85,20 +85,13 @@ function renderTheme(id){
        <h1>${esc(t.title)}</h1>
        <p>Escolha um bloco de 4 aulas ou continue de onde parou.</p>
        <i><u style="width:${totalPct}%"></u></i>
+       <button class="methodsThemeContinueV97">▶ Continuar da aula ${cur}</button>
      </span>
-   </section>
-
-   <section class="methodsActionsV42 methodsActionsV96">
-     <button class="cont">▶ Continuar da aula ${cur}</button>
-     <button class="start">Do início</button>
-     <button class="random">Aleatória</button>
    </section>
 
    <section class="methodsLessonGroupsV96">${groups}</section>`;
 
- m.querySelector('.cont').onclick=()=>openLesson(id,cur);
- m.querySelector('.start').onclick=()=>openLesson(id,1);
- m.querySelector('.random').onclick=()=>openLesson(id,1+Math.floor(Math.random()*40));
+ m.querySelector('.methodsThemeContinueV97').onclick=()=>openLesson(id,cur);
 
  m.querySelectorAll('[data-group-toggle]').forEach(btn=>btn.onclick=()=>{
    const group=btn.closest('.methodsLessonGroupV96');
