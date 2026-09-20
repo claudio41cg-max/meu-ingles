@@ -1023,3 +1023,29 @@
     bottom:12px;
   }
 }
+
+
+/* Métodos v97 — continuar integrado ao hero */
+.methodsThemeContinueV97{
+  width:100%;
+  margin-top:14px;
+  min-height:54px;
+  border-radius:18px;
+  border:1px solid rgba(255,255,255,.18);
+  color:#fff;
+  font-size:17px;
+  font-weight:950;
+  background:
+    linear-gradient(135deg,
+      color-mix(in srgb,var(--hero-color) 42%,#0f4961 58%),
+      color-mix(in srgb,var(--hero-color) 24%,#082d40 76%));
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.10),
+    0 7px 0 rgba(4,31,43,.28),
+    0 10px 20px rgba(0,0,0,.14);
+  transition:transform .16s ease,filter .16s ease;
+}
+.methodsThemeContinueV97:active{
+  transform:translateY(2px) scale(.992);
+  filter:brightness(1.05);
+}
