@@ -107,6 +107,219 @@ function renderTheme(id){
  m.querySelector(`[data-group="${currentGroup}"]`)?.classList.add('current');
  m.querySelectorAll('[data-lesson]').forEach(b=>b.onclick=()=>openLesson(id,Number(b.dataset.lesson)));
 }
+
+let methodPilotRuntime=null;
+
+function methodSimilarity(a,b){
+ const x=normalizeSpeech(a),y=normalizeSpeech(b);
+ if(!x||!y)return 0;
+ if(x===y)return 1;
+ const xa=x.split(' '),ya=y.split(' ');
+ const common=xa.filter(w=>ya.includes(w)).length;
+ const wordScore=common/Math.max(xa.length,ya.length);
+ const max=Math.max(x.length,y.length);
+ const dp=Array.from({length:y.length+1},(_,i)=>i);
+ for(let i=1;i<=x.length;i++){
+   let prev=dp[0];dp[0]=i;
+   for(let j=1;j<=y.length;j++){
+     const temp=dp[j];
+     dp[j]=Math.min(dp[j]+1,dp[j-1]+1,prev+(x[i-1]===y[j-1]?0:1));
+     prev=temp;
+   }
+ }
+ const charScore=1-dp[y.length]/max;
+ return Math.max(wordScore,charScore);
+}
+
+function methodSpeakPractice(target,button,feedback,onPass){
+ const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+ if(!SR){
+   feedback.innerHTML='<b>Microfone indisponível neste navegador.</b><span>Você ainda pode ouvir e repetir em voz alta.</span>';
+   feedback.className='methodSpeakFeedbackV100 bad';
+   return;
+ }
+ try{window.stopGeminiTTS?.()}catch{}
+ const rec=new SR();
+ rec.lang='en-US';
+ rec.interimResults=false;
+ rec.maxAlternatives=1;
+ button.disabled=true;
+ button.classList.add('listening');
+ feedback.innerHTML='<b>🎙️ Estou ouvindo...</b><span>Fale a frase em inglês.</span>';
+ feedback.className='methodSpeakFeedbackV100 listening';
+ rec.onresult=e=>{
+   const heard=String(e.results?.[0]?.[0]?.transcript||'').trim();
+   const score=methodSimilarity(heard,target);
+   const ok=score>=.66;
+   feedback.innerHTML=ok
+     ? `<b>✅ Muito bom!</b><span>Eu entendi: “${esc(heard)}”</span>`
+     : `<b>🔁 Quase. Tente mais uma vez.</b><span>Eu entendi: “${esc(heard||'—')}”</span>`;
+   feedback.className='methodSpeakFeedbackV100 '+(ok?'good':'bad');
+   if(ok)onPass?.();
+ };
+ rec.onerror=()=>{
+   feedback.innerHTML='<b>Não consegui ouvir direito.</b><span>Toque em Falar e tente novamente.</span>';
+   feedback.className='methodSpeakFeedbackV100 bad';
+ };
+ rec.onend=()=>{button.disabled=false;button.classList.remove('listening')};
+ try{rec.start()}catch{button.disabled=false;button.classList.remove('listening')}
+}
+
+function updateFamilyPilotProgress(){
+ if(!methodPilotRuntime)return;
+ const spoken=methodPilotRuntime.spoken.size;
+ document.querySelectorAll('[data-pilot-step]').forEach((el,i)=>el.classList.toggle('done',methodPilotRuntime.spoken.has(i)));
+ const progress=document.querySelector('.methodPilotProgressV100 u');
+ if(progress)progress.style.width=(spoken/3*100)+'%';
+ const review=document.querySelector('.methodReviewV100');
+ if(review)review.classList.toggle('unlocked',spoken>=3);
+ const hint=document.querySelector('.methodReviewLockV100');
+ if(hint)hint.textContent=spoken>=3?'Revisão liberada! Complete os 3 desafios.':`Fale as 3 frases para liberar a revisão · ${spoken}/3`;
+ updateFamilyReviewFinish();
+}
+
+function updateFamilyReviewFinish(){
+ if(!methodPilotRuntime)return;
+ const count=methodPilotRuntime.review.size;
+ const label=document.querySelector('.methodReviewScoreV100');
+ if(label)label.textContent=`${count}/3 concluídos`;
+ const finish=document.querySelector('.methodsLessonV100 .finish');
+ if(finish){
+   finish.disabled=count<3;
+   finish.classList.toggle('ready',count>=3);
+ }
+}
+
+function renderFamilyPilotLesson(id,n,t,rows,m){
+ methodPilotRuntime={spoken:new Set(),review:new Set()};
+ const groupIndex=0;
+ const blockName=t.stages[0]||t.title;
+ m.innerHTML=`
+ <section class="methodsLessonV42 methodsLessonV99 methodsLessonV100 lesson-tone-0">
+   <div class="methodsLessonHeroV99 methodsLessonHeroV100">
+     <span class="methodsLessonBlockV99">BLOCO 1 · ${esc(blockName)}</span>
+     <small>AULA 1 DE 40 · VER · OUVIR · FALAR</small>
+     <h2>família · parte 1</h2>
+     <p>Veja a frase, ouça a pronúncia e depois fale. No final, faça uma revisão rápida.</p>
+     <i class="methodPilotProgressV100"><u style="width:0%"></u></i>
+   </div>
+
+   <div class="methodsInteractiveCardsV100">
+     ${rows.map((r,i)=>`
+       <article data-pilot-step="${i}">
+         <div class="methodStepTopV100">
+           <span class="methodStepNumberV100">${i+1}</span>
+           <span class="methodStepLabelV100">VER</span>
+         </div>
+         <div class="methodStepPhraseV100">
+           <b>${esc(r[0])}</b>
+           <span>${esc(r[1])}</span>
+         </div>
+         <div class="methodStepActionsV100">
+           <button type="button" data-pilot-listen="${i}">🔊 Ouvir</button>
+           <button type="button" data-pilot-speak="${i}">🎙️ Falar</button>
+         </div>
+         <div class="methodSpeakFeedbackV100" data-pilot-feedback="${i}">
+           <b>Sua vez</b><span>Ouça primeiro e depois repita.</span>
+         </div>
+       </article>`).join('')}
+   </div>
+
+   <section class="methodReviewV100">
+     <header>
+       <span>🧠 REVISÃO DA AULA</span>
+       <b>Vamos ver o que ficou?</b>
+       <small class="methodReviewScoreV100">0/3 concluídos</small>
+     </header>
+     <div class="methodReviewLockV100">Fale as 3 frases para liberar a revisão · 0/3</div>
+     <div class="methodReviewBodyV100">
+       <div class="methodReviewChallengeV100" data-review="0">
+         <small>DESAFIO 1 · SIGNIFICADO</small>
+         <b>Como se diz “Eu tenho um irmão.”?</b>
+         <div class="methodReviewOptionsV100">
+           <button data-review-choice="0|wrong">This is my mother.</button>
+           <button data-review-choice="0|right">I have one brother.</button>
+           <button data-review-choice="0|wrong">Do you have any sisters?</button>
+         </div>
+         <span class="methodReviewFeedbackV100"></span>
+       </div>
+
+       <div class="methodReviewChallengeV100" data-review="1">
+         <small>DESAFIO 2 · ESCUTA</small>
+         <b>Ouça e escolha a frase correta.</b>
+         <button class="methodReviewListenV100" data-review-listen>🔊 Ouvir frase</button>
+         <div class="methodReviewOptionsV100">
+           <button data-review-choice="1|wrong">I have one brother.</button>
+           <button data-review-choice="1|right">Do you have any sisters?</button>
+           <button data-review-choice="1|wrong">This is my mother.</button>
+         </div>
+         <span class="methodReviewFeedbackV100"></span>
+       </div>
+
+       <div class="methodReviewChallengeV100" data-review="2">
+         <small>DESAFIO 3 · FALA</small>
+         <b>Fale: “This is my mother.”</b>
+         <button class="methodReviewSpeakV100" data-review-speak>🎙️ Falar agora</button>
+         <span class="methodReviewFeedbackV100"></span>
+       </div>
+     </div>
+   </section>
+
+   <footer>
+     <button class="robot">🤖 Aula particular com o robô</button>
+     <button class="finish" disabled>✓ Concluir aula</button>
+   </footer>
+ </section>`;
+
+ m.querySelectorAll('[data-pilot-listen]').forEach((b,i)=>b.onclick=()=>speak(rows[i][0]));
+ m.querySelectorAll('[data-pilot-speak]').forEach((b,i)=>b.onclick=()=>{
+   const feedback=m.querySelector(`[data-pilot-feedback="${i}"]`);
+   methodSpeakPractice(rows[i][0],b,feedback,()=>{
+     methodPilotRuntime.spoken.add(i);
+     updateFamilyPilotProgress();
+   });
+ });
+
+ m.querySelector('[data-review-listen]').onclick=()=>speak('Do you have any sisters?');
+
+ m.querySelectorAll('[data-review-choice]').forEach(btn=>btn.onclick=()=>{
+   if(methodPilotRuntime.spoken.size<3)return;
+   const [q,result]=btn.dataset.reviewChoice.split('|');
+   const box=btn.closest('.methodReviewChallengeV100');
+   const feedback=box.querySelector('.methodReviewFeedbackV100');
+   box.querySelectorAll('.methodReviewOptionsV100 button').forEach(x=>x.disabled=true);
+   if(result==='right'){
+     methodPilotRuntime.review.add(Number(q));
+     box.classList.add('passed');
+     feedback.textContent='✅ Certo!';
+   }else{
+     box.classList.add('failed');
+     feedback.textContent='🔁 Não é essa. Veja a correta e continue.';
+     setTimeout(()=>box.querySelectorAll('.methodReviewOptionsV100 button').forEach(x=>x.disabled=false),700);
+   }
+   updateFamilyReviewFinish();
+ });
+
+ const reviewSpeak=m.querySelector('[data-review-speak]');
+ reviewSpeak.onclick=()=>{
+   if(methodPilotRuntime.spoken.size<3)return;
+   const feedback=reviewSpeak.parentElement.querySelector('.methodReviewFeedbackV100');
+   methodSpeakPractice('This is my mother.',reviewSpeak,feedback,()=>{
+     methodPilotRuntime.review.add(2);
+     reviewSpeak.parentElement.classList.add('passed');
+     updateFamilyReviewFinish();
+   });
+ };
+
+ m.querySelector('.robot').onclick=()=>startMethodSphere(id,n,'lesson');
+ m.querySelector('.finish').onclick=()=>{
+   if(methodPilotRuntime.review.size<3)return;
+   complete(id,n);
+   openLesson(id,n+1);
+ };
+ updateFamilyPilotProgress();
+}
+
 function openLesson(id,n){
  view='lesson';
  active=id;
@@ -116,6 +329,10 @@ function openLesson(id,n){
  const blockName=t.stages[groupIndex]||t.title;
  screen.querySelector('h2').textContent=`${t.title} · Aula ${n}`;
  screen.querySelector('header span').textContent=`${n}/40`;
+ if(id==='familia'&&Number(n)===1){
+   renderFamilyPilotLesson(id,n,t,rows,m);
+   return;
+ }
  m.innerHTML=`
    <section class="methodsLessonV42 methodsLessonV99 lesson-tone-${groupIndex%10}">
      <div class="methodsLessonHeroV99">
