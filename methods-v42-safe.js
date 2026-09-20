@@ -34,7 +34,73 @@ function openScreen(){createScreen();screenMode='study';view='themes';active=nul
 function closeScreen(){screen?.classList.remove('open');document.body.classList.remove('methodsLockV42')}
 function back(){if(screenMode==='conversation'){closeScreen();return}if(view==='lesson'){view='theme';renderTheme(active)}else if(view==='theme'){view='themes';renderThemes()}else closeScreen()}
 function renderThemes(){view='themes';const m=screen.querySelector('main');screen.querySelector('h2').textContent='Métodos';screen.querySelector('header span').textContent='40 aulas por tema';m.innerHTML='<section class="methodsHeroV42"><h1>Aprenda por temas</h1><p>Estudos independentes do curso A1–C2.</p></section><section class="methodsThemesV42">'+THEMES.map(t=>`<button data-theme="${t.id}" style="--tc:${t.color}"><h3>${esc(t.title)}</h3><strong>${done(t.id).size}/40 <small>aulas</small></strong><em>${t.emoji}</em><i><u style="width:${done(t.id).size*2.5}%"></u></i></button>`).join('')+'</section>';m.querySelectorAll('[data-theme]').forEach(b=>b.onclick=()=>{active=b.dataset.theme;renderTheme(active)})}
-function renderTheme(id){view='theme';active=id;const t=theme(id),d=done(id),cur=current(id),m=screen.querySelector('main');screen.querySelector('h2').textContent=t.title;screen.querySelector('header span').textContent=`${d.size}/40`;m.innerHTML=`<section class="methodsThemeHeadV42"><h1>${t.emoji} ${esc(t.title)}</h1><p>Escolha onde quer começar ou continue de onde parou.</p></section><section class="methodsActionsV42"><button class="cont">▶ Continuar da aula ${cur}</button><button class="start">Do início</button><button class="random">Aleatória</button></section><section class="methodsLessonsV42">${Array.from({length:40},(_,i)=>{const n=i+1;return `<button data-lesson="${n}" class="${d.has(n)?'done':''}"><b>${d.has(n)?'✓':n}</b><span>${esc(title(t,n))}<small>Aula ${n} de 40</small></span><i>›</i></button>`}).join('')}</section>`;m.querySelector('.cont').onclick=()=>openLesson(id,cur);m.querySelector('.start').onclick=()=>openLesson(id,1);m.querySelector('.random').onclick=()=>openLesson(id,1+Math.floor(Math.random()*40));m.querySelectorAll('[data-lesson]').forEach(b=>b.onclick=()=>openLesson(id,Number(b.dataset.lesson)))}
+function renderTheme(id){
+ view='theme';
+ active=id;
+ const t=theme(id),d=done(id),cur=current(id),m=screen.querySelector('main');
+ screen.querySelector('h2').textContent=t.title;
+ screen.querySelector('header span').textContent=`${d.size}/40`;
+
+ const groups=t.stages.map((stage,index)=>{
+   const first=index*4+1;
+   const nums=[first,first+1,first+2,first+3];
+   const completed=nums.filter(n=>d.has(n)).length;
+   const pct=Math.round(completed/4*100);
+   return `
+     <section class="methodsLessonGroupV90" data-group="${index}" style="--group-color:${t.color}">
+       <button type="button" class="methodsLessonGroupHeadV90" data-group-toggle="${index}">
+         <span class="methodsLessonGroupBadgeV90">${index+1}</span>
+         <span class="methodsLessonGroupCopyV90">
+           <small>BLOCO ${index+1} · AULAS ${first}–${first+3}</small>
+           <b>${esc(stage)}</b>
+           <span>${completed}/4 aulas concluídas</span>
+           <i><u style="width:${pct}%"></u></i>
+         </span>
+         <em>⌄</em>
+       </button>
+       <div class="methodsLessonGroupItemsV90">
+         ${nums.map(n=>`
+           <button type="button" data-lesson="${n}" class="${d.has(n)?'done':''}">
+             <strong>${d.has(n)?'✓':n}</strong>
+             <span><b>${esc(title(t,n))}</b><small>Aula ${n} de 40</small></span>
+             <i>›</i>
+           </button>`).join('')}
+       </div>
+     </section>`;
+ }).join('');
+
+ m.innerHTML=`
+   <section class="methodsThemeHeadV42 methodsThemeHeadV90">
+     <div class="methodsThemeHeroIconV90">${t.emoji}</div>
+     <div><small>40 AULAS · 10 BLOCOS</small><h1>${esc(t.title)}</h1><p>Escolha um bloco de 4 aulas ou continue de onde parou.</p></div>
+   </section>
+   <section class="methodsActionsV42 methodsActionsV90">
+     <button class="cont">▶ Continuar da aula ${cur}</button>
+     <button class="start">Do início</button>
+     <button class="random">Aleatória</button>
+   </section>
+   <section class="methodsLessonGroupsV90">${groups}</section>`;
+
+ m.querySelector('.cont').onclick=()=>openLesson(id,cur);
+ m.querySelector('.start').onclick=()=>openLesson(id,1);
+ m.querySelector('.random').onclick=()=>openLesson(id,1+Math.floor(Math.random()*40));
+
+ m.querySelectorAll('[data-group-toggle]').forEach(btn=>btn.onclick=()=>{
+   const group=btn.closest('.methodsLessonGroupV90');
+   const wasOpen=group.classList.contains('open');
+   m.querySelectorAll('.methodsLessonGroupV90').forEach(x=>x.classList.remove('open'));
+   if(!wasOpen){
+     group.classList.add('open');
+     setTimeout(()=>group.scrollIntoView({behavior:'smooth',block:'nearest'}),30);
+   }
+ });
+
+ const currentGroup=Math.floor((cur-1)/4);
+ const currentEl=m.querySelector(`[data-group="${currentGroup}"]`);
+ currentEl?.classList.add('current');
+
+ m.querySelectorAll('[data-lesson]').forEach(b=>b.onclick=()=>openLesson(id,Number(b.dataset.lesson)));
+}
 function openLesson(id,n){view='lesson';active=id;setCurrent(id,n);const t=theme(id),m=screen.querySelector('main'),rows=[0,1,2].map(i=>t.examples[(n+i)%t.examples.length]);screen.querySelector('h2').textContent=`${t.title} · Aula ${n}`;screen.querySelector('header span').textContent=`${n}/40`;m.innerHTML=`<section class="methodsLessonV42"><div><small>AULA ${n} DE 40</small><h2>${esc(title(t,n))}</h2><p>Treino de vocabulário e conversação sobre ${esc(t.title)}.</p><i><u style="width:${Math.round(n/40*100)}%"></u></i></div>${rows.map((r,i)=>`<article><b>${esc(r[0])}</b><span>${esc(r[1])}</span><button data-speak="${i}">🔊 Ouvir</button></article>`).join('')}<footer><button class="robot">🤖 Aula particular com o robô</button><button class="finish">✓ Concluir aula</button></footer></section>`;m.querySelectorAll('[data-speak]').forEach((b,i)=>b.onclick=()=>speak(rows[i][0]));m.querySelector('.robot').onclick=()=>startMethodSphere(id,n,'lesson');m.querySelector('.finish').onclick=()=>{complete(id,n);n<40?openLesson(id,n+1):renderTheme(id)}}
 async function speak(text){try{await window.geminiSpeak?.(text,'en-US','Achird')}catch{}}
 function refresh(){if(!screen?.classList.contains('open'))return;view==='themes'?renderThemes():view==='theme'&&renderTheme(active)}
