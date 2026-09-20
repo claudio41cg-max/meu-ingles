@@ -34,6 +34,12 @@ function openScreen(){createScreen();screenMode='study';view='themes';active=nul
 function closeScreen(){screen?.classList.remove('open');document.body.classList.remove('methodsLockV42')}
 function back(){if(screenMode==='conversation'){closeScreen();return}if(view==='lesson'){view='theme';renderTheme(active)}else if(view==='theme'){view='themes';renderThemes()}else closeScreen()}
 function renderThemes(){view='themes';const m=screen.querySelector('main');screen.querySelector('h2').textContent='Métodos';screen.querySelector('header span').textContent='40 aulas por tema';m.innerHTML='<section class="methodsHeroV42"><h1>Aprenda por temas</h1><p>Estudos independentes do curso A1–C2.</p></section><section class="methodsThemesV42">'+THEMES.map(t=>`<button data-theme="${t.id}" style="--tc:${t.color}"><h3>${esc(t.title)}</h3><strong>${done(t.id).size}/40 <small>aulas</small></strong><em>${t.emoji}</em><i><u style="width:${done(t.id).size*2.5}%"></u></i></button>`).join('')+'</section>';m.querySelectorAll('[data-theme]').forEach(b=>b.onclick=()=>{active=b.dataset.theme;renderTheme(active)})}
+function groupEmoji(themeId,index,fallback){
+ const map={
+   familia:['👨‍👩‍👧‍👦','👨‍👩‍👧','🧑‍🤝‍🧑','👵👴','👨‍👩‍👧‍👦','🎂','🙂','🔐','🏡','💬']
+ };
+ return map[themeId]?.[index]||fallback;
+}
 function renderTheme(id){
  view='theme';
  active=id;
@@ -46,19 +52,20 @@ function renderTheme(id){
    const nums=[first,first+1,first+2,first+3];
    const completed=nums.filter(n=>d.has(n)).length;
    const pct=Math.round(completed/4*100);
+   const art=groupEmoji(t.id,index,t.emoji);
    return `
-     <section class="methodsLessonGroupV90" data-group="${index}" style="--group-color:${t.color}">
-       <button type="button" class="methodsLessonGroupHeadV90" data-group-toggle="${index}">
-         <span class="methodsLessonGroupBadgeV90">${index+1}</span>
-         <span class="methodsLessonGroupCopyV90">
+     <section class="methodsLessonGroupV96 tone-${index%10}" data-group="${index}">
+       <button type="button" class="methodsLessonGroupHeadV96" data-group-toggle="${index}">
+         <span class="methodsLessonGroupCopyV96">
            <small>BLOCO ${index+1} · AULAS ${first}–${first+3}</small>
            <b>${esc(stage)}</b>
-           <span>${completed}/4 aulas concluídas</span>
+           <strong>${completed}/4 <em>aulas</em></strong>
            <i><u style="width:${pct}%"></u></i>
          </span>
-         <em>⌄</em>
+         <span class="methodsLessonGroupArtV96" aria-hidden="true">${art}</span>
+         <span class="methodsLessonGroupArrowV96">⌄</span>
        </button>
-       <div class="methodsLessonGroupItemsV90">
+       <div class="methodsLessonGroupItemsV96">
          ${nums.map(n=>`
            <button type="button" data-lesson="${n}" class="${d.has(n)?'done':''}">
              <strong>${d.has(n)?'✓':n}</strong>
@@ -69,26 +76,34 @@ function renderTheme(id){
      </section>`;
  }).join('');
 
+ const totalPct=Math.round(d.size/40*100);
  m.innerHTML=`
-   <section class="methodsThemeHeadV42 methodsThemeHeadV90">
-     <div class="methodsThemeHeroIconV90">${t.emoji}</div>
-     <div><small>40 AULAS · 10 BLOCOS</small><h1>${esc(t.title)}</h1><p>Escolha um bloco de 4 aulas ou continue de onde parou.</p></div>
+   <section class="methodsThemeHeroV96" style="--hero-color:${t.color}">
+     <span class="methodsThemeHeroArtV96">${t.emoji}</span>
+     <span class="methodsThemeHeroCopyV96">
+       <small>40 AULAS · 10 BLOCOS</small>
+       <h1>${esc(t.title)}</h1>
+       <p>Escolha um bloco de 4 aulas ou continue de onde parou.</p>
+       <i><u style="width:${totalPct}%"></u></i>
+     </span>
    </section>
-   <section class="methodsActionsV42 methodsActionsV90">
+
+   <section class="methodsActionsV42 methodsActionsV96">
      <button class="cont">▶ Continuar da aula ${cur}</button>
      <button class="start">Do início</button>
      <button class="random">Aleatória</button>
    </section>
-   <section class="methodsLessonGroupsV90">${groups}</section>`;
+
+   <section class="methodsLessonGroupsV96">${groups}</section>`;
 
  m.querySelector('.cont').onclick=()=>openLesson(id,cur);
  m.querySelector('.start').onclick=()=>openLesson(id,1);
  m.querySelector('.random').onclick=()=>openLesson(id,1+Math.floor(Math.random()*40));
 
  m.querySelectorAll('[data-group-toggle]').forEach(btn=>btn.onclick=()=>{
-   const group=btn.closest('.methodsLessonGroupV90');
+   const group=btn.closest('.methodsLessonGroupV96');
    const wasOpen=group.classList.contains('open');
-   m.querySelectorAll('.methodsLessonGroupV90').forEach(x=>x.classList.remove('open'));
+   m.querySelectorAll('.methodsLessonGroupV96').forEach(x=>x.classList.remove('open'));
    if(!wasOpen){
      group.classList.add('open');
      setTimeout(()=>group.scrollIntoView({behavior:'smooth',block:'nearest'}),30);
@@ -96,9 +111,7 @@ function renderTheme(id){
  });
 
  const currentGroup=Math.floor((cur-1)/4);
- const currentEl=m.querySelector(`[data-group="${currentGroup}"]`);
- currentEl?.classList.add('current');
-
+ m.querySelector(`[data-group="${currentGroup}"]`)?.classList.add('current');
  m.querySelectorAll('[data-lesson]').forEach(b=>b.onclick=()=>openLesson(id,Number(b.dataset.lesson)));
 }
 function openLesson(id,n){view='lesson';active=id;setCurrent(id,n);const t=theme(id),m=screen.querySelector('main'),rows=[0,1,2].map(i=>t.examples[(n+i)%t.examples.length]);screen.querySelector('h2').textContent=`${t.title} · Aula ${n}`;screen.querySelector('header span').textContent=`${n}/40`;m.innerHTML=`<section class="methodsLessonV42"><div><small>AULA ${n} DE 40</small><h2>${esc(title(t,n))}</h2><p>Treino de vocabulário e conversação sobre ${esc(t.title)}.</p><i><u style="width:${Math.round(n/40*100)}%"></u></i></div>${rows.map((r,i)=>`<article><b>${esc(r[0])}</b><span>${esc(r[1])}</span><button data-speak="${i}">🔊 Ouvir</button></article>`).join('')}<footer><button class="robot">🤖 Aula particular com o robô</button><button class="finish">✓ Concluir aula</button></footer></section>`;m.querySelectorAll('[data-speak]').forEach((b,i)=>b.onclick=()=>speak(rows[i][0]));m.querySelector('.robot').onclick=()=>startMethodSphere(id,n,'lesson');m.querySelector('.finish').onclick=()=>{complete(id,n);n<40?openLesson(id,n+1):renderTheme(id)}}
