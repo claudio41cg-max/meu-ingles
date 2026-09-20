@@ -1598,3 +1598,14 @@
     grid-template-columns:1fr;
   }
 }
+
+
+/* Métodos v101 — remove moldura/película antiga ao redor da aula interativa */
+.methodsLessonV100 > .methodsInteractiveCardsV100{
+  padding:0 !important;
+  margin:0 !important;
+  border:0 !important;
+  border-radius:0 !important;
+  background:transparent !important;
+  box-shadow:none !important;
+}
