@@ -1346,3 +1346,255 @@
   .methodsLessonV99 .methodsPhraseCopyV99>b{font-size:17px}
   .methodsLessonV99 .methodsPhraseCopyV99>span{font-size:14px}
 }
+
+
+/* Métodos v100 — Aula 1 Família interativa: ver, ouvir, falar e revisar */
+.methodsLessonV100{
+  display:grid;
+  gap:14px;
+}
+.methodsLessonHeroV100{
+  margin-bottom:0 !important;
+}
+.methodPilotProgressV100 u{
+  transition:width .25s ease;
+}
+
+.methodsInteractiveCardsV100{
+  display:grid;
+  gap:12px;
+}
+.methodsInteractiveCardsV100>article{
+  position:relative;
+  overflow:hidden;
+  padding:16px;
+  border-radius:24px;
+  border:1px solid rgba(255,255,255,.18);
+  background:
+    radial-gradient(circle at 92% 8%,rgba(255,255,255,.12),transparent 30%),
+    linear-gradient(145deg,
+      color-mix(in srgb,var(--l1) 54%,#16303f 46%),
+      color-mix(in srgb,var(--l2) 40%,#0b2230 60%));
+  box-shadow:0 10px 22px rgba(0,0,0,.17);
+}
+.methodsInteractiveCardsV100>article.done{
+  box-shadow:0 0 0 2px rgba(112,237,181,.24) inset,0 10px 22px rgba(0,0,0,.17);
+}
+.methodStepTopV100{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  margin-bottom:12px;
+}
+.methodStepNumberV100{
+  width:38px;
+  height:38px;
+  display:grid;
+  place-items:center;
+  border-radius:13px;
+  background:rgba(7,25,34,.28);
+  color:#fff;
+  font-weight:950;
+  border:1px solid rgba(255,255,255,.16);
+}
+.methodStepLabelV100{
+  color:rgba(255,255,255,.75);
+  font-size:10px;
+  font-weight:950;
+  letter-spacing:.12em;
+}
+.methodStepPhraseV100 b{
+  display:block;
+  color:#fff;
+  font-size:22px;
+  line-height:1.1;
+  font-weight:950;
+}
+.methodStepPhraseV100 span{
+  display:block;
+  margin-top:6px;
+  color:rgba(255,255,255,.78);
+  font-size:16px;
+}
+.methodStepActionsV100{
+  display:flex;
+  gap:9px;
+  margin-top:14px;
+}
+.methodStepActionsV100 button{
+  flex:1;
+  min-height:46px;
+  border-radius:14px;
+  border:1px solid rgba(255,255,255,.20);
+  color:#fff;
+  font-weight:900;
+  background:rgba(6,27,38,.32);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.10);
+}
+.methodStepActionsV100 button.listening{
+  animation:methodMicPulseV100 1s ease-in-out infinite;
+}
+@keyframes methodMicPulseV100{
+  0%,100%{filter:brightness(1);transform:scale(1)}
+  50%{filter:brightness(1.18);transform:scale(1.02)}
+}
+.methodSpeakFeedbackV100{
+  margin-top:11px;
+  padding:10px 12px;
+  border-radius:14px;
+  background:rgba(5,22,31,.24);
+  color:rgba(255,255,255,.82);
+}
+.methodSpeakFeedbackV100 b,
+.methodSpeakFeedbackV100 span{
+  display:block;
+}
+.methodSpeakFeedbackV100 b{
+  font-size:13px;
+}
+.methodSpeakFeedbackV100 span{
+  margin-top:3px;
+  font-size:12px;
+  opacity:.82;
+}
+.methodSpeakFeedbackV100.good{
+  background:rgba(20,115,76,.36);
+}
+.methodSpeakFeedbackV100.bad{
+  background:rgba(134,65,44,.32);
+}
+.methodSpeakFeedbackV100.listening{
+  background:rgba(17,88,122,.34);
+}
+
+.methodReviewV100{
+  border-radius:26px;
+  overflow:hidden;
+  border:1px solid rgba(255,255,255,.16);
+  background:linear-gradient(145deg,#0c2637,#081d2a);
+  box-shadow:0 12px 26px rgba(0,0,0,.18);
+}
+.methodReviewV100>header{
+  position:relative !important;
+  top:auto !important;
+  display:block !important;
+  padding:18px !important;
+  background:
+    radial-gradient(circle at 92% 8%,rgba(255,255,255,.10),transparent 30%),
+    linear-gradient(135deg,
+      color-mix(in srgb,var(--l1) 38%,#153446 62%),
+      color-mix(in srgb,var(--l2) 26%,#0b2433 74%)) !important;
+  border:0 !important;
+}
+.methodReviewV100>header>span{
+  display:block;
+  color:#c9f5ff;
+  font-size:10px;
+  font-weight:950;
+  letter-spacing:.12em;
+}
+.methodReviewV100>header>b{
+  display:block;
+  margin-top:4px;
+  color:#fff;
+  font-size:22px;
+}
+.methodReviewV100>header>small{
+  display:block;
+  margin-top:5px;
+  color:rgba(255,255,255,.75);
+}
+.methodReviewLockV100{
+  padding:12px 16px;
+  text-align:center;
+  color:#9ab7c7;
+  font-size:13px;
+  font-weight:800;
+  border-top:1px solid rgba(255,255,255,.06);
+  border-bottom:1px solid rgba(255,255,255,.06);
+}
+.methodReviewBodyV100{
+  display:grid;
+  gap:10px;
+  padding:12px;
+  opacity:.42;
+  pointer-events:none;
+  transition:opacity .2s ease;
+}
+.methodReviewV100.unlocked .methodReviewBodyV100{
+  opacity:1;
+  pointer-events:auto;
+}
+.methodReviewChallengeV100{
+  padding:14px;
+  border-radius:18px;
+  background:#0b2232;
+  border:1px solid rgba(105,187,219,.16);
+}
+.methodReviewChallengeV100.passed{
+  border-color:rgba(68,204,143,.44);
+  box-shadow:0 0 0 1px rgba(68,204,143,.10) inset;
+}
+.methodReviewChallengeV100.failed{
+  border-color:rgba(230,132,92,.34);
+}
+.methodReviewChallengeV100>small{
+  display:block;
+  color:#6fd2ec;
+  font-size:10px;
+  font-weight:950;
+  letter-spacing:.09em;
+}
+.methodReviewChallengeV100>b{
+  display:block;
+  margin:6px 0 10px;
+  color:#fff;
+  font-size:16px;
+}
+.methodReviewOptionsV100{
+  display:grid;
+  gap:7px;
+}
+.methodReviewOptionsV100 button,
+.methodReviewListenV100,
+.methodReviewSpeakV100{
+  width:100%;
+  min-height:42px;
+  padding:9px 11px;
+  border-radius:13px;
+  border:1px solid rgba(98,184,218,.20);
+  background:#103047;
+  color:#edfaff;
+  font-weight:800;
+  text-align:left;
+}
+.methodReviewListenV100,
+.methodReviewSpeakV100{
+  text-align:center;
+  margin-bottom:9px;
+}
+.methodReviewFeedbackV100{
+  display:block;
+  min-height:18px;
+  margin-top:7px;
+  color:#c8e7f2;
+  font-size:12px;
+  font-weight:800;
+}
+.methodsLessonV100 footer .finish:disabled{
+  opacity:.38;
+  filter:saturate(.45);
+  box-shadow:none;
+}
+.methodsLessonV100 footer .finish.ready{
+  opacity:1;
+  filter:none;
+}
+
+@media(max-width:520px){
+  .methodStepPhraseV100 b{font-size:20px}
+  .methodStepPhraseV100 span{font-size:15px}
+  .methodsLessonV100 footer{
+    grid-template-columns:1fr;
+  }
+}
