@@ -43,7 +43,7 @@ function recordLiveUsage(m){
  const meta=m?.usageMetadata||m?.usage_metadata;if(!meta)return;
  const p=Number(meta.promptTokenCount||meta.prompt_token_count)||0,r=Number(meta.responseTokenCount||meta.candidatesTokenCount||meta.response_token_count||meta.candidates_token_count)||0,t=Number(meta.thoughtsTokenCount||meta.thoughts_token_count)||0;
  const pd=tokenDetails(meta,'promptTokensDetails'),rd=tokenDetails(meta,'responseTokensDetails');
- const textIn=pd.text||Math.max(0,p-pd.audio-pd.other),textOut=rd.text||Math.max(0,r-rd.audio-rd.other);
+ const textIn=pd.text,textOut=rd.text;
  const usd=textIn*PRICE.live.textIn+(textOut+t)*PRICE.live.textOut;
  if(p||r||t)add('live-usage',{usd,tokens:p+r+t,inputTokens:p,outputTokens:r,thinkingTokens:t,model:MODEL_LIVE});
 }
