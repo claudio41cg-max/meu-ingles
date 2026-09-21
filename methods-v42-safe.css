@@ -1656,3 +1656,292 @@
   background:rgba(224,247,255,.58) !important;
   color:#0b4962 !important;
 }
+
+
+/* Métodos v103 — aula mais rica, compacta e divertida */
+.methodsLessonV103{gap:12px}
+.methodsLessonHeroV103{
+  padding:16px 18px !important;
+  border-radius:24px !important;
+}
+.methodsLessonHeroV103 h2{font-size:27px !important}
+.methodsLessonHeroV103 p{font-size:15px !important}
+.methodsLessonHeroV103>small{font-size:11px !important}
+
+.methodWarmupV103,
+.methodMiniPhraseV103{
+  border-radius:24px;
+  padding:14px;
+  background:linear-gradient(145deg,#fff3b7,#f6cf57);
+  color:#07131b;
+  box-shadow:0 9px 20px rgba(0,0,0,.13);
+  border:1px solid rgba(255,255,255,.42);
+}
+.methodWarmupV103 header,
+.methodMiniPhraseV103 header{
+  margin-bottom:11px;
+}
+.methodWarmupV103 header small,
+.methodMiniPhraseV103 header small,
+.methodPracticeTitleV103 small{
+  display:block;
+  font-size:10px;
+  font-weight:950;
+  letter-spacing:.1em;
+  color:#82670f;
+}
+.methodWarmupV103 header b,
+.methodMiniPhraseV103 header b,
+.methodPracticeTitleV103>b{
+  display:block;
+  margin-top:2px;
+  font-size:20px;
+  font-weight:950;
+}
+.methodWarmupV103 header span,
+.methodMiniPhraseV103 header span,
+.methodPracticeTitleV103>span{
+  display:block;
+  margin-top:3px;
+  font-size:13px;
+  color:#645725;
+}
+
+.methodWordGridV103{
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:8px;
+}
+.methodWordGridV103 button{
+  min-height:68px;
+  display:grid;
+  grid-template-columns:1fr auto;
+  grid-template-rows:auto auto;
+  align-items:center;
+  gap:1px 8px;
+  padding:10px 12px;
+  border-radius:17px;
+  border:1px solid rgba(109,84,12,.14);
+  background:rgba(255,255,255,.62);
+  color:#10171c;
+  text-align:left;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.7);
+}
+.methodWordGridV103 button b{
+  grid-column:1;
+  font-size:18px;
+  line-height:1.05;
+}
+.methodWordGridV103 button>span:not(.methodAudioIconV103){
+  grid-column:1;
+  color:#746628;
+  font-size:12px;
+}
+.methodWordGridV103 .methodAudioIconV103{
+  grid-column:2;
+  grid-row:1/3;
+}
+
+.methodMiniPhraseV103>div{
+  display:grid;
+  gap:8px;
+}
+.methodMiniPhraseV103 button{
+  width:100%;
+  min-height:58px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+  padding:10px 13px;
+  border-radius:16px;
+  border:1px solid rgba(109,84,12,.14);
+  background:rgba(255,255,255,.60);
+  color:#10171c;
+  text-align:left;
+}
+.methodMiniPhraseV103 button span:first-child b{
+  display:block;
+  font-size:17px;
+}
+.methodMiniPhraseV103 button span:first-child small{
+  display:block;
+  margin-top:2px;
+  color:#746628;
+  font-size:12px;
+}
+
+.methodPracticeTitleV103{
+  padding:4px 2px 2px;
+}
+.methodPracticeTitleV103>b{color:#fff}
+.methodPracticeTitleV103>span{color:#96afbd}
+
+.methodsInteractiveCardsV103{
+  gap:10px !important;
+}
+.methodsInteractiveCardsV103>article{
+  padding:14px !important;
+  border-radius:21px !important;
+}
+.methodsInteractiveCardsV103 .methodStepPhraseV100 b{
+  font-size:20px !important;
+}
+.methodsInteractiveCardsV103 .methodStepPhraseV100 span{
+  margin-top:4px !important;
+  font-size:14px !important;
+}
+.methodsInteractiveCardsV103 .methodStepActionsV100{
+  margin-top:11px !important;
+}
+.methodsInteractiveCardsV103 .methodStepActionsV100 button{
+  min-height:44px !important;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:8px;
+  font-size:15px;
+}
+.methodsInteractiveCardsV103 .methodSpeakFeedbackV100{
+  margin-top:9px !important;
+  padding:9px 11px !important;
+  background:rgba(255,255,255,.28) !important;
+}
+.methodsInteractiveCardsV103 .methodSpeakFeedbackV100>b{
+  color:#151b1f !important;
+  font-size:13px !important;
+}
+.methodsInteractiveCardsV103 .methodSpeakFeedbackV100>span{
+  color:#5f572d !important;
+  opacity:1 !important;
+  font-size:12px !important;
+}
+
+.methodAudioIconV103{
+  width:24px;
+  height:24px;
+  display:inline-grid;
+  place-items:center;
+  color:currentColor;
+  flex:0 0 24px;
+}
+.methodAudioIconV103 svg{width:24px;height:24px;display:block}
+.methodAudioIconV103.mic svg{width:22px;height:22px}
+
+.methodWordDiffV103{
+  display:flex;
+  flex-wrap:wrap;
+  gap:5px;
+  margin:7px 0 3px;
+}
+.methodWordDiffV103 span{
+  padding:4px 7px;
+  border-radius:9px;
+  font-size:12px;
+  font-weight:900;
+}
+.methodWordDiffV103 .ok{
+  color:#146142;
+  background:#d8f4e4;
+}
+.methodWordDiffV103 .wrong{
+  color:#8b251e;
+  background:#ffd9d5;
+  outline:1px solid rgba(139,37,30,.16);
+}
+
+.methodReviewV103{
+  border-color:rgba(255,214,90,.28) !important;
+  background:linear-gradient(145deg,#102c3e,#091f2e) !important;
+}
+.methodReviewV103>header{
+  background:linear-gradient(135deg,#9b842e,#625b2b) !important;
+}
+.methodReviewV103 .methodReviewLockV100{
+  color:#d7e4eb !important;
+  background:#0c2637;
+}
+.methodReviewV103 .methodReviewBodyV100{
+  opacity:.72;
+}
+.methodReviewV103.unlocked .methodReviewBodyV100{
+  opacity:1;
+}
+.methodReviewV103 .methodReviewChallengeV100{
+  border-color:rgba(117,205,234,.24);
+  background:#0d2b3d;
+}
+.methodReviewV103 .methodReviewChallengeV100>b{
+  font-size:17px;
+}
+.methodReviewV103 .methodReviewOptionsV100 button{
+  background:#15384f;
+  color:#f5fbff;
+  border-color:rgba(125,204,233,.22);
+}
+.methodReviewListenV100,
+.methodReviewSpeakV100{
+  display:flex !important;
+  align-items:center;
+  justify-content:center;
+  gap:8px;
+}
+
+.methodScrambleAnswerV103{
+  min-height:54px;
+  display:flex;
+  flex-wrap:wrap;
+  align-items:center;
+  gap:7px;
+  padding:9px;
+  margin:10px 0 8px;
+  border-radius:15px;
+  border:1px dashed rgba(142,214,238,.34);
+  background:rgba(4,22,31,.34);
+}
+.methodScrambleAnswerV103:empty:before{
+  content:"Monte a frase aqui";
+  color:#6f93a8;
+  font-size:12px;
+}
+.methodScrambleAnswerV103 button,
+.methodScrambleWordsV103 button{
+  min-height:38px;
+  padding:7px 11px;
+  border-radius:12px;
+  border:1px solid rgba(255,255,255,.18);
+  font-weight:900;
+}
+.methodScrambleAnswerV103 button{
+  background:#e8f6ff;
+  color:#163247;
+}
+.methodScrambleWordsV103{
+  display:flex;
+  flex-wrap:wrap;
+  gap:7px;
+}
+.methodScrambleWordsV103 button{
+  background:#1a4965;
+  color:#fff;
+}
+.methodScrambleWordsV103 button:disabled{
+  opacity:.28;
+}
+.methodReviewTargetV103{
+  display:block;
+  margin:7px 0 10px;
+  color:#fff;
+  font-size:19px;
+}
+
+@media(max-width:520px){
+  .methodsLessonHeroV103{padding:14px 16px !important}
+  .methodsLessonHeroV103 h2{font-size:25px !important}
+  .methodWarmupV103,.methodMiniPhraseV103{padding:12px}
+  .methodWordGridV103{gap:7px}
+  .methodWordGridV103 button{min-height:64px;padding:9px 10px}
+  .methodWordGridV103 button b{font-size:17px}
+  .methodsInteractiveCardsV103>article{padding:13px !important}
+  .methodsInteractiveCardsV103 .methodStepActionsV100{gap:7px}
+}
