@@ -83,7 +83,8 @@ export default async function handler(req, res) {
       model: MODEL,
       protocol: 'generateContent',
       provider: 'Gemini',
-      voice
+      voice,
+      usageMetadata: data?.usageMetadata || null
     };
   }
 
