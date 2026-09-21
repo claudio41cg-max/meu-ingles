@@ -329,7 +329,7 @@ function renderFamilyPilotLesson(id,n,t,rows,m){
      '</div>'+
    '</section>'+
    '<footer>'+
-     '<button class="robot">🤖 Aula particular com o robô</button>'+
+     '<button class="robot lessonTutorV106">✦ Conversar com o professor desta aula</button><small class="lessonTutorHintV106">A conversa fica somente no conteúdo desta aula.</small>'+
      '<button class="finish" disabled>✓ Concluir aula</button>'+
    '</footer>'+
  '</section>';
@@ -444,13 +444,23 @@ function renderFamilyPilotLesson(id,n,t,rows,m){
      const q=parts[0],result=parts[1];
      const box=btn.closest('.methodReviewChallengeV100');
      const feedback=box.querySelector('.methodReviewFeedbackV100');
+     const options=box.querySelectorAll('.methodReviewOptionsV100 button');
+
+     options.forEach(function(x){
+       if(!x.classList.contains('reviewCorrectV106'))x.classList.remove('reviewWrongV106');
+     });
+
      if(result==='right'){
        methodPilotRuntime.review.add(Number(q));
-       box.classList.add('passed');
-       feedback.textContent='✅ Certo!';
-       box.querySelectorAll('.methodReviewOptionsV100 button').forEach(function(x){x.disabled=true;});
+       box.classList.add('passed','reviewSuccessV106');
+       btn.classList.add('reviewCorrectV106');
+       feedback.innerHTML='<b>✓ Muito bem!</b><span>Você escolheu a frase correta.</span>';
+       feedback.className='methodReviewFeedbackV100 reviewFeedbackGoodV106';
+       options.forEach(function(x){x.disabled=true;});
      }else{
-       feedback.textContent='🔁 Tente outra opção.';
+       btn.classList.add('reviewWrongV106');
+       feedback.innerHTML='<b>✕ Não foi essa.</b><span>Tente outra opção. A resposta errada ficou marcada em vermelho.</span>';
+       feedback.className='methodReviewFeedbackV100 reviewFeedbackBadV106';
      }
      updateFamilyReviewFinish();
    };
@@ -458,21 +468,69 @@ function renderFamilyPilotLesson(id,n,t,rows,m){
 
  const reviewSpeak=m.querySelector('[data-review-speak]');
  reviewSpeak.onclick=function(){
-   const feedback=reviewSpeak.parentElement.querySelector('.methodReviewFeedbackV100');
+   const challenge=reviewSpeak.closest('.methodReviewChallengeV100');
+   const feedback=challenge.querySelector('.methodReviewFeedbackV100');
    methodSpeakPractice('This is my mother.',reviewSpeak,feedback,function(){
      methodPilotRuntime.review.add(3);
-     reviewSpeak.parentElement.classList.add('passed');
+     challenge.classList.add('passed','finalSpeechSuccessV106');
+     feedback.innerHTML='<b>✓ Excelente!</b><span>Você falou a frase corretamente. Esta etapa foi concluída.</span>';
+     feedback.className='methodReviewFeedbackV100 good finalSpeechFeedbackV106';
      updateFamilyReviewFinish();
    });
  };
 
- m.querySelector('.robot').onclick=function(){startMethodSphere(id,n,'lesson');};
+ m.querySelector('.robot').onclick=function(){startLessonTutorSphere(id,n,t);};
  m.querySelector('.finish').onclick=function(){
    if(methodPilotRuntime.review.size<4)return;
    complete(id,n);
    openLesson(id,n+1);
  };
  updateFamilyPilotProgress();
+}
+
+async function startLessonTutorSphere(id,n,t){
+ const allowedVocabulary=['brother','sister','mother','I','have','one'];
+ const allowedPhrases=['I have one brother.','Do you have any sisters?','This is my mother.'];
+
+ starting=true;
+ session={
+   themeId:id,
+   lesson:n,
+   mode:'lesson-only',
+   reviewLesson:null,
+   turns:0,
+   booting:true,
+   source:'lesson-tutor'
+ };
+ saveSession();
+ closeScreen();
+ window.stableShow?.('home');
+ await wait(90);
+ try{window.stopGeminiTTS?.()}catch{}
+
+ await window.startV26LiveContext?.({
+   kind:'method-lesson-only',
+   topic:t.title,
+   lesson:'Aula '+n+' de 40',
+   lessonTitle:title(t,n),
+   exactLesson:n,
+   allowedVocabulary:allowedVocabulary.join(', '),
+   allowedPhrases:allowedPhrases.join(' | '),
+   instruction:
+     'Você é o professor exclusivo da aula Família · Aula 1. '+
+     'Converse SOMENTE sobre o conteúdo desta aula. '+
+     'Vocabulário permitido: brother, sister, mother, I, have, one. '+
+     'Frases principais: I have one brother.; Do you have any sisters?; This is my mother. '+
+     'Você pode explicar significado, pronúncia, gramática básica dessas frases, pedir repetição, corrigir o aluno e criar pequenas variações usando apenas este conteúdo e parentesco básico diretamente ligado à aula. '+
+     'Se o aluno tentar falar de viagem, futebol, notícias, outros módulos ou qualquer assunto fora desta aula, não siga o assunto. Diga de forma breve que nesta conversa vocês vão praticar somente esta aula e redirecione para uma palavra ou frase estudada. '+
+     'Não avance para outra aula e não altere o progresso automaticamente. '+
+     'Fale de forma curta, amigável e prática, fazendo o aluno participar.'
+ });
+ session.booting=false;
+ saveSession();
+ starting=false;
+ setTimeout(decoratePill,120);
+ setTimeout(decoratePill,900);
 }
 
 function openLesson(id,n){
