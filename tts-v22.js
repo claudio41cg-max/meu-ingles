@@ -127,6 +127,7 @@ async function requestVoice(payload){
     throw new Error('HTTP '+r.status+' '+msg);
   }
   if(!d?.audio)throw new Error('Gemini não devolveu áudio');
+  try{window.MeuInglesAiCost?.recordTTS?.(d,payload)}catch{}
   return d;
 }
 async function geminiSpeak(text,lang='pt-BR',voice=currentVoice()){
