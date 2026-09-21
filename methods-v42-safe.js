@@ -182,28 +182,52 @@ function methodSpeakPractice(target,button,feedback,onPass){
  try{rec.start()}catch{button.disabled=false;button.classList.remove('listening')}
 }
 
+function familyLessonWords(){
+ return [
+   ['brother','irmão'],['sister','irmã'],['mother','mãe'],
+   ['I','eu'],['have','tenho'],['one','um']
+ ];
+}
+function familyMiniPhrases(){
+ return [
+   ['I have','eu tenho'],['one brother','um irmão'],['my mother','minha mãe']
+ ];
+}
+function shuffleWords(text,seed=1){
+ const a=String(text).replace(/[?.!,]/g,'').split(/\s+/).filter(Boolean);
+ for(let i=a.length-1;i>0;i--){
+   const j=(seed*17+i*13)%(i+1);
+   [a[i],a[j]]=[a[j],a[i]];
+ }
+ if(a.join(' ').toLowerCase()===String(text).replace(/[?.!,]/g,'').toLowerCase())a.reverse();
+ return a;
+}
+
 function updateFamilyPilotProgress(){
  if(!methodPilotRuntime)return;
+ const total=methodPilotRuntime.requiredSpeak||3;
  const spoken=methodPilotRuntime.spoken.size;
- document.querySelectorAll('[data-pilot-step]').forEach((el,i)=>el.classList.toggle('done',methodPilotRuntime.spoken.has(i)));
  const progress=document.querySelector('.methodPilotProgressV100 u');
- if(progress)progress.style.width=(spoken/3*100)+'%';
+ if(progress)progress.style.width=(spoken/total*100)+'%';
+ document.querySelectorAll('[data-pilot-step]').forEach((el,i)=>el.classList.toggle('done',methodPilotRuntime.spoken.has(i)));
  const review=document.querySelector('.methodReviewV100');
- if(review)review.classList.toggle('unlocked',spoken>=3);
+ const unlock=spoken>=total;
+ if(review)review.classList.toggle('unlocked',unlock);
  const hint=document.querySelector('.methodReviewLockV100');
- if(hint)hint.textContent=spoken>=3?'Revisão liberada! Complete os 3 desafios.':`Fale as 3 frases para liberar a revisão · ${spoken}/3`;
+ if(hint)hint.textContent=unlock?'Revisão liberada! Complete os desafios.':'Fale as '+total+' frases para liberar a revisão · '+spoken+'/'+total;
  updateFamilyReviewFinish();
 }
 
 function updateFamilyReviewFinish(){
  if(!methodPilotRuntime)return;
+ const total=4;
  const count=methodPilotRuntime.review.size;
  const label=document.querySelector('.methodReviewScoreV100');
- if(label)label.textContent=`${count}/3 concluídos`;
+ if(label)label.textContent=count+'/'+total+' concluídos';
  const finish=document.querySelector('.methodsLessonV100 .finish');
  if(finish){
-   finish.disabled=count<3;
-   finish.classList.toggle('ready',count>=3);
+   finish.disabled=count<total;
+   finish.classList.toggle('ready',count>=total);
  }
 }
 
