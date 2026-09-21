@@ -211,10 +211,9 @@ function updateFamilyPilotProgress(){
  if(progress)progress.style.width=(spoken/total*100)+'%';
  document.querySelectorAll('[data-pilot-step]').forEach((el,i)=>el.classList.toggle('done',methodPilotRuntime.spoken.has(i)));
  const review=document.querySelector('.methodReviewV100');
- const unlock=spoken>=total;
- if(review)review.classList.toggle('unlocked',unlock);
+ if(review)review.classList.add('unlocked');
  const hint=document.querySelector('.methodReviewLockV100');
- if(hint)hint.textContent=unlock?'Revisão liberada! Complete os desafios.':'Fale as '+total+' frases para liberar a revisão · '+spoken+'/'+total;
+ if(hint)hint.textContent='Revisão disponível · falas praticadas: '+spoken+'/'+total;
  updateFamilyReviewFinish();
 }
 
@@ -392,7 +391,6 @@ function renderFamilyPilotLesson(id,n,t,rows,m){
  m.querySelector('[data-review-listen]').onclick=function(){speak('Do you have any sisters?');};
  m.querySelectorAll('[data-review-choice]').forEach(function(btn){
    btn.onclick=function(){
-     if(methodPilotRuntime.spoken.size<3)return;
      const parts=btn.dataset.reviewChoice.split('|');
      const q=parts[0],result=parts[1];
      const box=btn.closest('.methodReviewChallengeV100');
@@ -411,7 +409,6 @@ function renderFamilyPilotLesson(id,n,t,rows,m){
 
  const reviewSpeak=m.querySelector('[data-review-speak]');
  reviewSpeak.onclick=function(){
-   if(methodPilotRuntime.spoken.size<3)return;
    const feedback=reviewSpeak.parentElement.querySelector('.methodReviewFeedbackV100');
    methodSpeakPractice('This is my mother.',reviewSpeak,feedback,function(){
      methodPilotRuntime.review.add(3);
