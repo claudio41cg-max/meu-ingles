@@ -3,6 +3,8 @@
 const KEY='meuInglesAiCostV1';
 const MODEL_TTS='gemini-2.5-flash-preview-tts';
 const MODEL_LIVE='gemini-3.1-flash-live-preview';
+const GOOGLE_BALANCE_BRL=157.86;
+const GOOGLE_BALANCE_SNAPSHOT='21/09/2026 14:06';
 const PRICE={
  tts:{textIn:0.50/1e6,audioOut:10/1e6},
  live:{textIn:0.75/1e6,textOut:4.50/1e6,audioInSec:0.005/60,audioOutSec:0.018/60}
@@ -71,6 +73,18 @@ function modal(){
   <div class="mi-cost-row"><span>Áudio recebido do Live</span><span id="miOut">0,0 min</span></div>
   <div class="mi-cost-row"><span>Voz TTS gerada</span><span id="miTtsMin">0,0 min</span></div>
  </div>
+ <div class="mi-cost-section"><h3>Saldo Google Cloud</h3>
+  <div class="mi-cost-row"><span>Saldo oficial informado</span><span id="miGoogleBalance">R$ 157,86</span></div>
+  <div class="mi-cost-row"><span>Última conferência</span><span>21/09/2026 14:06</span></div>
+  <p class="mi-cost-sub">Esse saldo é uma fotografia da conta Google. Como Radar Seguro e Meu Inglês usam a mesma conta de faturamento, o painel não desconta sozinho o saldo em reais para não atribuir ao Meu Inglês gastos feitos pelo Radar.</p>
+ </div>
+ <div class="mi-cost-section"><h3>Médias do Meu Inglês</h3>
+  <div class="mi-cost-row"><span>TTS por minuto de voz gerada</span><span id="miTtsPerMin">US$ 0,0000</span></div>
+  <div class="mi-cost-row"><span>Live por minuto de conversa</span><span id="miLivePerMin">US$ 0,0000</span></div>
+  <div class="mi-cost-row"><span>Custo médio por turno Live</span><span id="miTurnAvg">US$ 0,0000</span></div>
+  <div class="mi-cost-row"><span>Custo desta sessão</span><span id="miSessionAvg">US$ 0,0000</span></div>
+  <p class="mi-cost-sub">As médias ficam mais confiáveis conforme você usa o app. O minuto Live usa a maior duração entre áudio enviado e recebido para não contar os dois lados duas vezes.</p>
+ </div>
  <div class="mi-cost-section"><h3>Projeção mensal se o uso continuar igual</h3>
   <div class="mi-cost-row"><span>1 aluno</span><span id="miP1">US$ 0,00</span></div>
   <div class="mi-cost-row"><span>10 alunos</span><span id="miP10">US$ 0,00</span></div>
@@ -94,6 +108,13 @@ function render(){
  set('mi7',fmt(week.usd));set('mi7Meta',Math.round(week.tokens).toLocaleString('pt-BR')+' tokens');
  set('miMonth',fmt(month.usd));set('miMonthMeta','projeção: '+fmt(proj)+'/mês');
  set('miTts',fmt(today.tts));set('miLive',fmt(today.live));set('miIn',mins(today.inSec));set('miOut',mins(today.outSec));set('miTtsMin',mins(today.ttsSec));
+ const ttsMinutes=today.ttsSec/60;
+ const liveMinutes=Math.max(today.inSec,today.outSec)/60;
+ set('miGoogleBalance','R$ '+GOOGLE_BALANCE_BRL.toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2}));
+ set('miTtsPerMin',fmt(ttsMinutes>0?today.tts/ttsMinutes:0));
+ set('miLivePerMin',fmt(liveMinutes>0?today.live/liveMinutes:0));
+ set('miTurnAvg',fmt(today.turns>0?today.live/today.turns:0));
+ set('miSessionAvg',fmt(session.usd));
  set('miP1',fmt(proj));set('miP10',fmt(proj*10));set('miP50',fmt(proj*50));set('miP100',fmt(proj*100));
 }
 window.MeuInglesAiCost={recordTTS,recordLiveAudioIn,recordLiveAudioOut,recordLiveUsage,liveTurn,open(){modal().classList.add('open');render()},render};
