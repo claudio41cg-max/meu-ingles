@@ -1955,3 +1955,123 @@
 .methodReviewLockV100{
   opacity:1 !important;
 }
+
+
+/* Métodos v105 — revisão na paleta Família + feedback por palavra */
+.methodReviewV103{
+  background:
+    radial-gradient(circle at 92% 8%,rgba(255,255,255,.20),transparent 30%),
+    linear-gradient(145deg,#ffd45a,#e7b43d) !important;
+  border-color:rgba(120,88,10,.18) !important;
+  box-shadow:0 12px 26px rgba(0,0,0,.14) !important;
+}
+.methodReviewV103>header{
+  background:
+    radial-gradient(circle at 90% 10%,rgba(255,255,255,.20),transparent 34%),
+    linear-gradient(135deg,#f6cd4e,#cfa52e) !important;
+  color:#17150b !important;
+}
+.methodReviewV103>header>span{
+  color:#725b0d !important;
+}
+.methodReviewV103>header>b{
+  color:#14130c !important;
+}
+.methodReviewV103>header>small{
+  color:#5f511a !important;
+}
+.methodReviewV103 .methodReviewLockV100{
+  background:rgba(255,248,210,.74) !important;
+  color:#665718 !important;
+  border-color:rgba(111,84,13,.12) !important;
+}
+.methodReviewV103 .methodReviewBodyV100{
+  padding:12px !important;
+  background:transparent !important;
+}
+.methodReviewV103 .methodReviewChallengeV100{
+  background:
+    linear-gradient(145deg,rgba(255,250,220,.82),rgba(247,222,130,.78)) !important;
+  border-color:rgba(108,83,13,.18) !important;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.55),0 7px 15px rgba(92,67,12,.08) !important;
+}
+.methodReviewV103 .methodReviewChallengeV100>small{
+  color:#866812 !important;
+}
+.methodReviewV103 .methodReviewChallengeV100>b,
+.methodReviewV103 .methodReviewTargetV103{
+  color:#17150c !important;
+}
+.methodReviewV103 .methodReviewOptionsV100 button,
+.methodReviewV103 .methodReviewListenV100,
+.methodReviewV103 .methodReviewSpeakV100{
+  background:rgba(255,255,255,.68) !important;
+  color:#17150c !important;
+  border-color:rgba(105,80,12,.16) !important;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.65) !important;
+}
+.methodReviewV103 .methodReviewOptionsV100 button:disabled{
+  opacity:.64;
+}
+.methodReviewV103 .methodReviewChallengeV100.passed{
+  border-color:#2f9b5f !important;
+  box-shadow:0 0 0 2px rgba(47,155,95,.20) inset,0 8px 18px rgba(47,155,95,.10) !important;
+}
+.methodReviewV103 .methodReviewChallengeV100.passed>small{
+  color:#26784d !important;
+}
+.methodReviewV103 .methodReviewChallengeV100.passed .methodReviewFeedbackV100{
+  color:#1f6b44 !important;
+  font-weight:900;
+}
+
+.methodReviewV103 .methodScrambleAnswerV103{
+  background:rgba(255,255,255,.44) !important;
+  border-color:rgba(104,80,12,.22) !important;
+}
+.methodReviewV103 .methodScrambleAnswerV103:empty:before{
+  color:#8b7a3b !important;
+}
+.methodReviewV103 .methodScrambleWordsV103 button{
+  background:#fff6cf !important;
+  color:#1b180c !important;
+  border-color:rgba(106,80,12,.18) !important;
+}
+.methodReviewV103 .methodScrambleWordsV103 button:disabled{
+  opacity:.28 !important;
+}
+.methodReviewV103 .methodScrambleAnswerV103 button{
+  background:#fffdf2 !important;
+  color:#1b180c !important;
+  border:2px solid rgba(94,73,15,.14) !important;
+  transition:background .16s ease,border-color .16s ease,color .16s ease,transform .16s ease;
+}
+.methodReviewV103 .methodScrambleAnswerV103 button.correct-word{
+  background:#dcf7e6 !important;
+  color:#17623e !important;
+  border-color:#49ae78 !important;
+}
+.methodReviewV103 .methodScrambleAnswerV103 button.wrong-word{
+  background:#ffe0dc !important;
+  color:#9b2019 !important;
+  border-color:#df5a50 !important;
+  animation:methodWrongWordV105 .28s ease 1;
+}
+@keyframes methodWrongWordV105{
+  0%,100%{transform:translateX(0)}
+  35%{transform:translateX(-3px)}
+  70%{transform:translateX(3px)}
+}
+.methodReviewV103 .methodReviewChallengeV100.has-errors{
+  border-color:rgba(210,76,61,.35) !important;
+}
+.methodReviewV103 .methodReviewFeedbackV100{
+  color:#5b4d19 !important;
+}
+.methodReviewV103 .methodReviewListenV100.playing,
+.methodsLessonV103 [data-word-listen].playing,
+.methodsLessonV103 [data-mini-listen].playing,
+.methodsLessonV103 [data-pilot-listen].playing{
+  filter:brightness(1.08);
+  box-shadow:0 0 0 2px rgba(255,255,255,.38) inset,0 0 0 2px rgba(63,150,207,.18) !important;
+}
