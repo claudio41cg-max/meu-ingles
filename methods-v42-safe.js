@@ -232,129 +232,197 @@ function updateFamilyReviewFinish(){
 }
 
 function renderFamilyPilotLesson(id,n,t,rows,m){
- methodPilotRuntime={spoken:new Set(),review:new Set()};
- const groupIndex=0;
- const blockName=t.stages[0]||t.title;
- m.innerHTML=`
- <section class="methodsLessonV42 methodsLessonV99 methodsLessonV100 lesson-tone-0">
-   <div class="methodsLessonHeroV99 methodsLessonHeroV100">
-     <span class="methodsLessonBlockV99">BLOCO 1 · ${esc(blockName)}</span>
-     <small>AULA 1 DE 40 · VER · OUVIR · FALAR</small>
-     <h2>família · parte 1</h2>
-     <p>Veja a frase, ouça a pronúncia e depois fale. No final, faça uma revisão rápida.</p>
-     <i class="methodPilotProgressV100"><u style="width:0%"></u></i>
-   </div>
+ const words=familyLessonWords();
+ const mini=familyMiniPhrases();
+ const phrases=[
+   ['I have one brother.','Eu tenho um irmão.'],
+   ['Do you have any sisters?','Você tem irmãs?'],
+   ['This is my mother.','Esta é minha mãe.']
+ ];
+ methodPilotRuntime={spoken:new Set(),review:new Set(),requiredSpeak:3,scramble:{}};
 
-   <div class="methodsInteractiveCardsV100">
-     ${rows.map((r,i)=>`
-       <article data-pilot-step="${i}">
-         <div class="methodStepTopV100">
-           <span class="methodStepNumberV100">${i+1}</span>
-           <span class="methodStepLabelV100">VER</span>
-         </div>
-         <div class="methodStepPhraseV100">
-           <b>${esc(r[0])}</b>
-           <span>${esc(r[1])}</span>
-         </div>
-         <div class="methodStepActionsV100">
-           <button type="button" data-pilot-listen="${i}">🔊 Ouvir</button>
-           <button type="button" data-pilot-speak="${i}">🎙️ Falar</button>
-         </div>
-         <div class="methodSpeakFeedbackV100" data-pilot-feedback="${i}">
-           <b>Sua vez</b><span>Ouça primeiro e depois repita.</span>
-         </div>
-       </article>`).join('')}
-   </div>
+ const earIcon='<span class="methodAudioIconV103" aria-hidden="true"><svg viewBox="0 0 32 32"><path d="M17 6c-5.2 0-9 3.7-9 8.7 0 3.3 1.4 5.4 3.2 7.1 1.8 1.7 2.8 2.8 3 4.2.2 1.1 1.1 1.8 2.2 1.8 1.6 0 2.5-1 2.5-2.2 0-1.7-1.2-2.7-2.6-3.8-1.4-1.2-2.9-2.6-2.9-5.2 0-2.7 1.8-4.7 4.4-4.7 2.4 0 4.2 1.7 4.2 4.1 0 1.5-.6 2.7-1.7 3.8" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/><path d="M23 8c2 1.5 3.2 3.8 3.2 6.3M26.2 5.3c3 2.3 4.8 5.5 4.8 9" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></span>';
+ const micIcon='<span class="methodAudioIconV103 mic" aria-hidden="true"><svg viewBox="0 0 32 32"><rect x="11" y="4" width="10" height="16" rx="5" fill="none" stroke="currentColor" stroke-width="2.4"/><path d="M7 15a9 9 0 0 0 18 0M16 24v4M11 28h10" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></svg></span>';
 
-   <section class="methodReviewV100">
-     <header>
-       <span>🧠 REVISÃO DA AULA</span>
-       <b>Vamos ver o que ficou?</b>
-       <small class="methodReviewScoreV100">0/3 concluídos</small>
-     </header>
-     <div class="methodReviewLockV100">Fale as 3 frases para liberar a revisão · 0/3</div>
-     <div class="methodReviewBodyV100">
-       <div class="methodReviewChallengeV100" data-review="0">
-         <small>DESAFIO 1 · SIGNIFICADO</small>
-         <b>Como se diz “Eu tenho um irmão.”?</b>
-         <div class="methodReviewOptionsV100">
-           <button data-review-choice="0|wrong">This is my mother.</button>
-           <button data-review-choice="0|right">I have one brother.</button>
-           <button data-review-choice="0|wrong">Do you have any sisters?</button>
-         </div>
-         <span class="methodReviewFeedbackV100"></span>
-       </div>
+ const wordsHtml=words.map(function(w,i){
+   return '<button type="button" data-word-listen="'+i+'"><b>'+esc(w[0])+'</b><span>'+esc(w[1])+'</span>'+earIcon+'</button>';
+ }).join('');
+ const miniHtml=mini.map(function(p,i){
+   return '<button type="button" data-mini-listen="'+i+'"><span><b>'+esc(p[0])+'</b><small>'+esc(p[1])+'</small></span>'+earIcon+'</button>';
+ }).join('');
+ const phrasesHtml=phrases.map(function(r,i){
+   return '<article data-pilot-step="'+i+'">'+
+     '<div class="methodStepPhraseV100"><b>'+esc(r[0])+'</b><span>'+esc(r[1])+'</span></div>'+
+     '<div class="methodStepActionsV100">'+
+       '<button type="button" data-pilot-listen="'+i+'">'+earIcon+'<span>Ouvir</span></button>'+
+       '<button type="button" data-pilot-speak="'+i+'">'+micIcon+'<span>Falar</span></button>'+
+     '</div>'+
+     '<div class="methodSpeakFeedbackV100" data-pilot-feedback="'+i+'">'+
+       '<b>Ouça primeiro e depois repita.</b>'+
+       '<span>Se errar uma parte, eu mostro só a palavra que precisa corrigir.</span>'+
+     '</div>'+
+   '</article>';
+ }).join('');
+ const scramble0=shuffleWords('I have one brother',3).map(function(w){return '<button type="button" data-word="'+esc(w)+'">'+esc(w)+'</button>';}).join('');
+ const scramble1=shuffleWords('This is my mother',7).map(function(w){return '<button type="button" data-word="'+esc(w)+'">'+esc(w)+'</button>';}).join('');
 
-       <div class="methodReviewChallengeV100" data-review="1">
-         <small>DESAFIO 2 · ESCUTA</small>
-         <b>Ouça e escolha a frase correta.</b>
-         <button class="methodReviewListenV100" data-review-listen>🔊 Ouvir frase</button>
-         <div class="methodReviewOptionsV100">
-           <button data-review-choice="1|wrong">I have one brother.</button>
-           <button data-review-choice="1|right">Do you have any sisters?</button>
-           <button data-review-choice="1|wrong">This is my mother.</button>
-         </div>
-         <span class="methodReviewFeedbackV100"></span>
-       </div>
+ m.innerHTML=
+ '<section class="methodsLessonV42 methodsLessonV99 methodsLessonV100 methodsLessonV103 lesson-tone-0">'+
+   '<div class="methodsLessonHeroV99 methodsLessonHeroV100 methodsLessonHeroV103">'+
+     '<span class="methodsLessonBlockV99">BLOCO 1 · família</span>'+
+     '<small>AULA 1 DE 40 · DO FÁCIL PARA A FRASE</small>'+
+     '<h2>família · parte 1</h2>'+
+     '<p>Aprenda as palavras, junte as ideias, ouça, fale e finalize com jogos de revisão.</p>'+
+     '<i class="methodPilotProgressV100"><u style="width:0%"></u></i>'+
+   '</div>'+
+   '<section class="methodWarmupV103">'+
+     '<header><small>PASSO 1</small><b>Palavras essenciais</b><span>Toque para ouvir.</span></header>'+
+     '<div class="methodWordGridV103">'+wordsHtml+'</div>'+
+   '</section>'+
+   '<section class="methodMiniPhraseV103">'+
+     '<header><small>PASSO 2</small><b>Junte as palavras</b><span>Veja como elas começam a formar sentido.</span></header>'+
+     '<div>'+miniHtml+'</div>'+
+   '</section>'+
+   '<section class="methodPracticeTitleV103">'+
+     '<small>PASSO 3</small><b>Frases completas</b><span>Ouça primeiro. Depois fale.</span>'+
+   '</section>'+
+   '<div class="methodsInteractiveCardsV100 methodsInteractiveCardsV103">'+phrasesHtml+'</div>'+
+   '<section class="methodReviewV100 methodReviewV103">'+
+     '<header>'+
+       '<span>🧠 REVISÃO DA AULA</span>'+
+       '<b>Agora vamos brincar com o que você aprendeu</b>'+
+       '<small class="methodReviewScoreV100">0/4 concluídos</small>'+
+     '</header>'+
+     '<div class="methodReviewLockV100">Fale as 3 frases para liberar a revisão · 0/3</div>'+
+     '<div class="methodReviewBodyV100">'+
+       '<div class="methodReviewChallengeV100 methodScrambleV103" data-review="0">'+
+         '<small>DESAFIO 1 · MONTE A FRASE</small>'+
+         '<b>Monte: “Eu tenho um irmão.”</b>'+
+         '<div class="methodScrambleAnswerV103" data-scramble-answer="0"></div>'+
+         '<div class="methodScrambleWordsV103" data-scramble="0">'+scramble0+'</div>'+
+         '<span class="methodReviewFeedbackV100"></span>'+
+       '</div>'+
+       '<div class="methodReviewChallengeV100 methodScrambleV103" data-review="1">'+
+         '<small>DESAFIO 2 · MONTE A FRASE</small>'+
+         '<b>Monte: “Esta é minha mãe.”</b>'+
+         '<div class="methodScrambleAnswerV103" data-scramble-answer="1"></div>'+
+         '<div class="methodScrambleWordsV103" data-scramble="1">'+scramble1+'</div>'+
+         '<span class="methodReviewFeedbackV100"></span>'+
+       '</div>'+
+       '<div class="methodReviewChallengeV100" data-review="2">'+
+         '<small>DESAFIO 3 · ESCUTA</small>'+
+         '<b>Ouça e escolha a frase correta.</b>'+
+         '<button class="methodReviewListenV100" data-review-listen>'+earIcon+'<span>Ouvir frase</span></button>'+
+         '<div class="methodReviewOptionsV100">'+
+           '<button data-review-choice="2|wrong">I have one brother.</button>'+
+           '<button data-review-choice="2|right">Do you have any sisters?</button>'+
+           '<button data-review-choice="2|wrong">This is my mother.</button>'+
+         '</div>'+
+         '<span class="methodReviewFeedbackV100"></span>'+
+       '</div>'+
+       '<div class="methodReviewChallengeV100" data-review="3">'+
+         '<small>DESAFIO 4 · FALA FINAL</small>'+
+         '<b>Fale a frase inteira:</b>'+
+         '<strong class="methodReviewTargetV103">This is my mother.</strong>'+
+         '<button class="methodReviewSpeakV100" data-review-speak>'+micIcon+'<span>Falar agora</span></button>'+
+         '<span class="methodReviewFeedbackV100"></span>'+
+       '</div>'+
+     '</div>'+
+   '</section>'+
+   '<footer>'+
+     '<button class="robot">🤖 Aula particular com o robô</button>'+
+     '<button class="finish" disabled>✓ Concluir aula</button>'+
+   '</footer>'+
+ '</section>';
 
-       <div class="methodReviewChallengeV100" data-review="2">
-         <small>DESAFIO 3 · FALA</small>
-         <b>Fale: “This is my mother.”</b>
-         <button class="methodReviewSpeakV100" data-review-speak>🎙️ Falar agora</button>
-         <span class="methodReviewFeedbackV100"></span>
-       </div>
-     </div>
-   </section>
+ m.querySelectorAll('[data-word-listen]').forEach(function(b,i){b.onclick=function(){speak(words[i][0]);};});
+ m.querySelectorAll('[data-mini-listen]').forEach(function(b,i){b.onclick=function(){speak(mini[i][0]);};});
+ m.querySelectorAll('[data-pilot-listen]').forEach(function(b,i){b.onclick=function(){speak(phrases[i][0]);};});
+ m.querySelectorAll('[data-pilot-speak]').forEach(function(b,i){
+   b.onclick=function(){
+     const feedback=m.querySelector('[data-pilot-feedback="'+i+'"]');
+     methodSpeakPractice(phrases[i][0],b,feedback,function(){
+       methodPilotRuntime.spoken.add(i);
+       updateFamilyPilotProgress();
+     });
+   };
+ });
 
-   <footer>
-     <button class="robot">🤖 Aula particular com o robô</button>
-     <button class="finish" disabled>✓ Concluir aula</button>
-   </footer>
- </section>`;
-
- m.querySelectorAll('[data-pilot-listen]').forEach((b,i)=>b.onclick=()=>speak(rows[i][0]));
- m.querySelectorAll('[data-pilot-speak]').forEach((b,i)=>b.onclick=()=>{
-   const feedback=m.querySelector(`[data-pilot-feedback="${i}"]`);
-   methodSpeakPractice(rows[i][0],b,feedback,()=>{
-     methodPilotRuntime.spoken.add(i);
-     updateFamilyPilotProgress();
+ const scrambleTargets=['I have one brother','This is my mother'];
+ m.querySelectorAll('[data-scramble]').forEach(function(box){
+   const q=Number(box.dataset.scramble);
+   const answer=m.querySelector('[data-scramble-answer="'+q+'"]');
+   methodPilotRuntime.scramble[q]=[];
+   const redraw=function(){
+     answer.innerHTML='';
+     methodPilotRuntime.scramble[q].forEach(function(item,index){
+       const ab=document.createElement('button');
+       ab.type='button';
+       ab.textContent=item.word;
+       ab.onclick=function(){
+         item.btn.disabled=false;
+         methodPilotRuntime.scramble[q].splice(index,1);
+         redraw();
+       };
+       answer.appendChild(ab);
+     });
+   };
+   box.querySelectorAll('button').forEach(function(btn){
+     btn.onclick=function(){
+       if(methodPilotRuntime.review.has(q))return;
+       methodPilotRuntime.scramble[q].push({word:btn.dataset.word,btn:btn});
+       btn.disabled=true;
+       redraw();
+       const built=methodPilotRuntime.scramble[q].map(function(x){return x.word;}).join(' ');
+       const feedback=box.closest('.methodReviewChallengeV100').querySelector('.methodReviewFeedbackV100');
+       if(methodPilotRuntime.scramble[q].length===scrambleTargets[q].split(' ').length){
+         if(normalizeSpeech(built)===normalizeSpeech(scrambleTargets[q])){
+           methodPilotRuntime.review.add(q);
+           box.closest('.methodReviewChallengeV100').classList.add('passed');
+           feedback.textContent='✅ Perfeito! Frase montada.';
+         }else{
+           feedback.textContent='🔁 A ordem ainda não está certa. Toque nas palavras montadas para corrigir.';
+         }
+         updateFamilyReviewFinish();
+       }
+     };
    });
  });
 
- m.querySelector('[data-review-listen]').onclick=()=>speak('Do you have any sisters?');
-
- m.querySelectorAll('[data-review-choice]').forEach(btn=>btn.onclick=()=>{
-   if(methodPilotRuntime.spoken.size<3)return;
-   const [q,result]=btn.dataset.reviewChoice.split('|');
-   const box=btn.closest('.methodReviewChallengeV100');
-   const feedback=box.querySelector('.methodReviewFeedbackV100');
-   box.querySelectorAll('.methodReviewOptionsV100 button').forEach(x=>x.disabled=true);
-   if(result==='right'){
-     methodPilotRuntime.review.add(Number(q));
-     box.classList.add('passed');
-     feedback.textContent='✅ Certo!';
-   }else{
-     box.classList.add('failed');
-     feedback.textContent='🔁 Não é essa. Veja a correta e continue.';
-     setTimeout(()=>box.querySelectorAll('.methodReviewOptionsV100 button').forEach(x=>x.disabled=false),700);
-   }
-   updateFamilyReviewFinish();
+ m.querySelector('[data-review-listen]').onclick=function(){speak('Do you have any sisters?');};
+ m.querySelectorAll('[data-review-choice]').forEach(function(btn){
+   btn.onclick=function(){
+     if(methodPilotRuntime.spoken.size<3)return;
+     const parts=btn.dataset.reviewChoice.split('|');
+     const q=parts[0],result=parts[1];
+     const box=btn.closest('.methodReviewChallengeV100');
+     const feedback=box.querySelector('.methodReviewFeedbackV100');
+     if(result==='right'){
+       methodPilotRuntime.review.add(Number(q));
+       box.classList.add('passed');
+       feedback.textContent='✅ Certo!';
+       box.querySelectorAll('.methodReviewOptionsV100 button').forEach(function(x){x.disabled=true;});
+     }else{
+       feedback.textContent='🔁 Tente outra opção.';
+     }
+     updateFamilyReviewFinish();
+   };
  });
 
  const reviewSpeak=m.querySelector('[data-review-speak]');
- reviewSpeak.onclick=()=>{
+ reviewSpeak.onclick=function(){
    if(methodPilotRuntime.spoken.size<3)return;
    const feedback=reviewSpeak.parentElement.querySelector('.methodReviewFeedbackV100');
-   methodSpeakPractice('This is my mother.',reviewSpeak,feedback,()=>{
-     methodPilotRuntime.review.add(2);
+   methodSpeakPractice('This is my mother.',reviewSpeak,feedback,function(){
+     methodPilotRuntime.review.add(3);
      reviewSpeak.parentElement.classList.add('passed');
      updateFamilyReviewFinish();
    });
  };
 
- m.querySelector('.robot').onclick=()=>startMethodSphere(id,n,'lesson');
- m.querySelector('.finish').onclick=()=>{
-   if(methodPilotRuntime.review.size<3)return;
+ m.querySelector('.robot').onclick=function(){startMethodSphere(id,n,'lesson');};
+ m.querySelector('.finish').onclick=function(){
+   if(methodPilotRuntime.review.size<4)return;
    complete(id,n);
    openLesson(id,n+1);
  };
