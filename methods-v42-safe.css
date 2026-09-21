@@ -1945,3 +1945,13 @@
   .methodsInteractiveCardsV103>article{padding:13px !important}
   .methodsInteractiveCardsV103 .methodStepActionsV100{gap:7px}
 }
+
+
+/* Métodos v104 — revisão sempre interativa */
+.methodReviewV100 .methodReviewBodyV100{
+  opacity:1 !important;
+  pointer-events:auto !important;
+}
+.methodReviewLockV100{
+  opacity:1 !important;
+}
