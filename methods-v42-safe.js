@@ -334,9 +334,6 @@ function renderFamilyPilotLesson(id,n,t,rows,m){
    '</footer>'+
  '</section>';
 
- m.querySelectorAll('[data-word-listen]').forEach(function(b,i){b.onclick=function(){speak(words[i][0]);};});
- m.querySelectorAll('[data-mini-listen]').forEach(function(b,i){b.onclick=function(){speak(mini[i][0]);};});
- m.querySelectorAll('[data-pilot-listen]').forEach(function(b,i){b.onclick=function(){speak(phrases[i][0]);};});
  m.querySelectorAll('[data-pilot-speak]').forEach(function(b,i){
    b.onclick=function(){
      const feedback=m.querySelector('[data-pilot-feedback="'+i+'"]');
@@ -348,47 +345,99 @@ function renderFamilyPilotLesson(id,n,t,rows,m){
  });
 
  const scrambleTargets=['I have one brother','This is my mother'];
+
+ const playLessonAudio=async function(text,button){
+   if(button&&button.dataset.playing==='1')return;
+   if(button){
+     button.dataset.playing='1';
+     button.classList.add('playing');
+   }
+   try{
+     window.stopGeminiTTS?.();
+     await speak(text);
+   }finally{
+     if(button){
+       button.dataset.playing='0';
+       button.classList.remove('playing');
+     }
+   }
+ };
+
+ m.querySelectorAll('[data-word-listen]').forEach(function(b,i){b.onclick=function(){playLessonAudio(words[i][0],b);};});
+ m.querySelectorAll('[data-mini-listen]').forEach(function(b,i){b.onclick=function(){playLessonAudio(mini[i][0],b);};});
+ m.querySelectorAll('[data-pilot-listen]').forEach(function(b,i){b.onclick=function(){playLessonAudio(phrases[i][0],b);};});
+
  m.querySelectorAll('[data-scramble]').forEach(function(box){
    const q=Number(box.dataset.scramble);
+   const challenge=box.closest('.methodReviewChallengeV100');
    const answer=m.querySelector('[data-scramble-answer="'+q+'"]');
+   const feedback=challenge.querySelector('.methodReviewFeedbackV100');
+   const targetWords=scrambleTargets[q].split(' ');
    methodPilotRuntime.scramble[q]=[];
+
+   const evaluate=function(){
+     const items=methodPilotRuntime.scramble[q];
+     const complete=items.length===targetWords.length;
+     const built=items.map(function(x){return x.word;}).join(' ');
+     const exact=complete&&normalizeSpeech(built)===normalizeSpeech(scrambleTargets[q]);
+
+     answer.querySelectorAll('button').forEach(function(ab,index){
+       const right=normalizeSpeech(ab.textContent)===normalizeSpeech(targetWords[index]||'');
+       ab.classList.toggle('correct-word',right);
+       ab.classList.toggle('wrong-word',complete&&!right);
+     });
+
+     challenge.classList.toggle('passed',exact);
+     challenge.classList.toggle('has-errors',complete&&!exact);
+
+     if(exact){
+       methodPilotRuntime.review.add(q);
+       feedback.textContent='✅ Perfeito! Frase montada corretamente.';
+     }else{
+       methodPilotRuntime.review.delete(q);
+       if(complete){
+         feedback.textContent='🔴 Só as palavras em vermelho estão fora do lugar. Toque nelas para trocar.';
+       }else{
+         feedback.textContent='';
+       }
+     }
+     updateFamilyReviewFinish();
+   };
+
    const redraw=function(){
      answer.innerHTML='';
      methodPilotRuntime.scramble[q].forEach(function(item,index){
        const ab=document.createElement('button');
        ab.type='button';
        ab.textContent=item.word;
+       ab.dataset.answerIndex=String(index);
        ab.onclick=function(){
-         item.btn.disabled=false;
+         if(methodPilotRuntime.review.has(q))return;
+         const current=methodPilotRuntime.scramble[q][index];
+         if(current&&current.btn)current.btn.disabled=false;
          methodPilotRuntime.scramble[q].splice(index,1);
          redraw();
+         evaluate();
        };
        answer.appendChild(ab);
      });
+     evaluate();
    };
+
    box.querySelectorAll('button').forEach(function(btn){
      btn.onclick=function(){
        if(methodPilotRuntime.review.has(q))return;
+       if(btn.disabled)return;
+       if(methodPilotRuntime.scramble[q].length>=targetWords.length)return;
        methodPilotRuntime.scramble[q].push({word:btn.dataset.word,btn:btn});
        btn.disabled=true;
        redraw();
-       const built=methodPilotRuntime.scramble[q].map(function(x){return x.word;}).join(' ');
-       const feedback=box.closest('.methodReviewChallengeV100').querySelector('.methodReviewFeedbackV100');
-       if(methodPilotRuntime.scramble[q].length===scrambleTargets[q].split(' ').length){
-         if(normalizeSpeech(built)===normalizeSpeech(scrambleTargets[q])){
-           methodPilotRuntime.review.add(q);
-           box.closest('.methodReviewChallengeV100').classList.add('passed');
-           feedback.textContent='✅ Perfeito! Frase montada.';
-         }else{
-           feedback.textContent='🔁 A ordem ainda não está certa. Toque nas palavras montadas para corrigir.';
-         }
-         updateFamilyReviewFinish();
-       }
      };
    });
  });
 
- m.querySelector('[data-review-listen]').onclick=function(){speak('Do you have any sisters?');};
+ const reviewListen=m.querySelector('[data-review-listen]');
+ reviewListen.onclick=function(){playLessonAudio('Do you have any sisters?',reviewListen);};
  m.querySelectorAll('[data-review-choice]').forEach(function(btn){
    btn.onclick=function(){
      const parts=btn.dataset.reviewChoice.split('|');
