@@ -131,6 +131,18 @@ function methodSimilarity(a,b){
  return Math.max(wordScore,charScore);
 }
 
+function methodSpeechDiff(target,heard){
+ const tw=String(target||'').replace(/[?.!,]/g,'').trim().split(/\s+/);
+ const hw=String(heard||'').replace(/[?.!,]/g,'').trim().split(/\s+/);
+ const wrong=[];
+ const html=tw.map((word,i)=>{
+   const ok=normalizeSpeech(word)===normalizeSpeech(hw[i]||'');
+   if(!ok)wrong.push(word);
+   return '<span class="'+(ok?'ok':'wrong')+'">'+esc(word)+'</span>';
+ }).join(' ');
+ return {html,wrong};
+}
+
 function methodSpeakPractice(target,button,feedback,onPass){
  const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
  if(!SR){
@@ -145,17 +157,22 @@ function methodSpeakPractice(target,button,feedback,onPass){
  rec.maxAlternatives=1;
  button.disabled=true;
  button.classList.add('listening');
- feedback.innerHTML='<b>🎙️ Estou ouvindo...</b><span>Fale a frase em inglês.</span>';
+ feedback.innerHTML='<b>Estou ouvindo...</b><span>Fale em inglês.</span>';
  feedback.className='methodSpeakFeedbackV100 listening';
  rec.onresult=e=>{
    const heard=String(e.results?.[0]?.[0]?.transcript||'').trim();
    const score=methodSimilarity(heard,target);
-   const ok=score>=.66;
-   feedback.innerHTML=ok
-     ? `<b>✅ Muito bom!</b><span>Eu entendi: “${esc(heard)}”</span>`
-     : `<b>🔁 Quase. Tente mais uma vez.</b><span>Eu entendi: “${esc(heard||'—')}”</span>`;
-   feedback.className='methodSpeakFeedbackV100 '+(ok?'good':'bad');
-   if(ok)onPass?.();
+   const ok=score>=.76;
+   const diff=methodSpeechDiff(target,heard);
+   if(ok){
+     feedback.innerHTML='<b>✅ Muito bom!</b><span>Pronúncia reconhecida.</span>';
+     feedback.className='methodSpeakFeedbackV100 good';
+     onPass?.();
+   }else{
+     const words=diff.wrong.length?diff.wrong.join(', '):target;
+     feedback.innerHTML='<b>Quase. Ajuste só esta parte:</b><div class="methodWordDiffV103">'+diff.html+'</div><span>Tente novamente: '+esc(words)+'</span>';
+     feedback.className='methodSpeakFeedbackV100 bad';
+   }
  };
  rec.onerror=()=>{
    feedback.innerHTML='<b>Não consegui ouvir direito.</b><span>Toque em Falar e tente novamente.</span>';
