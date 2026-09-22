@@ -28,7 +28,7 @@ function readSession(){try{return JSON.parse(sessionStorage.getItem(SESSION)||'n
 function saveSession(){try{session?sessionStorage.setItem(SESSION,JSON.stringify(session)):sessionStorage.removeItem(SESSION)}catch{}}
 function clearSession(){session=null;saveSession()}
 function ensureHome(){const h=document.querySelector('#home'),a=h?.querySelector('.allCoursesCard');if(!a||h.querySelector('.methodsHomeCardV42'))return;const b=document.createElement('button');b.type='button';b.className='methodsHomeCardV42';b.innerHTML='<span class="methodsHomeArtV42" aria-hidden="true"><svg viewBox="0 0 72 72" role="img"><path d="M10 47l15-8 15 6 19-10v23l-19 8-15-6-15 8z" fill="#f4efe2"/><path d="M10 47l15-8v21l-15 8z" fill="#d8e79b"/><path d="M25 39l15 6v21l-15-6z" fill="#f7d67a"/><path d="M40 45l19-10v23l-19 8z" fill="#98d7ef"/><path d="M17 43c0-5 4-9 9-9s9 4 9 9c0 7-9 15-9 15s-9-8-9-15z" fill="#e8585f"/><circle cx="26" cy="43" r="3.2" fill="#fff"/><rect x="42" y="10" width="5" height="29" rx="2.5" fill="#8f623d"/><path d="M45 13h15l4 5-4 5H45z" fill="#f3b43f"/><path d="M45 22H30l-4 5 4 5h15z" fill="#ef6f86"/><path d="M45 31h13l4 5-4 5H45z" fill="#58aee7"/></svg></span><span><small>ESTUDO POR ASSUNTO</small><b>Métodos</b><em>Família, viagens, comida, hotel e muito mais.</em></span><i>›</i>';b.onclick=openScreen;a.insertAdjacentElement('afterend',b)}
-function ensureUI(){ensureHome();decoratePill()}
+function ensureUI(){ensureHome();decoratePill();if(session?.mode==='lesson-only'&&isCalmTutorV109())setTimeout(ensureTutorCacheBadgeV109,60)}
 function createScreen(){if(screen)return;screen=document.createElement('div');screen.className='methodsScreenV42';screen.innerHTML='<div class="methodsInnerV42"><header><button class="methodsBackV42">‹</button><h2>Métodos</h2><span></span></header><main></main></div>';document.body.appendChild(screen);screen.querySelector('.methodsBackV42').onclick=back}
 function openScreen(){createScreen();screenMode='study';view='themes';active=null;renderThemes();screen.classList.add('open');document.body.classList.add('methodsLockV42')}
 function closeScreen(){screen?.classList.remove('open');document.body.classList.remove('methodsLockV42')}
@@ -841,19 +841,29 @@ function tutorLinePickV109(group){
 
 function ensureTutorCacheBadgeV109(){
  if(!session||session.mode!=='lesson-only'||!isCalmTutorV109())return null;
- const card=document.querySelector('#home .professorPanel.homeTalkCard');
- if(!card)return null;
- let el=card.querySelector('.tutorCacheDebugV109');
+ let el=document.querySelector('.tutorCacheDebugV109');
  if(!el){
    el=document.createElement('div');
    el.className='tutorCacheDebugV109';
-   el.innerHTML='<b>PROTÓTIPO · Tranquilo</b><span data-cache-status>aguardando</span><small><i data-cache-count>Cache 0</i><i data-live-count>Live 0</i><i data-api-count>API 2.5 0</i></small>';
-   card.appendChild(el);
+   el.innerHTML=
+     '<b>PROTÓTIPO · Tranquilo</b>'+
+     '<span data-cache-status>monitorando</span>'+
+     '<small><i data-cache-count>Cache 0</i><i data-live-count>Live 0</i><i data-api-count>API 2.5 0</i></small>'+
+     '<button type="button" data-cache-test>Testar CACHE</button>';
+   document.body.appendChild(el);
+   el.querySelector('[data-cache-test]').onclick=async e=>{
+     e.preventDefault();e.stopPropagation();
+     const btn=e.currentTarget;
+     btn.disabled=true;
+     flashTutorSourceV109('testando...','');
+     try{await playTutorCacheLineV109('encouragement')}finally{btn.disabled=false}
+   };
  }
  const ch=session.cacheHits||0,lv=session.liveTurns||0,ap=session.apiTts||0;
  el.querySelector('[data-cache-count]').textContent='Cache '+ch;
  el.querySelector('[data-live-count]').textContent='Live '+lv;
  el.querySelector('[data-api-count]').textContent='API 2.5 '+ap;
+ el.style.display='block';
  return el;
 }
 
@@ -925,9 +935,7 @@ async function startLessonTutorSphere(id,n,t){
  try{window.stopGeminiTTS?.()}catch{}
 
  if(isCalmTutorV109()){
-   ensureTutorCacheBadgeV109();
    preloadTutorCachePilotV109();
-   await playTutorCacheLineV109('opening');
  }
 
  await window.startV26LiveContext?.({
@@ -950,6 +958,14 @@ async function startLessonTutorSphere(id,n,t){
      'Não avance para outra aula e não altere o progresso automaticamente. '+
      'Fale de forma curta, amigável e prática, fazendo o aluno participar.'
  });
+ if(isCalmTutorV109()){
+   setTimeout(()=>ensureTutorCacheBadgeV109(),120);
+   setTimeout(()=>ensureTutorCacheBadgeV109(),700);
+   setTimeout(async()=>{
+     ensureTutorCacheBadgeV109();
+     await playTutorCacheLineV109('opening');
+   },1100);
+ }
  session.booting=false;
  saveSession();
  starting=false;
@@ -962,6 +978,7 @@ async function returnToMethodLessonV108(){
  const live=window.MeuInglesGeminiLiveV38;
  try{await live?.stop?.()}catch{}
  try{window.stopGeminiTTS?.()}catch{}
+ document.querySelector('.tutorCacheDebugV109')?.remove();
  if(screen){
    screenMode='study';
    screen.classList.add('open');
