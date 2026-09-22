@@ -244,7 +244,7 @@ function updateFamilyReviewFinish(){
    methodPilotRuntime.savedComplete=true;
    const progress=document.querySelector('.methodPilotProgressV100 u');
    if(progress)progress.style.width='100%';
-   complete('familia',1);
+   complete(methodPilotRuntime.themeId||'familia',Number(methodPilotRuntime.lessonNumber)||1);
  }
 }
 
@@ -273,7 +273,7 @@ function renderFamilyPilotLesson(id,n,t,rows,m){
    ['Do you have any sisters?','Você tem irmãs?'],
    ['This is my mother.','Esta é minha mãe.']
  ];
- methodPilotRuntime={spoken:new Set(),review:new Set(),requiredSpeak:3,scramble:{},activity:new Set(),savedComplete:done(id).has(Number(n))};
+ methodPilotRuntime={themeId:id,lessonNumber:Number(n),spoken:new Set(),review:new Set(),requiredSpeak:3,scramble:{},activity:new Set(),savedComplete:done(id).has(Number(n))};
 
  // Pré-carrega silenciosamente o áudio fixo desta aula.
  // Se já estiver salvo no aparelho, nenhuma nova chamada à API é feita.
@@ -547,9 +547,249 @@ function renderFamilyPilotLesson(id,n,t,rows,m){
  updateFamilyPilotProgress();
 }
 
+function renderFamilyLesson2(id,n,t,m){
+ const words=[
+   ['father','pai'],['parents','pais'],['son','filho'],
+   ['daughter','filha'],['family','família'],['together','juntos']
+ ];
+ const mini=[
+   ['my father','meu pai'],['my parents','meus pais'],['one daughter','uma filha']
+ ];
+ const phrases=[
+   ['This is my father.','Este é meu pai.'],
+   ['My parents are here.','Meus pais estão aqui.'],
+   ['I have one daughter.','Eu tenho uma filha.']
+ ];
+ methodPilotRuntime={themeId:id,lessonNumber:Number(n),spoken:new Set(),review:new Set(),requiredSpeak:3,scramble:{},activity:new Set(),savedComplete:done(id).has(Number(n))};
+
+ setTimeout(()=>{
+   const preload=window.preloadGeminiTTS;
+   if(typeof preload!=='function')return;
+   const fixedAudio=[
+     ...words.map(w=>w[0]),
+     ...mini.map(p=>p[0]),
+     ...phrases.map(p=>p[0]),
+     'My parents are here.'
+   ];
+   fixedAudio.forEach((text,i)=>setTimeout(()=>preload(text,'en-US','Achird').catch(()=>{}),i*220));
+ },250);
+
+ const earIcon='<span class="methodAudioIconV103" aria-hidden="true"><svg viewBox="0 0 32 32"><path d="M17 6c-5.2 0-9 3.7-9 8.7 0 3.3 1.4 5.4 3.2 7.1 1.8 1.7 2.8 2.8 3 4.2.2 1.1 1.1 1.8 2.2 1.8 1.6 0 2.5-1 2.5-2.2 0-1.7-1.2-2.7-2.6-3.8-1.4-1.2-2.9-2.6-2.9-5.2 0-2.7 1.8-4.7 4.4-4.7 2.4 0 4.2 1.7 4.2 4.1 0 1.5-.6 2.7-1.7 3.8" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/><path d="M23 8c2 1.5 3.2 3.8 3.2 6.3M26.2 5.3c3 2.3 4.8 5.5 4.8 9" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></span>';
+ const micIcon='<span class="methodAudioIconV103 mic" aria-hidden="true"><svg viewBox="0 0 32 32"><rect x="11" y="4" width="10" height="16" rx="5" fill="none" stroke="currentColor" stroke-width="2.4"/><path d="M7 15a9 9 0 0 0 18 0M16 24v4M11 28h10" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></svg></span>';
+
+ const wordsHtml=words.map((w,i)=>'<button type="button" data-word-listen="'+i+'"><b>'+esc(w[0])+'</b><span>'+esc(w[1])+'</span>'+earIcon+'</button>').join('');
+ const miniHtml=mini.map((p,i)=>'<button type="button" data-mini-listen="'+i+'"><span><b>'+esc(p[0])+'</b><small>'+esc(p[1])+'</small></span>'+earIcon+'</button>').join('');
+ const phrasesHtml=phrases.map((r,i)=>
+   '<article data-pilot-step="'+i+'">'+
+     '<div class="methodStepPhraseV100"><b>'+esc(r[0])+'</b><span>'+esc(r[1])+'</span></div>'+
+     '<div class="methodStepActionsV100">'+
+       '<button type="button" data-pilot-listen="'+i+'">'+earIcon+'<span>Ouvir</span></button>'+
+       '<button type="button" data-pilot-speak="'+i+'">'+micIcon+'<span>Falar</span></button>'+
+     '</div>'+
+     '<div class="methodSpeakFeedbackV100" data-pilot-feedback="'+i+'">'+
+       '<b>Ouça primeiro e depois repita.</b>'+
+       '<span>Se errar uma parte, eu mostro só a palavra que precisa corrigir.</span>'+
+     '</div>'+
+   '</article>'
+ ).join('');
+
+ const scramble0=shuffleWords('This is my father',5).map(w=>'<button type="button" data-word="'+esc(w)+'">'+esc(w)+'</button>').join('');
+ const scramble1=shuffleWords('I have one daughter',9).map(w=>'<button type="button" data-word="'+esc(w)+'">'+esc(w)+'</button>').join('');
+
+ m.innerHTML=
+ '<section class="methodsLessonV42 methodsLessonV99 methodsLessonV100 methodsLessonV103 lesson-tone-0">'+
+   '<div class="methodsLessonHeroV99 methodsLessonHeroV100 methodsLessonHeroV103">'+
+     '<span class="methodsLessonBlockV99">BLOCO 1 · família</span>'+
+     '<small>AULA 2 DE 40 · UM PASSO A MAIS</small>'+
+     '<h2>família · parte 2</h2>'+
+     '<p>Continue com novos membros da família, pequenas combinações, fala e revisão.</p>'+
+     '<i class="methodPilotProgressV100"><u style="width:0%"></u></i>'+
+   '</div>'+
+   '<section class="methodWarmupV103">'+
+     '<header><small>PASSO 1</small><b>Novas palavras</b><span>Toque para ouvir e marque o que já praticou.</span></header>'+
+     '<div class="methodWordGridV103">'+wordsHtml+'</div>'+
+   '</section>'+
+   '<section class="methodMiniPhraseV103">'+
+     '<header><small>PASSO 2</small><b>Junte as palavras</b><span>Agora forme pequenos grupos de sentido.</span></header>'+
+     '<div>'+miniHtml+'</div>'+
+   '</section>'+
+   '<section class="methodPracticeTitleV103">'+
+     '<small>PASSO 3</small><b>Frases completas</b><span>Ouça e fale. A dificuldade sobe só um pouquinho.</span>'+
+   '</section>'+
+   '<div class="methodsInteractiveCardsV100 methodsInteractiveCardsV103">'+phrasesHtml+'</div>'+
+   '<section class="methodReviewV100 methodReviewV103">'+
+     '<header><span>🧠 REVISÃO DA AULA</span><b>Vamos confirmar o que ficou</b><small class="methodReviewScoreV100">0/4 concluídos</small></header>'+
+     '<div class="methodReviewLockV100">Revisão disponível · falas praticadas: 0/3</div>'+
+     '<div class="methodReviewBodyV100">'+
+       '<div class="methodReviewChallengeV100 methodScrambleV103" data-review="0">'+
+         '<small>DESAFIO 1 · MONTE A FRASE</small><b>Monte: “Este é meu pai.”</b>'+
+         '<div class="methodScrambleAnswerV103" data-scramble-answer="0"></div>'+
+         '<div class="methodScrambleWordsV103" data-scramble="0">'+scramble0+'</div>'+
+         '<span class="methodReviewFeedbackV100"></span>'+
+       '</div>'+
+       '<div class="methodReviewChallengeV100 methodScrambleV103" data-review="1">'+
+         '<small>DESAFIO 2 · MONTE A FRASE</small><b>Monte: “Eu tenho uma filha.”</b>'+
+         '<div class="methodScrambleAnswerV103" data-scramble-answer="1"></div>'+
+         '<div class="methodScrambleWordsV103" data-scramble="1">'+scramble1+'</div>'+
+         '<span class="methodReviewFeedbackV100"></span>'+
+       '</div>'+
+       '<div class="methodReviewChallengeV100" data-review="2">'+
+         '<small>DESAFIO 3 · ESCUTA</small><b>Ouça e escolha a frase correta.</b>'+
+         '<button class="methodReviewListenV100" data-review-listen>'+earIcon+'<span>Ouvir frase</span></button>'+
+         '<div class="methodReviewOptionsV100">'+
+           '<button data-review-choice="2|wrong">This is my father.</button>'+
+           '<button data-review-choice="2|right">My parents are here.</button>'+
+           '<button data-review-choice="2|wrong">I have one daughter.</button>'+
+         '</div>'+
+         '<span class="methodReviewFeedbackV100"></span>'+
+       '</div>'+
+       '<div class="methodReviewChallengeV100" data-review="3">'+
+         '<small>DESAFIO 4 · FALA FINAL</small><b>Fale a frase inteira:</b>'+
+         '<strong class="methodReviewTargetV103">I have one daughter.</strong>'+
+         '<button class="methodReviewSpeakV100" data-review-speak>'+micIcon+'<span>Falar agora</span></button>'+
+         '<span class="methodReviewFeedbackV100"></span>'+
+       '</div>'+
+     '</div>'+
+   '</section>'+
+   '<footer>'+
+     '<button class="robot lessonTutorV106">✦ Conversar com o professor desta aula</button>'+
+     '<small class="lessonTutorHintV106">A conversa fica somente no conteúdo da Aula 2.</small>'+
+     '<button class="finish" disabled>✓ Concluir aula</button>'+
+   '</footer>'+
+ '</section>';
+
+ const playLessonAudio=async function(text,button){
+   if(button&&button.dataset.playing==='1')return;
+   if(button){button.dataset.playing='1';button.classList.add('playing');}
+   try{window.stopGeminiTTS?.();await speak(text)}
+   finally{if(button){button.dataset.playing='0';button.classList.remove('playing')}}
+ };
+
+ m.querySelectorAll('[data-word-listen]').forEach((b,i)=>b.onclick=()=>{b.classList.add('activityDoneV108');markFamilyActivityV107('word-'+i);playLessonAudio(words[i][0],b)});
+ m.querySelectorAll('[data-mini-listen]').forEach((b,i)=>b.onclick=()=>{b.classList.add('activityDoneV108');markFamilyActivityV107('mini-'+i);playLessonAudio(mini[i][0],b)});
+ m.querySelectorAll('[data-pilot-listen]').forEach((b,i)=>b.onclick=()=>{b.classList.add('activityDoneV108');markFamilyActivityV107('phrase-listen-'+i);playLessonAudio(phrases[i][0],b)});
+ m.querySelectorAll('[data-pilot-speak]').forEach((b,i)=>b.onclick=()=>{
+   const feedback=m.querySelector('[data-pilot-feedback="'+i+'"]');
+   methodSpeakPractice(phrases[i][0],b,feedback,()=>{
+     methodPilotRuntime.spoken.add(i);
+     b.classList.add('activityDoneV108');
+     b.closest('article')?.classList.add('activityDoneV108');
+     markFamilyActivityV107('phrase-speak-'+i);
+     updateFamilyPilotProgress();
+   });
+ });
+
+ const scrambleTargets=['This is my father','I have one daughter'];
+ m.querySelectorAll('[data-scramble]').forEach(box=>{
+   const q=Number(box.dataset.scramble);
+   const challenge=box.closest('.methodReviewChallengeV100');
+   const answer=m.querySelector('[data-scramble-answer="'+q+'"]');
+   const feedback=challenge.querySelector('.methodReviewFeedbackV100');
+   const targetWords=scrambleTargets[q].split(' ');
+   methodPilotRuntime.scramble[q]=[];
+
+   const evaluate=()=>{
+     const items=methodPilotRuntime.scramble[q];
+     const complete=items.length===targetWords.length;
+     const built=items.map(x=>x.word).join(' ');
+     const exact=complete&&normalizeSpeech(built)===normalizeSpeech(scrambleTargets[q]);
+     answer.querySelectorAll('button').forEach((ab,index)=>{
+       const right=normalizeSpeech(ab.textContent)===normalizeSpeech(targetWords[index]||'');
+       ab.classList.toggle('correct-word',right);
+       ab.classList.toggle('wrong-word',complete&&!right);
+     });
+     challenge.classList.toggle('passed',exact);
+     challenge.classList.toggle('has-errors',complete&&!exact);
+     if(exact){
+       methodPilotRuntime.review.add(q);
+       markFamilyReviewV107(q);
+       feedback.textContent='✅ Perfeito! Frase montada corretamente.';
+     }else{
+       methodPilotRuntime.review.delete(q);
+       feedback.textContent=complete?'🔴 Só as palavras em vermelho estão fora do lugar. Toque nelas para trocar.':'';
+     }
+     updateFamilyReviewFinish();
+   };
+   const redraw=()=>{
+     answer.innerHTML='';
+     methodPilotRuntime.scramble[q].forEach((item,index)=>{
+       const ab=document.createElement('button');
+       ab.type='button';ab.textContent=item.word;
+       ab.onclick=()=>{
+         if(methodPilotRuntime.review.has(q))return;
+         const current=methodPilotRuntime.scramble[q][index];
+         if(current?.btn)current.btn.disabled=false;
+         methodPilotRuntime.scramble[q].splice(index,1);
+         redraw();
+       };
+       answer.appendChild(ab);
+     });
+     evaluate();
+   };
+   box.querySelectorAll('button').forEach(btn=>btn.onclick=()=>{
+     if(methodPilotRuntime.review.has(q)||btn.disabled||methodPilotRuntime.scramble[q].length>=targetWords.length)return;
+     methodPilotRuntime.scramble[q].push({word:btn.dataset.word,btn});
+     btn.disabled=true;
+     redraw();
+   });
+ });
+
+ const reviewListen=m.querySelector('[data-review-listen]');
+ reviewListen.onclick=()=>playLessonAudio('My parents are here.',reviewListen);
+
+ m.querySelectorAll('[data-review-choice]').forEach(btn=>btn.onclick=()=>{
+   const [q,result]=btn.dataset.reviewChoice.split('|');
+   const box=btn.closest('.methodReviewChallengeV100');
+   const feedback=box.querySelector('.methodReviewFeedbackV100');
+   const options=box.querySelectorAll('.methodReviewOptionsV100 button');
+   options.forEach(x=>{if(!x.classList.contains('reviewCorrectV106'))x.classList.remove('reviewWrongV106')});
+   if(result==='right'){
+     methodPilotRuntime.review.add(Number(q));
+     markFamilyReviewV107(Number(q));
+     box.classList.add('passed','reviewSuccessV106');
+     btn.classList.add('reviewCorrectV106');
+     feedback.innerHTML='<b>✓ Muito bem!</b><span>Você escolheu a frase correta.</span>';
+     feedback.className='methodReviewFeedbackV100 reviewFeedbackGoodV106';
+     options.forEach(x=>x.disabled=true);
+   }else{
+     btn.classList.add('reviewWrongV106');
+     feedback.innerHTML='<b>✕ Não foi essa.</b><span>Tente outra opção.</span>';
+     feedback.className='methodReviewFeedbackV100 reviewFeedbackBadV106';
+   }
+   updateFamilyReviewFinish();
+ });
+
+ const reviewSpeak=m.querySelector('[data-review-speak]');
+ reviewSpeak.onclick=()=>{
+   const challenge=reviewSpeak.closest('.methodReviewChallengeV100');
+   const feedback=challenge.querySelector('.methodReviewFeedbackV100');
+   methodSpeakPractice('I have one daughter.',reviewSpeak,feedback,()=>{
+     methodPilotRuntime.review.add(3);
+     markFamilyReviewV107(3);
+     challenge.classList.add('passed','finalSpeechSuccessV106');
+     feedback.innerHTML='<b>✓ Excelente!</b><span>Você falou a frase corretamente.</span>';
+     feedback.className='methodReviewFeedbackV100 good finalSpeechFeedbackV106';
+     updateFamilyReviewFinish();
+   });
+ };
+
+ m.querySelector('.robot').onclick=()=>startLessonTutorSphere(id,n,t);
+ m.querySelector('.finish').onclick=()=>{
+   if(methodPilotRuntime.review.size<4)return;
+   complete(id,n);
+   openLesson(id,n+1);
+ };
+ updateFamilyPilotProgress();
+}
+
 async function startLessonTutorSphere(id,n,t){
- const allowedVocabulary=['brother','sister','mother','I','have','one'];
- const allowedPhrases=['I have one brother.','Do you have any sisters?','This is my mother.'];
+ const lesson2=Number(n)===2;
+ const allowedVocabulary=lesson2
+   ?['father','parents','son','daughter','family','together']
+   :['brother','sister','mother','I','have','one'];
+ const allowedPhrases=lesson2
+   ?['This is my father.','My parents are here.','I have one daughter.']
+   :['I have one brother.','Do you have any sisters?','This is my mother.'];
 
  starting=true;
  session={
@@ -579,10 +819,10 @@ async function startLessonTutorSphere(id,n,t){
    allowedVocabulary:allowedVocabulary.join(', '),
    allowedPhrases:allowedPhrases.join(' | '),
    instruction:
-     'Você é o professor exclusivo da aula Família · Aula 1. '+
+     'Você é o professor exclusivo da aula Família · Aula '+n+'. '+
      'Converse SOMENTE sobre o conteúdo desta aula. '+
-     'Vocabulário permitido: brother, sister, mother, I, have, one. '+
-     'Frases principais: I have one brother.; Do you have any sisters?; This is my mother. '+
+     'Vocabulário permitido: '+allowedVocabulary.join(', ')+'. '+
+     'Frases principais: '+allowedPhrases.join('; ')+'. '+
      'Você pode explicar significado, pronúncia, gramática básica dessas frases, pedir repetição, corrigir o aluno e criar pequenas variações usando apenas este conteúdo e parentesco básico diretamente ligado à aula. '+
      'Se o aluno tentar falar de viagem, futebol, notícias, outros módulos ou qualquer assunto fora desta aula, não siga o assunto. Diga de forma breve que nesta conversa vocês vão praticar somente esta aula e redirecione para uma palavra ou frase estudada. '+
      'Não avance para outra aula e não altere o progresso automaticamente. '+
@@ -634,6 +874,10 @@ function openLesson(id,n){
  screen.querySelector('header span').textContent=`${n}/40`;
  if(id==='familia'&&Number(n)===1){
    renderFamilyPilotLesson(id,n,t,rows,m);
+   return;
+ }
+ if(id==='familia'&&Number(n)===2){
+   renderFamilyLesson2(id,n,t,m);
    return;
  }
  m.innerHTML=`
