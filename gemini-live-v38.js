@@ -189,6 +189,46 @@ function personaInstruction(){
  if(teacher()==='leve')return 'Professor Tranquilo: seja paciente, acolhedor, calmo e claro. Corrija sem pressa e incentive o aluno.';
  return 'Professor Doideira: seja animado, engraçado, imprevisível e energético, mas continue ensinando com clareza.';
 }
+
+function cacheToolConfig(){
+ if(!(externalContext?.cachePilot&&teacher()==='leve'))return [];
+ return [{
+  functionDeclarations:[{
+   name:'play_cached_teacher_phrase',
+   description:'Use esta função em vez de falar elogios, incentivos, pedidos genéricos para tentar novamente, transições simples ou encerramentos. O aplicativo reproduz localmente uma frase natural já preparada para o Professor Tranquilo. Não diga a mesma reação com sua própria voz.',
+   parameters:{
+    type:'object',
+    properties:{
+     category:{
+      type:'string',
+      enum:['opening','encouragement','retry','transition','closing'],
+      description:'Tipo da reação curta que o aplicativo deve tocar.'
+     }
+    },
+    required:['category']
+   }
+  }]
+ }];
+}
+
+async function handleCacheToolCall(toolCall){
+ const calls=toolCall?.functionCalls||toolCall?.function_calls||[];
+ if(!calls.length)return false;
+ const responses=[];
+ for(const fc of calls){
+   let result={ok:false,reason:'unsupported_tool'};
+   if(fc?.name==='play_cached_teacher_phrase'&&typeof window.MeuInglesCacheToolV113==='function'){
+     try{result=await window.MeuInglesCacheToolV113(fc)||result}catch(e){result={ok:false,error:String(e?.message||e)}}
+   }
+   responses.push({
+     name:fc?.name||'play_cached_teacher_phrase',
+     id:fc?.id,
+     response:{result}
+   });
+ }
+ send({toolResponse:{functionResponses:responses}});
+ return true;
+}
 function courseCatalog(){
  return Object.entries(COURSE_MODULES).map(([level,mods])=>level+': '+mods.map((m,i)=>(i+1)+'. '+m).join(' | ')).join('\n');
 }
@@ -224,7 +264,7 @@ function systemText(){
    'Não avance para outra aula. Não marque progresso. Não invente conteúdo novo fora do vocabulário e das frases permitidas.',
    'Você pode explicar significado, pronúncia e gramática básica das palavras e frases permitidas e criar apenas variações mínimas diretamente ligadas a elas.',
    'Faça uma pergunta curta por vez e espere a resposta. Corrija um erro por vez.',
-   externalContext.cachePilot?'MODO PROTÓTIPO CACHE: o aplicativo já cuida dos cumprimentos, elogios genéricos e encerramento com falas cacheadas. Portanto você deve ser extremamente curto e usar sua voz apenas para a parte inteligente: correção específica, explicação necessária e próxima pergunta. Não repita elogios como boa, muito bem, mandou bem ou vamos seguir.':'',
+   externalContext.cachePilot?'MODO PROTÓTIPO CACHE: para elogio genérico, incentivo, pedido simples de nova tentativa, transição de etapa ou encerramento, NÃO FALE a reação. Chame obrigatoriamente a função play_cached_teacher_phrase com a categoria adequada. Depois da função, não repita a reação com sua voz. Use sua voz somente para conteúdo que exige inteligência: correção específica, explicação necessária ou próxima pergunta da aula.':'',
    'LIMITE DE REVISÃO: depois de no máximo duas rodadas curtas de correção/revisão, encerre esta sessão da aula. Na última resposta diga que a revisão terminou e que agora é hora de seguir para a próxima aula. Não continue conversando indefinidamente.',
    'Se o aluno interromper você, pare e ouça.'
   ].filter(Boolean).join('\n');
@@ -250,6 +290,7 @@ function systemText(){
    'Durante continuação, permaneça na aula atual até o aluno demonstrar domínio ou pedir para avançar.',
    'Faça uma pergunta curta por vez, corrija um erro por vez e aumente a dificuldade aos poucos.',
    'Priorize conversação e pronúncia. Use português do Brasil apenas quando ajudar a compreensão.',
+   externalContext.cachePilot?'MODO PROTÓTIPO CACHE: quando quiser apenas elogiar, incentivar, pedir uma nova tentativa, fazer uma transição simples ou encerrar, chame play_cached_teacher_phrase em vez de falar essa reação. Depois da função, não repita a mesma reação com sua voz.':'',
    'Se o aluno interromper você, pare e ouça.'
   ].filter(Boolean).join('\n');
  }
@@ -332,9 +373,10 @@ async function stopMic(){try{if(processor){processor.onaudioprocess=null;process
 function send(obj){if(ws?.readyState===WebSocket.OPEN){ws.send(JSON.stringify(obj));return true}return false}
 async function readData(data){if(typeof data==='string')return data;if(data instanceof Blob)return await data.text();if(data instanceof ArrayBuffer)return new TextDecoder().decode(data);if(ArrayBuffer.isView(data))return new TextDecoder().decode(data.buffer,data.byteOffset,data.byteLength);return String(data??'')}
 function diag(d){const s=String(d?.stage||'');if(!s)return;stage='proxy-'+s;console.log('[Meu Inglês Live]',s,d)}
-function handle(m){
+async function handle(m){
  try{window.MeuInglesAiCost?.recordLiveUsage?.(m)}catch{}
  if(m?.__radarProxy||m?.__meuInglesProxy){diag(m.__radarProxy||m.__meuInglesProxy);return}
+ if(m?.toolCall){await handleCacheToolCall(m.toolCall);return}
  if(m?.setupComplete!==undefined){clearTimeout(setupTimer);setupReady=true;stage='ready';send({clientContent:{turns:[{role:'user',parts:[{text:introText()}]}],turnComplete:true}});clearTimeout(introTimer);introTimer=setTimeout(()=>{if(running&&!firstAudio){micSending=true;robot('listening');setMicState('listening')}},5000);return}
  if(m?.serverContent?.interrupted){stopOutput();robot('listening');setMicState('listening')}
  const transcript=String(m?.serverContent?.inputTranscription?.text||'').trim();
@@ -364,8 +406,8 @@ async function start(context=null){
   try{speechSynthesis.cancel()}catch{}
   await Promise.all([prepareOutput(),prepareMic()]);
   stage='worker-websocket';ws=new WebSocket(LIVE_WS+'?app=meu-ingles&v=38');
-  ws.onopen=()=>{stage='browser-websocket-open';running=true;starting=false;send({setup:{model:`models/${MODEL}`,generationConfig:{responseModalities:['AUDIO']},inputAudioTranscription:{},outputAudioTranscription:{},systemInstruction:{parts:[{text:systemText()}]}}});setupTimer=setTimeout(()=>{if(running&&!setupReady){console.warn('[Meu Inglês Live] setupComplete ainda não chegou');setMicState('error');robot('oops')}},8000)};
-  ws.onmessage=async e=>{try{handle(JSON.parse(await readData(e.data)))}catch(err){console.warn('[Meu Inglês Live] mensagem inválida',err)}};
+  ws.onopen=()=>{stage='browser-websocket-open';running=true;starting=false;send({setup:{model:`models/${MODEL}`,generationConfig:{responseModalities:['AUDIO']},inputAudioTranscription:{},outputAudioTranscription:{},tools:cacheToolConfig(),systemInstruction:{parts:[{text:systemText()}]}}});setupTimer=setTimeout(()=>{if(running&&!setupReady){console.warn('[Meu Inglês Live] setupComplete ainda não chegou');setMicState('error');robot('oops')}},8000)};
+  ws.onmessage=async e=>{try{await handle(JSON.parse(await readData(e.data)))}catch(err){console.warn('[Meu Inglês Live] mensagem inválida',err)}};
   ws.onerror=e=>{console.warn('[Meu Inglês Live] websocket',e);setMicState('error');robot('oops')};
   ws.onclose=async e=>{const manual=manualStop;console.warn('[Meu Inglês Live] fechado',e?.code,e?.reason);await cleanup(false);if(!manual){setMicState('error');robot('oops');setTimeout(()=>{setMicState('');robot('')},1400)}};
  }catch(e){console.warn('[Meu Inglês Live] start',e);await cleanup(true);setMicState('error');robot('oops');setTimeout(()=>{setMicState('');robot('')},1600)}
