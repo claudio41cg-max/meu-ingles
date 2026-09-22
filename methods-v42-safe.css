@@ -2291,3 +2291,57 @@
 .lessonTutorBackV108{
   cursor:pointer;
 }
+
+
+/* Métodos v109 — monitor visível do piloto de cache no professor Tranquilo */
+.tutorCacheDebugV109{
+  position:absolute;
+  top:74px;
+  right:12px;
+  z-index:30;
+  min-width:146px;
+  padding:8px 10px;
+  border-radius:14px;
+  background:rgba(9,22,32,.84);
+  border:1px solid rgba(255,255,255,.14);
+  box-shadow:0 8px 20px rgba(0,0,0,.22);
+  backdrop-filter:blur(10px);
+  color:#dfeef6;
+  pointer-events:none;
+}
+.tutorCacheDebugV109>b{
+  display:block;
+  font-size:9px;
+  letter-spacing:.08em;
+  opacity:.72;
+}
+.tutorCacheDebugV109>[data-cache-status]{
+  display:block;
+  margin-top:3px;
+  font-size:13px;
+  font-weight:950;
+}
+.tutorCacheDebugV109>small{
+  display:flex;
+  flex-wrap:wrap;
+  gap:4px 7px;
+  margin-top:5px;
+}
+.tutorCacheDebugV109>small i{
+  font-style:normal;
+  font-size:9px;
+  opacity:.82;
+}
+.tutorCacheDebugV109.is-cache{
+  border-color:rgba(82,214,137,.72);
+  box-shadow:0 0 0 2px rgba(82,214,137,.12) inset,0 8px 22px rgba(0,0,0,.20);
+}
+.tutorCacheDebugV109.is-cache>[data-cache-status]{color:#79edaa}
+.tutorCacheDebugV109.is-live{
+  border-color:rgba(81,164,255,.72);
+}
+.tutorCacheDebugV109.is-live>[data-cache-status]{color:#73b7ff}
+.tutorCacheDebugV109.is-api{
+  border-color:rgba(255,190,77,.78);
+}
+.tutorCacheDebugV109.is-api>[data-cache-status]{color:#ffd173}
