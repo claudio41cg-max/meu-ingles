@@ -275,6 +275,22 @@ function renderFamilyPilotLesson(id,n,t,rows,m){
  ];
  methodPilotRuntime={spoken:new Set(),review:new Set(),requiredSpeak:3,scramble:{},activity:new Set(),savedComplete:done(id).has(Number(n))};
 
+ // Pré-carrega silenciosamente o áudio fixo desta aula.
+ // Se já estiver salvo no aparelho, nenhuma nova chamada à API é feita.
+ setTimeout(()=>{
+   const preload=window.preloadGeminiTTS;
+   if(typeof preload!=='function')return;
+   const fixedAudio=[
+     ...words.map(w=>w[0]),
+     ...mini.map(p=>p[0]),
+     ...phrases.map(p=>p[0]),
+     'Do you have any sisters?'
+   ];
+   fixedAudio.forEach((text,i)=>{
+     setTimeout(()=>preload(text,'en-US','Achird').catch(()=>{}),i*220);
+   });
+ },250);
+
  const earIcon='<span class="methodAudioIconV103" aria-hidden="true"><svg viewBox="0 0 32 32"><path d="M17 6c-5.2 0-9 3.7-9 8.7 0 3.3 1.4 5.4 3.2 7.1 1.8 1.7 2.8 2.8 3 4.2.2 1.1 1.1 1.8 2.2 1.8 1.6 0 2.5-1 2.5-2.2 0-1.7-1.2-2.7-2.6-3.8-1.4-1.2-2.9-2.6-2.9-5.2 0-2.7 1.8-4.7 4.4-4.7 2.4 0 4.2 1.7 4.2 4.1 0 1.5-.6 2.7-1.7 3.8" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/><path d="M23 8c2 1.5 3.2 3.8 3.2 6.3M26.2 5.3c3 2.3 4.8 5.5 4.8 9" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></span>';
  const micIcon='<span class="methodAudioIconV103 mic" aria-hidden="true"><svg viewBox="0 0 32 32"><rect x="11" y="4" width="10" height="16" rx="5" fill="none" stroke="currentColor" stroke-width="2.4"/><path d="M7 15a9 9 0 0 0 18 0M16 24v4M11 28h10" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></svg></span>';
 
