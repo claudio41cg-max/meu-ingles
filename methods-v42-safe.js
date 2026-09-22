@@ -827,6 +827,31 @@ const CALM_TUTOR_LINES_V109={
   'Tenta de novo. Você consegue.'
  ]
 };
+const CALM_BANK_EXPRESSIONS_V112=[
+ 'boa','beleza','muito bem','ótimo','otimo','perfeito','mandou bem',
+ 'continua assim','vamos seguir','vamos em frente','próxima aula','proxima aula',
+ 'tenta de novo','mais uma vez','quase','sem problema','você consegue','voce consegue',
+ 'vamos continuar','vamos avançar','vamos avancar','isso aí','isso ai'
+];
+
+function normalizeBankTextV112(s){
+ return String(s||'')
+   .normalize('NFD').replace(/[\u0300-\u036f]/g,'')
+   .toLowerCase().replace(/[^a-z0-9 ]/g,' ')
+   .replace(/\s+/g,' ').trim();
+}
+function analyzeLiveOutputV112(text){
+ const norm=normalizeBankTextV112(text);
+ if(!norm)return{words:0,hits:0,matches:[]};
+ const words=norm.split(' ').filter(Boolean).length;
+ const matches=[];
+ for(const raw of CALM_BANK_EXPRESSIONS_V112){
+   const exp=normalizeBankTextV112(raw);
+   if(exp&&norm.includes(exp)&&!matches.includes(exp))matches.push(exp);
+ }
+ return{words,hits:matches.length,matches};
+}
+
 
 function tutorLinePickV109(group){
  const arr=CALM_TUTOR_LINES_V109[group]||[];
@@ -848,7 +873,7 @@ function ensureTutorCacheBadgeV109(){
    el.innerHTML=
      '<b>PROTÓTIPO · Tranquilo</b>'+
      '<span data-cache-status>monitorando</span>'+
-     '<small><i data-cache-count>Cache 0</i><i data-live-count>Live 0</i><i data-api-count>API 2.5 0</i></small>'+
+     '<small><i data-cache-count>Cache usado 0</i><i data-live-count>Live falas 0</i><i data-live-words>Live palavras 0</i><i data-bank-count>Banco detectado 0</i><i data-api-count>API 2.5 0</i></small>'+
      '<button type="button" data-cache-test>Testar CACHE</button>';
    document.body.appendChild(el);
    el.querySelector('[data-cache-test]').onclick=async e=>{
@@ -859,9 +884,11 @@ function ensureTutorCacheBadgeV109(){
      try{await playTutorCacheLineV109('encouragement')}finally{btn.disabled=false}
    };
  }
- const ch=session.cacheHits||0,lv=session.liveTurns||0,ap=session.apiTts||0;
- el.querySelector('[data-cache-count]').textContent='Cache '+ch;
- el.querySelector('[data-live-count]').textContent='Live '+lv;
+ const ch=session.cacheHits||0,lv=session.liveTurns||0,lw=session.liveWords||0,bh=session.bankHits||0,ap=session.apiTts||0;
+ el.querySelector('[data-cache-count]').textContent='Cache usado '+ch;
+ el.querySelector('[data-live-count]').textContent='Live falas '+lv;
+ el.querySelector('[data-live-words]').textContent='Live palavras '+lw;
+ el.querySelector('[data-bank-count]').textContent='Banco detectado '+bh;
  el.querySelector('[data-api-count]').textContent='API 2.5 '+ap;
  el.style.display='block';
  return el;
@@ -923,6 +950,8 @@ async function startLessonTutorSphere(id,n,t){
    tutorEnding:false,
    cacheHits:0,
    liveTurns:0,
+   liveWords:0,
+   bankHits:0,
    apiTts:0,
    cachePilot:isCalmTutorV109(),
    booting:true,
@@ -1129,6 +1158,8 @@ async function startMethodSphere(id,requestedLesson=null,source='theme'){
    turns:0,
    cacheHits:0,
    liveTurns:0,
+   liveWords:0,
+   bankHits:0,
    apiTts:0,
    cachePilot:isCalmTutorV109(),
    booting:true,
@@ -1267,6 +1298,17 @@ function wrap(){
      flashTutorSourceV109('☁ API 2.5','is-api');
    }
    saveSession();
+   ensureTutorCacheBadgeV109();
+ });
+ window.addEventListener('meu-ingles-live-output-turn',e=>{
+   if(!session||!isCalmTutorV109())return;
+   const a=analyzeLiveOutputV112(e?.detail?.text||'');
+   session.liveWords=(session.liveWords||0)+a.words;
+   session.bankHits=(session.bankHits||0)+a.hits;
+   saveSession();
+   if(a.hits>0){
+     flashTutorSourceV109('◇ BANCO '+a.hits+' possível','is-bank');
+   }
    ensureTutorCacheBadgeV109();
  });
  window.addEventListener('meu-ingles-live-turn-complete',()=>{
