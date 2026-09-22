@@ -143,6 +143,7 @@ let running=false,starting=false,setupReady=false,micSending=false,manualStop=fa
 let setupTimer=null,introTimer=null;
 let externalContext=null;
 let inputTranscriptBuffer='';
+let outputTranscriptBuffer='';
 const outputSources=new Set();
 
 function state(){try{return JSON.parse(localStorage.getItem(KEY)||'{}')||{}}catch{return {}}}
@@ -338,27 +339,32 @@ function handle(m){
  if(m?.serverContent?.interrupted){stopOutput();robot('listening');setMicState('listening')}
  const transcript=String(m?.serverContent?.inputTranscription?.text||'').trim();
  if(transcript)inputTranscriptBuffer=(inputTranscriptBuffer+' '+transcript).replace(/\s+/g,' ').trim();
+ const outTranscript=String(m?.serverContent?.outputTranscription?.text||'').trim();
+ if(outTranscript)outputTranscriptBuffer=(outputTranscriptBuffer+' '+outTranscript).replace(/\s+/g,' ').trim();
  const parts=m?.serverContent?.modelTurn?.parts||[];for(const p of parts){const inline=p?.inlineData||p?.inline_data;if(!inline?.data)continue;const mime=String(inline.mimeType||inline.mime_type||'audio/pcm;rate=24000');if(!/^audio\//i.test(mime))continue;const rate=Number((mime.match(/rate=(\d+)/i)||[])[1])||24000;playAudio(inline.data,rate).catch(console.warn)}
  if(m?.serverContent?.turnComplete){
    try{window.MeuInglesAiCost?.liveTurn?.()}catch{}
    micSending=true;robot('listening');setMicState('listening');
    const spoken=inputTranscriptBuffer.trim();
    inputTranscriptBuffer='';
+   const modelSpoken=outputTranscriptBuffer.trim();
+   outputTranscriptBuffer='';
    if(spoken)window.dispatchEvent(new CustomEvent('meu-ingles-live-user-turn',{detail:{text:spoken,context:externalContext}}));
-   window.dispatchEvent(new CustomEvent('meu-ingles-live-turn-complete',{detail:{context:externalContext}}));
+   if(modelSpoken)window.dispatchEvent(new CustomEvent('meu-ingles-live-output-turn',{detail:{text:modelSpoken,context:externalContext}}));
+   window.dispatchEvent(new CustomEvent('meu-ingles-live-turn-complete',{detail:{context:externalContext,outputText:modelSpoken}}));
  }
 }
-async function cleanup(closeSocket=false){clearTimeout(setupTimer);clearTimeout(introTimer);setupTimer=introTimer=null;inputTranscriptBuffer='';setupReady=false;running=false;starting=false;micSending=false;if(closeSocket&&ws){try{ws.onclose=null;ws.onerror=null;ws.onmessage=null;ws.close(1000,'user_stop')}catch{}}ws=null;await stopMic();stopOutput();robot('');setMicState('')}
+async function cleanup(closeSocket=false){clearTimeout(setupTimer);clearTimeout(introTimer);setupTimer=introTimer=null;inputTranscriptBuffer='';outputTranscriptBuffer='';setupReady=false;running=false;starting=false;micSending=false;if(closeSocket&&ws){try{ws.onclose=null;ws.onerror=null;ws.onmessage=null;ws.close(1000,'user_stop')}catch{}}ws=null;await stopMic();stopOutput();robot('');setMicState('')}
 async function start(context=null){
  if(running||starting||!conversationOpen())return;
  if(context&&typeof context==='object')externalContext={...context};
- starting=true;manualStop=false;firstAudio=false;inputTranscriptBuffer='';stage='start';installStyle();robot('thinking');setMicState('connecting');
+ starting=true;manualStop=false;firstAudio=false;inputTranscriptBuffer='';outputTranscriptBuffer='';stage='start';installStyle();robot('thinking');setMicState('connecting');
  try{
   try{window.stopGeminiTTS?.()}catch{}
   try{speechSynthesis.cancel()}catch{}
   await Promise.all([prepareOutput(),prepareMic()]);
   stage='worker-websocket';ws=new WebSocket(LIVE_WS+'?app=meu-ingles&v=38');
-  ws.onopen=()=>{stage='browser-websocket-open';running=true;starting=false;send({setup:{model:`models/${MODEL}`,generationConfig:{responseModalities:['AUDIO']},inputAudioTranscription:{},systemInstruction:{parts:[{text:systemText()}]}}});setupTimer=setTimeout(()=>{if(running&&!setupReady){console.warn('[Meu Inglês Live] setupComplete ainda não chegou');setMicState('error');robot('oops')}},8000)};
+  ws.onopen=()=>{stage='browser-websocket-open';running=true;starting=false;send({setup:{model:`models/${MODEL}`,generationConfig:{responseModalities:['AUDIO']},inputAudioTranscription:{},outputAudioTranscription:{},systemInstruction:{parts:[{text:systemText()}]}}});setupTimer=setTimeout(()=>{if(running&&!setupReady){console.warn('[Meu Inglês Live] setupComplete ainda não chegou');setMicState('error');robot('oops')}},8000)};
   ws.onmessage=async e=>{try{handle(JSON.parse(await readData(e.data)))}catch(err){console.warn('[Meu Inglês Live] mensagem inválida',err)}};
   ws.onerror=e=>{console.warn('[Meu Inglês Live] websocket',e);setMicState('error');robot('oops')};
   ws.onclose=async e=>{const manual=manualStop;console.warn('[Meu Inglês Live] fechado',e?.code,e?.reason);await cleanup(false);if(!manual){setMicState('error');robot('oops');setTimeout(()=>{setMicState('');robot('')},1400)}};
