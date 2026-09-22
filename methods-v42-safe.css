@@ -2226,3 +2226,37 @@
     font-size:18px !important;
   }
 }
+
+
+/* Métodos v107 — retry da fala e progresso mais claro */
+.methodSpeechRetryActionsV107{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:8px;
+  margin-top:10px;
+}
+.methodSpeechRetryActionsV107 button{
+  min-height:42px;
+  border-radius:13px;
+  border:1px solid rgba(110,82,14,.18);
+  background:#fff5d7;
+  color:#17130b;
+  font-weight:900;
+  font-size:13px;
+}
+.methodSpeechRetryActionsV107 .methodTryAgainV107{
+  background:#173c54;
+  color:#fff;
+  border-color:rgba(255,255,255,.16);
+}
+.methodsLessonHeroV103[data-progress] .methodPilotProgressV100{
+  position:relative;
+}
+.methodsLessonHeroV103[data-progress] .methodPilotProgressV100:after{
+  content:attr(data-progress);
+}
+@media(max-width:520px){
+  .methodSpeechRetryActionsV107{
+    grid-template-columns:1fr;
+  }
+}
