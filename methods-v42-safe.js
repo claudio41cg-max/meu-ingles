@@ -238,6 +238,13 @@ function updateFamilyReviewFinish(){
  if(finish){
    finish.disabled=count<total;
    finish.classList.toggle('ready',count>=total);
+   if(count>=total)finish.textContent='✓ Aula concluída';
+ }
+ if(count>=total&&!methodPilotRuntime.savedComplete){
+   methodPilotRuntime.savedComplete=true;
+   const progress=document.querySelector('.methodPilotProgressV100 u');
+   if(progress)progress.style.width='100%';
+   complete('familia',1);
  }
 }
 
@@ -266,7 +273,7 @@ function renderFamilyPilotLesson(id,n,t,rows,m){
    ['Do you have any sisters?','Você tem irmãs?'],
    ['This is my mother.','Esta é minha mãe.']
  ];
- methodPilotRuntime={spoken:new Set(),review:new Set(),requiredSpeak:3,scramble:{},activity:new Set()};
+ methodPilotRuntime={spoken:new Set(),review:new Set(),requiredSpeak:3,scramble:{},activity:new Set(),savedComplete:done(id).has(Number(n))};
 
  const earIcon='<span class="methodAudioIconV103" aria-hidden="true"><svg viewBox="0 0 32 32"><path d="M17 6c-5.2 0-9 3.7-9 8.7 0 3.3 1.4 5.4 3.2 7.1 1.8 1.7 2.8 2.8 3 4.2.2 1.1 1.1 1.8 2.2 1.8 1.6 0 2.5-1 2.5-2.2 0-1.7-1.2-2.7-2.6-3.8-1.4-1.2-2.9-2.6-2.9-5.2 0-2.7 1.8-4.7 4.4-4.7 2.4 0 4.2 1.7 4.2 4.1 0 1.5-.6 2.7-1.7 3.8" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/><path d="M23 8c2 1.5 3.2 3.8 3.2 6.3M26.2 5.3c3 2.3 4.8 5.5 4.8 9" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></span>';
  const micIcon='<span class="methodAudioIconV103 mic" aria-hidden="true"><svg viewBox="0 0 32 32"><rect x="11" y="4" width="10" height="16" rx="5" fill="none" stroke="currentColor" stroke-width="2.4"/><path d="M7 15a9 9 0 0 0 18 0M16 24v4M11 28h10" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></svg></span>';
@@ -367,6 +374,8 @@ function renderFamilyPilotLesson(id,n,t,rows,m){
      const feedback=m.querySelector('[data-pilot-feedback="'+i+'"]');
      methodSpeakPractice(phrases[i][0],b,feedback,function(){
        methodPilotRuntime.spoken.add(i);
+       b.classList.add('activityDoneV108');
+       b.closest('article')?.classList.add('activityDoneV108');
        markFamilyActivityV107('phrase-speak-'+i);
        updateFamilyPilotProgress();
      });
@@ -392,9 +401,9 @@ function renderFamilyPilotLesson(id,n,t,rows,m){
    }
  };
 
- m.querySelectorAll('[data-word-listen]').forEach(function(b,i){b.onclick=function(){markFamilyActivityV107('word-'+i);playLessonAudio(words[i][0],b);};});
- m.querySelectorAll('[data-mini-listen]').forEach(function(b,i){b.onclick=function(){markFamilyActivityV107('mini-'+i);playLessonAudio(mini[i][0],b);};});
- m.querySelectorAll('[data-pilot-listen]').forEach(function(b,i){b.onclick=function(){markFamilyActivityV107('phrase-listen-'+i);playLessonAudio(phrases[i][0],b);};});
+ m.querySelectorAll('[data-word-listen]').forEach(function(b,i){b.onclick=function(){b.classList.add('activityDoneV108');markFamilyActivityV107('word-'+i);playLessonAudio(words[i][0],b);};});
+ m.querySelectorAll('[data-mini-listen]').forEach(function(b,i){b.onclick=function(){b.classList.add('activityDoneV108');markFamilyActivityV107('mini-'+i);playLessonAudio(mini[i][0],b);};});
+ m.querySelectorAll('[data-pilot-listen]').forEach(function(b,i){b.onclick=function(){b.classList.add('activityDoneV108');markFamilyActivityV107('phrase-listen-'+i);playLessonAudio(phrases[i][0],b);};});
 
  m.querySelectorAll('[data-scramble]').forEach(function(box){
    const q=Number(box.dataset.scramble);
@@ -533,6 +542,8 @@ async function startLessonTutorSphere(id,n,t){
    mode:'lesson-only',
    reviewLesson:null,
    turns:0,
+   tutorReviewTurns:0,
+   tutorEnding:false,
    booting:true,
    source:'lesson-tutor'
  };
@@ -548,6 +559,7 @@ async function startLessonTutorSphere(id,n,t){
    lesson:'Aula '+n+' de 40',
    lessonTitle:title(t,n),
    exactLesson:n,
+   maxReviewRounds:2,
    allowedVocabulary:allowedVocabulary.join(', '),
    allowedPhrases:allowedPhrases.join(' | '),
    instruction:
@@ -565,6 +577,34 @@ async function startLessonTutorSphere(id,n,t){
  starting=false;
  setTimeout(decoratePill,120);
  setTimeout(decoratePill,900);
+}
+
+
+async function returnToMethodLessonV108(){
+ const live=window.MeuInglesGeminiLiveV38;
+ try{await live?.stop?.()}catch{}
+ try{window.stopGeminiTTS?.()}catch{}
+ if(screen){
+   screenMode='study';
+   screen.classList.add('open');
+   document.body.classList.add('methodsLockV42');
+   if(session?.themeId)active=session.themeId;
+ }
+ setTimeout(()=>screen?.querySelector('main')?.scrollTo?.({top:0,behavior:'smooth'}),40);
+}
+
+function finishLessonTutorV108(){
+ if(!session||session.mode!=='lesson-only'||session.tutorEnding)return;
+ session.tutorEnding=true;
+ saveSession();
+ setTimeout(()=>{
+   const live=window.MeuInglesGeminiLiveV38;
+   live?.sendText?.(
+     'Finalize esta revisão agora em uma resposta curta. Diga que a revisão desta aula terminou, elogie de forma breve e diga que agora é hora de seguir para a próxima aula. Não faça nova pergunta.'
+   );
+   session.endAfterTutorTurn=true;
+   saveSession();
+ },80);
 }
 
 function openLesson(id,n){
@@ -709,6 +749,13 @@ function handleLiveMethodInput(raw){
  if(!n)return;
  const t=theme(session.themeId);
 
+ if(session.mode==='lesson-only'){
+   session.tutorReviewTurns=(session.tutorReviewTurns||0)+1;
+   saveSession();
+   if(session.tutorReviewTurns>=2)finishLessonTutorV108();
+   return;
+ }
+
  if(session.mode==='pending'){
    const num=(n.match(/(?:aula|numero|revisar|revisao)?\s*(\d{1,2})/)||[])[1];
    const wantsReview=/revis|voltar|anterior|refazer/.test(n);
@@ -764,13 +811,42 @@ function handleLiveMethodInput(raw){
  }
 }
 const wait=ms=>new Promise(r=>setTimeout(r,ms));
-function decoratePill(){if(!session)return;const p=document.querySelector('#homeTopicPill');if(!p)return;const t=theme(session.themeId);const label=session.mode==='review'?`Revisão · Aula ${session.lesson}`:session.mode==='pending'?`Continuar ou revisar`:`Aula ${session.lesson}/40`;p.textContent=`← ${t.title} · ${label}`;p.classList.add('methodSessionPill');p.onclick=e=>{e.preventDefault();e.stopPropagation();openConversationMethods()}}
+function decoratePill(){
+ if(!session)return;
+ const p=document.querySelector('#homeTopicPill');
+ if(!p)return;
+ const t=theme(session.themeId);
+ if(session.mode==='lesson-only'){
+   p.textContent='← Voltar para '+t.title+' · Aula '+session.lesson;
+   p.classList.add('methodSessionPill','lessonTutorBackV108');
+   p.onclick=async e=>{e.preventDefault();e.stopPropagation();await returnToMethodLessonV108()};
+   return;
+ }
+ const label=session.mode==='review'?`Revisão · Aula ${session.lesson}`:session.mode==='pending'?`Continuar ou revisar`:`Aula ${session.lesson}/40`;
+ p.textContent=`← ${t.title} · ${label}`;
+ p.classList.add('methodSessionPill');
+ p.onclick=e=>{e.preventDefault();e.stopPropagation();openConversationMethods()};
+}
 function wrap(){
  if(window.__methodsV42Wrapped)return;
  const close=window.closeV26Conversation,start=window.startV26Conversation;
  if(typeof close==='function')window.closeV26Conversation=function(...a){const r=close.apply(this,a);if(session)clearSession();setTimeout(ensureUI,0);return r};
  if(typeof start==='function')window.startV26Conversation=async function(...a){const r=await start.apply(this,a);setTimeout(ensureUI,0);return r};
  window.addEventListener('meu-ingles-live-user-turn',e=>handleLiveMethodInput(e?.detail?.text||''));
+ window.addEventListener('meu-ingles-live-turn-complete',()=>{
+   if(!session||session.mode!=='lesson-only'||!session.endAfterTutorTurn)return;
+   session.endAfterTutorTurn=false;
+   saveSession();
+   setTimeout(async()=>{
+     await returnToMethodLessonV108();
+     if(done(session.themeId).has(Number(session.lesson))){
+       view='theme';
+       renderTheme(session.themeId);
+       screen?.classList.add('open');
+       document.body.classList.add('methodsLockV42');
+     }
+   },3800);
+ });
  window.__methodsV42Wrapped=true;
 }
 function init(){wrap();ensureUI();document.addEventListener('click',e=>{if(!starting&&e.target.closest('#home .homeConversationChoice[data-v26mode="free"]'))clearSession()});window.addEventListener('pageshow',()=>setTimeout(ensureUI,50));document.addEventListener('visibilitychange',()=>!document.hidden&&setTimeout(ensureUI,50));setTimeout(ensureUI,300)}
