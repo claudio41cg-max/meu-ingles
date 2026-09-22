@@ -2370,3 +2370,15 @@
 .tutorCacheDebugV109 [data-cache-test]:disabled{
   opacity:.55;
 }
+
+
+/* Métodos v112 — destaque de oportunidade detectada no banco */
+.tutorCacheDebugV109.is-bank{
+  border-color:rgba(198,151,255,.82);
+}
+.tutorCacheDebugV109.is-bank>[data-cache-status]{
+  color:#d7b6ff;
+}
+.tutorCacheDebugV109>small{
+  line-height:1.35;
+}
