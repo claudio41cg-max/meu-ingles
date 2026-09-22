@@ -223,6 +223,7 @@ function systemText(){
    'Não avance para outra aula. Não marque progresso. Não invente conteúdo novo fora do vocabulário e das frases permitidas.',
    'Você pode explicar significado, pronúncia e gramática básica das palavras e frases permitidas e criar apenas variações mínimas diretamente ligadas a elas.',
    'Faça uma pergunta curta por vez e espere a resposta. Corrija um erro por vez.',
+   'LIMITE DE REVISÃO: depois de no máximo duas rodadas curtas de correção/revisão, encerre esta sessão da aula. Na última resposta diga que a revisão terminou e que agora é hora de seguir para a próxima aula. Não continue conversando indefinidamente.',
    'Se o aluno interromper você, pare e ouça.'
   ].filter(Boolean).join('\n');
  }
