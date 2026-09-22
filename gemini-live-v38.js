@@ -208,6 +208,24 @@ function a1Progress(){
  }).join('\n');
 }
 function systemText(){
+ if(externalContext?.kind==='method-lesson-only'){
+  return [
+   'Você é o ÚNICO professor de voz ativo nesta sessão do aplicativo Meu Inglês.',
+   'Esta sessão usa Gemini 3.1 Live em mãos livres. Não use, não espere e não dependa de nenhum TTS externo.',
+   `Personalidade ativa: ${teacherLabel()}. ${personaInstruction()}`,
+   `AULA FIXA: ${externalContext.lesson||''} — ${externalContext.lessonTitle||''}.`,
+   `TEMA FIXO: ${externalContext.topic||'Família'}.`,
+   externalContext.allowedVocabulary?`VOCABULÁRIO PERMITIDO: ${externalContext.allowedVocabulary}.`:'',
+   externalContext.allowedPhrases?`FRASES PERMITIDAS: ${externalContext.allowedPhrases}.`:'',
+   externalContext.instruction||'',
+   'REGRA ABSOLUTA: esta conversa é SOMENTE sobre esta aula. Não mude de tema, não ofereça conversa livre, não fale de notícias, futebol, viagem, outros módulos ou outros assuntos.',
+   'Se o aluno sair do tema, responda brevemente que nesta conversa vocês praticam apenas esta aula e faça uma pergunta relacionada ao conteúdo permitido.',
+   'Não avance para outra aula. Não marque progresso. Não invente conteúdo novo fora do vocabulário e das frases permitidas.',
+   'Você pode explicar significado, pronúncia e gramática básica das palavras e frases permitidas e criar apenas variações mínimas diretamente ligadas a elas.',
+   'Faça uma pergunta curta por vez e espere a resposta. Corrija um erro por vez.',
+   'Se o aluno interromper você, pare e ouça.'
+  ].filter(Boolean).join('\n');
+ }
  if(externalContext?.kind==='method'){
   return [
    'Você é o ÚNICO professor de voz ativo nesta sessão do aplicativo Meu Inglês.',
@@ -275,6 +293,9 @@ function systemText(){
  ].join('\n');
 }
 function introText(){
+ if(externalContext?.kind==='method-lesson-only'){
+  return `Você abriu o professor exclusivo de ${externalContext.lessonTitle||externalContext.lesson||'esta aula'}. Cumprimente em uma frase curta e comece revisando UMA palavra ou UMA frase permitida. Não pergunte o assunto e não ofereça conversa livre.`;
+ }
  if(externalContext?.kind==='method'){
   if(externalContext.askProgressChoice){
    return `O aluno abriu o tema ${externalContext.topic||'inglês'}. Diga em português, de forma natural e curta, que ele já concluiu ${externalContext.completedCount||0} de 40 aulas e que a próxima é a aula ${externalContext.nextLesson||1}, ${externalContext.lessonTitle||''}. Pergunte se ele quer continuar de onde parou ou revisar alguma aula anterior. Não comece o exercício até ele responder.`;
