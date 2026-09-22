@@ -220,8 +220,6 @@ function updateFamilyPilotProgress(){
  if(!methodPilotRuntime)return;
  const total=methodPilotRuntime.requiredSpeak||3;
  const spoken=methodPilotRuntime.spoken.size;
- const progress=document.querySelector('.methodPilotProgressV100 u');
- if(progress)progress.style.width=(spoken/total*100)+'%';
  document.querySelectorAll('[data-pilot-step]').forEach((el,i)=>el.classList.toggle('done',methodPilotRuntime.spoken.has(i)));
  const review=document.querySelector('.methodReviewV100');
  if(review)review.classList.add('unlocked');
