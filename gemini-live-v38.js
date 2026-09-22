@@ -223,6 +223,7 @@ function systemText(){
    'Não avance para outra aula. Não marque progresso. Não invente conteúdo novo fora do vocabulário e das frases permitidas.',
    'Você pode explicar significado, pronúncia e gramática básica das palavras e frases permitidas e criar apenas variações mínimas diretamente ligadas a elas.',
    'Faça uma pergunta curta por vez e espere a resposta. Corrija um erro por vez.',
+   externalContext.cachePilot?'MODO PROTÓTIPO CACHE: o aplicativo já cuida dos cumprimentos, elogios genéricos e encerramento com falas cacheadas. Portanto você deve ser extremamente curto e usar sua voz apenas para a parte inteligente: correção específica, explicação necessária e próxima pergunta. Não repita elogios como boa, muito bem, mandou bem ou vamos seguir.':'',
    'LIMITE DE REVISÃO: depois de no máximo duas rodadas curtas de correção/revisão, encerre esta sessão da aula. Na última resposta diga que a revisão terminou e que agora é hora de seguir para a próxima aula. Não continue conversando indefinidamente.',
    'Se o aluno interromper você, pare e ouça.'
   ].filter(Boolean).join('\n');
@@ -295,6 +296,9 @@ function systemText(){
 }
 function introText(){
  if(externalContext?.kind==='method-lesson-only'){
+  if(externalContext.cachePilot){
+   return `O aplicativo já fez o cumprimento. Não cumprimente e não elogie. Comece imediatamente com UMA pergunta curta sobre ${externalContext.lessonTitle||externalContext.lesson||'esta aula'}, usando somente o conteúdo permitido.`;
+  }
   return `Você abriu o professor exclusivo de ${externalContext.lessonTitle||externalContext.lesson||'esta aula'}. Cumprimente em uma frase curta e comece revisando UMA palavra ou UMA frase permitida. Não pergunte o assunto e não ofereça conversa livre.`;
  }
  if(externalContext?.kind==='method'){
