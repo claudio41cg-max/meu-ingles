@@ -28,7 +28,7 @@ function readSession(){try{return JSON.parse(sessionStorage.getItem(SESSION)||'n
 function saveSession(){try{session?sessionStorage.setItem(SESSION,JSON.stringify(session)):sessionStorage.removeItem(SESSION)}catch{}}
 function clearSession(){session=null;saveSession()}
 function ensureHome(){const h=document.querySelector('#home'),a=h?.querySelector('.allCoursesCard');if(!a||h.querySelector('.methodsHomeCardV42'))return;const b=document.createElement('button');b.type='button';b.className='methodsHomeCardV42';b.innerHTML='<span class="methodsHomeArtV42" aria-hidden="true"><svg viewBox="0 0 72 72" role="img"><path d="M10 47l15-8 15 6 19-10v23l-19 8-15-6-15 8z" fill="#f4efe2"/><path d="M10 47l15-8v21l-15 8z" fill="#d8e79b"/><path d="M25 39l15 6v21l-15-6z" fill="#f7d67a"/><path d="M40 45l19-10v23l-19 8z" fill="#98d7ef"/><path d="M17 43c0-5 4-9 9-9s9 4 9 9c0 7-9 15-9 15s-9-8-9-15z" fill="#e8585f"/><circle cx="26" cy="43" r="3.2" fill="#fff"/><rect x="42" y="10" width="5" height="29" rx="2.5" fill="#8f623d"/><path d="M45 13h15l4 5-4 5H45z" fill="#f3b43f"/><path d="M45 22H30l-4 5 4 5h15z" fill="#ef6f86"/><path d="M45 31h13l4 5-4 5H45z" fill="#58aee7"/></svg></span><span><small>ESTUDO POR ASSUNTO</small><b>Métodos</b><em>Família, viagens, comida, hotel e muito mais.</em></span><i>›</i>';b.onclick=openScreen;a.insertAdjacentElement('afterend',b)}
-function ensureUI(){ensureHome();decoratePill();if(session?.mode==='lesson-only'&&isCalmTutorV109())setTimeout(ensureTutorCacheBadgeV109,60)}
+function ensureUI(){ensureHome();decoratePill();if(session&&isCalmTutorV109())setTimeout(ensureTutorCacheBadgeV109,60)}
 function createScreen(){if(screen)return;screen=document.createElement('div');screen.className='methodsScreenV42';screen.innerHTML='<div class="methodsInnerV42"><header><button class="methodsBackV42">‹</button><h2>Métodos</h2><span></span></header><main></main></div>';document.body.appendChild(screen);screen.querySelector('.methodsBackV42').onclick=back}
 function openScreen(){createScreen();screenMode='study';view='themes';active=null;renderThemes();screen.classList.add('open');document.body.classList.add('methodsLockV42')}
 function closeScreen(){screen?.classList.remove('open');document.body.classList.remove('methodsLockV42')}
@@ -840,7 +840,7 @@ function tutorLinePickV109(group){
 }
 
 function ensureTutorCacheBadgeV109(){
- if(!session||session.mode!=='lesson-only'||!isCalmTutorV109())return null;
+ if(!session||!isCalmTutorV109())return null;
  let el=document.querySelector('.tutorCacheDebugV109');
  if(!el){
    el=document.createElement('div');
@@ -1127,6 +1127,10 @@ async function startMethodSphere(id,requestedLesson=null,source='theme'){
    mode:askChoice?'pending':'continue',
    reviewLesson:null,
    turns:0,
+   cacheHits:0,
+   liveTurns:0,
+   apiTts:0,
+   cachePilot:isCalmTutorV109(),
    booting:true,
    source
  };
@@ -1152,6 +1156,10 @@ async function startMethodSphere(id,requestedLesson=null,source='theme'){
      ?`O aluno entrou em ${t.title}. Use o progresso real. Pergunte se quer continuar da aula ${cur} ou revisar uma aula já concluída. Se pedir revisão por número, use exatamente o mapa de aulas fornecido.`
      :`O aluno abriu diretamente a aula ${cur} de ${t.title}. Comece por essa aula, sem perguntar qual aula quer.`
  });
+ if(isCalmTutorV109()){
+   setTimeout(()=>ensureTutorCacheBadgeV109(),120);
+   setTimeout(()=>ensureTutorCacheBadgeV109(),700);
+ }
  session.booting=false;
  saveSession();
  starting=false;
@@ -1250,7 +1258,7 @@ function wrap(){
  if(typeof start==='function')window.startV26Conversation=async function(...a){const r=await start.apply(this,a);setTimeout(ensureUI,0);return r};
  window.addEventListener('meu-ingles-live-user-turn',e=>handleLiveMethodInput(e?.detail?.text||''));
  window.addEventListener('meu-ingles-tts-source',e=>{
-   if(!session||session.mode!=='lesson-only'||!isCalmTutorV109())return;
+   if(!session||!isCalmTutorV109())return;
    if(e?.detail?.source==='cache'){
      session.cacheHits=(session.cacheHits||0)+1;
      flashTutorSourceV109('⚡ CACHE','is-cache');
@@ -1262,7 +1270,7 @@ function wrap(){
    ensureTutorCacheBadgeV109();
  });
  window.addEventListener('meu-ingles-live-turn-complete',()=>{
-   if(session&&session.mode==='lesson-only'&&isCalmTutorV109()&&!session.endAfterTutorTurn){
+   if(session&&isCalmTutorV109()&&!session.endAfterTutorTurn){
      session.liveTurns=(session.liveTurns||0)+1;
      saveSession();
      flashTutorSourceV109('● LIVE 3.1','is-live');
