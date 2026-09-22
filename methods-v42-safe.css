@@ -2260,3 +2260,34 @@
     grid-template-columns:1fr;
   }
 }
+
+
+/* Métodos v108 — estados concluídos em verde e retorno da aula */
+.methodWordGridV103 button.activityDoneV108,
+.methodMiniPhraseV103 button.activityDoneV108,
+.methodsInteractiveCardsV103 .methodStepActionsV100 button.activityDoneV108{
+  background:#e3f6e9 !important;
+  color:#175f3c !important;
+  border-color:#6fbe8c !important;
+  box-shadow:0 0 0 2px rgba(75,166,109,.10) inset !important;
+}
+.methodWordGridV103 button.activityDoneV108:after,
+.methodMiniPhraseV103 button.activityDoneV108:after{
+  content:"✓";
+  margin-left:auto;
+  font-weight:950;
+  color:#208154;
+}
+.methodsInteractiveCardsV103>article.activityDoneV108{
+  box-shadow:0 0 0 2px rgba(70,167,108,.18) inset,0 9px 20px rgba(0,0,0,.10) !important;
+}
+.methodsInteractiveCardsV103>article.activityDoneV108 .methodStepPhraseV100 b{
+  color:#175f3c !important;
+}
+.methodReviewV103 .methodReviewChallengeV100.passed{
+  background:linear-gradient(145deg,#e7f8ec,#d5f0df) !important;
+  border-color:#58ad78 !important;
+}
+.lessonTutorBackV108{
+  cursor:pointer;
+}
