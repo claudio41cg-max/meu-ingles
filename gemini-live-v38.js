@@ -195,7 +195,7 @@ function cacheToolConfig(){
  return [{
   functionDeclarations:[{
    name:'play_cached_teacher_phrase',
-   description:'Use esta função em vez de falar elogios, incentivos, pedidos genéricos para tentar novamente, transições simples ou encerramentos. O aplicativo reproduz localmente uma frase natural já preparada para o Professor Tranquilo. Não diga a mesma reação com sua própria voz.',
+   description:'REGRA OBRIGATÓRIA no Professor Tranquilo: sempre que a próxima resposta puder ser apenas um elogio, incentivo, pedido genérico para tentar novamente, transição simples ou encerramento, chame esta função em vez de falar essa reação. O aplicativo reproduz localmente a frase. Não diga a mesma reação com sua própria voz.',
    parameters:{
     type:'object',
     properties:{
@@ -264,7 +264,7 @@ function systemText(){
    'Não avance para outra aula. Não marque progresso. Não invente conteúdo novo fora do vocabulário e das frases permitidas.',
    'Você pode explicar significado, pronúncia e gramática básica das palavras e frases permitidas e criar apenas variações mínimas diretamente ligadas a elas.',
    'Faça uma pergunta curta por vez e espere a resposta. Corrija um erro por vez.',
-   externalContext.cachePilot?'MODO PROTÓTIPO CACHE: para elogio genérico, incentivo, pedido simples de nova tentativa, transição de etapa ou encerramento, NÃO FALE a reação. Chame obrigatoriamente a função play_cached_teacher_phrase com a categoria adequada. Depois da função, não repita a reação com sua voz. Use sua voz somente para conteúdo que exige inteligência: correção específica, explicação necessária ou próxima pergunta da aula.':'',
+   externalContext.cachePilot?'MODO PROTÓTIPO CACHE: antes de responder, decida se a fala seria apenas reação social curta. Se for elogio genérico, incentivo, pedido simples de nova tentativa, transição de etapa ou encerramento, É OBRIGATÓRIO chamar play_cached_teacher_phrase e NÃO produzir áudio para essa reação. Só use sua própria voz quando houver conteúdo pedagógico novo: correção específica, explicação necessária ou uma pergunta da aula. Depois da função, nunca repita a reação.':'',
    'LIMITE DE REVISÃO: depois de no máximo duas rodadas curtas de correção/revisão, encerre esta sessão da aula. Na última resposta diga que a revisão terminou e que agora é hora de seguir para a próxima aula. Não continue conversando indefinidamente.',
    'Se o aluno interromper você, pare e ouça.'
   ].filter(Boolean).join('\n');
@@ -290,7 +290,7 @@ function systemText(){
    'Durante continuação, permaneça na aula atual até o aluno demonstrar domínio ou pedir para avançar.',
    'Faça uma pergunta curta por vez, corrija um erro por vez e aumente a dificuldade aos poucos.',
    'Priorize conversação e pronúncia. Use português do Brasil apenas quando ajudar a compreensão.',
-   externalContext.cachePilot?'MODO PROTÓTIPO CACHE: quando quiser apenas elogiar, incentivar, pedir uma nova tentativa, fazer uma transição simples ou encerrar, chame play_cached_teacher_phrase em vez de falar essa reação. Depois da função, não repita a mesma reação com sua voz.':'',
+   externalContext.cachePilot?'MODO PROTÓTIPO CACHE: antes de cada resposta, se ela seria apenas elogio, incentivo, nova tentativa, transição simples ou encerramento, É OBRIGATÓRIO chamar play_cached_teacher_phrase e não falar essa reação. Use sua voz somente quando houver explicação, correção específica ou pergunta pedagógica.':'',
    'Se o aluno interromper você, pare e ouça.'
   ].filter(Boolean).join('\n');
  }
@@ -406,7 +406,7 @@ async function start(context=null){
   try{speechSynthesis.cancel()}catch{}
   await Promise.all([prepareOutput(),prepareMic()]);
   stage='worker-websocket';ws=new WebSocket(LIVE_WS+'?app=meu-ingles&v=38');
-  ws.onopen=()=>{stage='browser-websocket-open';running=true;starting=false;send({setup:{model:`models/${MODEL}`,generationConfig:{responseModalities:['AUDIO']},inputAudioTranscription:{},outputAudioTranscription:{},tools:cacheToolConfig(),systemInstruction:{parts:[{text:systemText()}]}}});setupTimer=setTimeout(()=>{if(running&&!setupReady){console.warn('[Meu Inglês Live] setupComplete ainda não chegou');setMicState('error');robot('oops')}},8000)};
+  ws.onopen=()=>{stage='browser-websocket-open';running=true;starting=false;send({setup:{model:`models/${MODEL}`,generationConfig:{responseModalities:['AUDIO']},inputAudioTranscription:{},outputAudioTranscription:{},tools:cacheToolConfig(),toolConfig:externalContext?.cachePilot?{functionCallingConfig:{mode:'VALIDATED',allowedFunctionNames:['play_cached_teacher_phrase']}}:undefined,systemInstruction:{parts:[{text:systemText()}]}}});setupTimer=setTimeout(()=>{if(running&&!setupReady){console.warn('[Meu Inglês Live] setupComplete ainda não chegou');setMicState('error');robot('oops')}},8000)};
   ws.onmessage=async e=>{try{await handle(JSON.parse(await readData(e.data)))}catch(err){console.warn('[Meu Inglês Live] mensagem inválida',err)}};
   ws.onerror=e=>{console.warn('[Meu Inglês Live] websocket',e);setMicState('error');robot('oops')};
   ws.onclose=async e=>{const manual=manualStop;console.warn('[Meu Inglês Live] fechado',e?.code,e?.reason);await cleanup(false);if(!manual){setMicState('error');robot('oops');setTimeout(()=>{setMicState('');robot('')},1400)}};
