@@ -782,6 +782,117 @@ function renderFamilyLesson2(id,n,t,m){
  updateFamilyPilotProgress();
 }
 
+function teacherModeV109(){
+ try{return JSON.parse(localStorage.getItem('meuInglesStableV2')||'{}')?.teacher||'media'}catch{return'media'}
+}
+function isCalmTutorV109(){return teacherModeV109()==='leve'}
+
+const CALM_TUTOR_LINES_V109={
+ opening:[
+  'Boa. Vamos fazer uma revisão rápida desta aula.',
+  'Beleza. Vamos revisar só o que você acabou de estudar.',
+  'Muito bem. Agora vamos conferir o que ficou desta aula.',
+  'Ótimo. Vamos fazer uma revisão curta antes de seguir.',
+  'Perfeito. Agora é só revisar um pouquinho.',
+  'Vamos nessa. Uma revisão rápida e a gente fecha esta aula.',
+  'Certo. Vamos confirmar o que você aprendeu agora.',
+  'Tranquilo. Vamos revisar esta aula sem enrolar.'
+ ],
+ closing:[
+  'Boa. Revisão concluída. Agora vamos para a próxima aula.',
+  'Muito bem. Fechamos esta aula. Pode seguir para a próxima.',
+  'Ótimo trabalho. Essa aula terminou. Vamos avançar.',
+  'Mandou bem. Revisão feita. Agora é hora da próxima aula.',
+  'Perfeito. Essa parte está concluída. Vamos seguir.',
+  'Certo. Terminamos por aqui. Próxima aula.',
+  'Boa. Você fechou esta etapa. Agora vamos avançar.',
+  'Muito bem. Aula revisada. Vamos para a próxima.'
+ ],
+ encouragement:[
+  'Boa, continua assim.',
+  'Muito bem, segue nessa.',
+  'Isso aí, vamos em frente.',
+  'Mandou bem, continua.',
+  'Perfeito, segue o jogo.',
+  'Ótimo, vamos continuar.',
+  'Boa, está no caminho certo.',
+  'Muito bom, vamos adiante.'
+ ],
+ retry:[
+  'Quase. Tenta mais uma vez.',
+  'Tá perto. Vamos de novo.',
+  'Sem problema. Repete mais uma vez.',
+  'Quase lá. Faz mais uma tentativa.',
+  'Vamos outra vez, com calma.',
+  'Tenta de novo. Você consegue.'
+ ]
+};
+
+function tutorLinePickV109(group){
+ const arr=CALM_TUTOR_LINES_V109[group]||[];
+ if(!arr.length)return'';
+ const key='miTutorLineV109:'+group;
+ let i=0;
+ try{i=Number(localStorage.getItem(key)||0)||0}catch{}
+ const text=arr[i%arr.length];
+ try{localStorage.setItem(key,String((i+1)%arr.length))}catch{}
+ return text;
+}
+
+function ensureTutorCacheBadgeV109(){
+ if(!session||session.mode!=='lesson-only'||!isCalmTutorV109())return null;
+ const card=document.querySelector('#home .professorPanel.homeTalkCard');
+ if(!card)return null;
+ let el=card.querySelector('.tutorCacheDebugV109');
+ if(!el){
+   el=document.createElement('div');
+   el.className='tutorCacheDebugV109';
+   el.innerHTML='<b>PROTÓTIPO · Tranquilo</b><span data-cache-status>aguardando</span><small><i data-cache-count>Cache 0</i><i data-live-count>Live 0</i><i data-api-count>API 2.5 0</i></small>';
+   card.appendChild(el);
+ }
+ const ch=session.cacheHits||0,lv=session.liveTurns||0,ap=session.apiTts||0;
+ el.querySelector('[data-cache-count]').textContent='Cache '+ch;
+ el.querySelector('[data-live-count]').textContent='Live '+lv;
+ el.querySelector('[data-api-count]').textContent='API 2.5 '+ap;
+ return el;
+}
+
+function flashTutorSourceV109(label,kind){
+ const el=ensureTutorCacheBadgeV109();
+ if(!el)return;
+ const s=el.querySelector('[data-cache-status]');
+ s.textContent=label;
+ el.classList.remove('is-cache','is-live','is-api');
+ el.classList.add(kind);
+ clearTimeout(el._flashTimer);
+ el._flashTimer=setTimeout(()=>{
+   s.textContent='monitorando';
+   el.classList.remove('is-cache','is-live','is-api');
+ },1800);
+}
+
+async function playTutorCacheLineV109(group){
+ if(!isCalmTutorV109())return false;
+ const text=tutorLinePickV109(group);
+ if(!text)return false;
+ ensureTutorCacheBadgeV109();
+ try{
+   await window.geminiSpeak?.(text,'pt-BR');
+   return true;
+ }catch{return false}
+}
+
+function preloadTutorCachePilotV109(){
+ if(!isCalmTutorV109()||typeof window.preloadGeminiTTS!=='function')return;
+ const picks=[
+   CALM_TUTOR_LINES_V109.opening[0],
+   CALM_TUTOR_LINES_V109.closing[0],
+   CALM_TUTOR_LINES_V109.encouragement[0],
+   CALM_TUTOR_LINES_V109.retry[0]
+ ].filter(Boolean);
+ picks.forEach((text,i)=>setTimeout(()=>window.preloadGeminiTTS(text,'pt-BR').catch(()=>{}),180+i*250));
+}
+
 async function startLessonTutorSphere(id,n,t){
  const lesson2=Number(n)===2;
  const allowedVocabulary=lesson2
@@ -800,6 +911,10 @@ async function startLessonTutorSphere(id,n,t){
    turns:0,
    tutorReviewTurns:0,
    tutorEnding:false,
+   cacheHits:0,
+   liveTurns:0,
+   apiTts:0,
+   cachePilot:isCalmTutorV109(),
    booting:true,
    source:'lesson-tutor'
  };
@@ -809,8 +924,15 @@ async function startLessonTutorSphere(id,n,t){
  await wait(90);
  try{window.stopGeminiTTS?.()}catch{}
 
+ if(isCalmTutorV109()){
+   ensureTutorCacheBadgeV109();
+   preloadTutorCachePilotV109();
+   await playTutorCacheLineV109('opening');
+ }
+
  await window.startV26LiveContext?.({
    kind:'method-lesson-only',
+   cachePilot:isCalmTutorV109(),
    topic:t.title,
    lesson:'Aula '+n+' de 40',
    lessonTitle:title(t,n),
@@ -853,6 +975,23 @@ function finishLessonTutorV108(){
  if(!session||session.mode!=='lesson-only'||session.tutorEnding)return;
  session.tutorEnding=true;
  saveSession();
+
+ if(isCalmTutorV109()){
+   setTimeout(async()=>{
+     const live=window.MeuInglesGeminiLiveV38;
+     try{await live?.stop?.()}catch{}
+     await playTutorCacheLineV109('closing');
+     await returnToMethodLessonV108();
+     if(done(session.themeId).has(Number(session.lesson))){
+       view='theme';
+       renderTheme(session.themeId);
+       screen?.classList.add('open');
+       document.body.classList.add('methodsLockV42');
+     }
+   },120);
+   return;
+ }
+
  setTimeout(()=>{
    const live=window.MeuInglesGeminiLiveV38;
    live?.sendText?.(
@@ -1093,7 +1232,25 @@ function wrap(){
  if(typeof close==='function')window.closeV26Conversation=function(...a){const r=close.apply(this,a);if(session)clearSession();setTimeout(ensureUI,0);return r};
  if(typeof start==='function')window.startV26Conversation=async function(...a){const r=await start.apply(this,a);setTimeout(ensureUI,0);return r};
  window.addEventListener('meu-ingles-live-user-turn',e=>handleLiveMethodInput(e?.detail?.text||''));
+ window.addEventListener('meu-ingles-tts-source',e=>{
+   if(!session||session.mode!=='lesson-only'||!isCalmTutorV109())return;
+   if(e?.detail?.source==='cache'){
+     session.cacheHits=(session.cacheHits||0)+1;
+     flashTutorSourceV109('⚡ CACHE','is-cache');
+   }else if(e?.detail?.source==='api'){
+     session.apiTts=(session.apiTts||0)+1;
+     flashTutorSourceV109('☁ API 2.5','is-api');
+   }
+   saveSession();
+   ensureTutorCacheBadgeV109();
+ });
  window.addEventListener('meu-ingles-live-turn-complete',()=>{
+   if(session&&session.mode==='lesson-only'&&isCalmTutorV109()&&!session.endAfterTutorTurn){
+     session.liveTurns=(session.liveTurns||0)+1;
+     saveSession();
+     flashTutorSourceV109('● LIVE 3.1','is-live');
+     ensureTutorCacheBadgeV109();
+   }
    if(!session||session.mode!=='lesson-only'||!session.endAfterTutorTurn)return;
    session.endAfterTutorTurn=false;
    saveSession();
