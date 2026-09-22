@@ -170,8 +170,21 @@ function methodSpeakPractice(target,button,feedback,onPass){
      onPass?.();
    }else{
      const words=diff.wrong.length?diff.wrong.join(', '):target;
-     feedback.innerHTML='<b>Quase. Ajuste só esta parte:</b><div class="methodWordDiffV103">'+diff.html+'</div><span>Tente novamente: '+esc(words)+'</span>';
+     feedback.innerHTML='<b>Quase. Ajuste só esta parte:</b>'+
+       '<div class="methodWordDiffV103">'+diff.html+'</div>'+
+       '<span>Tente novamente: '+esc(words)+'</span>'+
+       '<div class="methodSpeechRetryActionsV107">'+
+         '<button type="button" class="methodHearAgainV107">🔊 Ouvir frase</button>'+
+         '<button type="button" class="methodTryAgainV107">🎙️ Tentar novamente</button>'+
+       '</div>';
      feedback.className='methodSpeakFeedbackV100 bad';
+     feedback.querySelector('.methodHearAgainV107')?.addEventListener('click',async function(){
+       try{window.stopGeminiTTS?.()}catch{}
+       try{await window.geminiSpeak?.(target,'en-US','Achird')}catch{}
+     });
+     feedback.querySelector('.methodTryAgainV107')?.addEventListener('click',function(){
+       if(!button.disabled)button.click();
+     });
    }
  };
  rec.onerror=()=>{
@@ -230,6 +243,23 @@ function updateFamilyReviewFinish(){
  }
 }
 
+function markFamilyActivityV107(key){
+ if(!methodPilotRuntime)return;
+ if(!methodPilotRuntime.activity)methodPilotRuntime.activity=new Set();
+ methodPilotRuntime.activity.add(String(key));
+ const total=19;
+ const pct=Math.min(100,Math.round(methodPilotRuntime.activity.size/total*100));
+ const progress=document.querySelector('.methodPilotProgressV100 u');
+ if(progress)progress.style.width=pct+'%';
+ const hero=document.querySelector('.methodsLessonHeroV103');
+ if(hero)hero.dataset.progress=pct;
+}
+
+function markFamilyReviewV107(q){
+ markFamilyActivityV107('review-'+q);
+ updateFamilyReviewFinish();
+}
+
 function renderFamilyPilotLesson(id,n,t,rows,m){
  const words=familyLessonWords();
  const mini=familyMiniPhrases();
@@ -238,7 +268,7 @@ function renderFamilyPilotLesson(id,n,t,rows,m){
    ['Do you have any sisters?','Você tem irmãs?'],
    ['This is my mother.','Esta é minha mãe.']
  ];
- methodPilotRuntime={spoken:new Set(),review:new Set(),requiredSpeak:3,scramble:{}};
+ methodPilotRuntime={spoken:new Set(),review:new Set(),requiredSpeak:3,scramble:{},activity:new Set()};
 
  const earIcon='<span class="methodAudioIconV103" aria-hidden="true"><svg viewBox="0 0 32 32"><path d="M17 6c-5.2 0-9 3.7-9 8.7 0 3.3 1.4 5.4 3.2 7.1 1.8 1.7 2.8 2.8 3 4.2.2 1.1 1.1 1.8 2.2 1.8 1.6 0 2.5-1 2.5-2.2 0-1.7-1.2-2.7-2.6-3.8-1.4-1.2-2.9-2.6-2.9-5.2 0-2.7 1.8-4.7 4.4-4.7 2.4 0 4.2 1.7 4.2 4.1 0 1.5-.6 2.7-1.7 3.8" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/><path d="M23 8c2 1.5 3.2 3.8 3.2 6.3M26.2 5.3c3 2.3 4.8 5.5 4.8 9" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></span>';
  const micIcon='<span class="methodAudioIconV103 mic" aria-hidden="true"><svg viewBox="0 0 32 32"><rect x="11" y="4" width="10" height="16" rx="5" fill="none" stroke="currentColor" stroke-width="2.4"/><path d="M7 15a9 9 0 0 0 18 0M16 24v4M11 28h10" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></svg></span>';
@@ -339,6 +369,7 @@ function renderFamilyPilotLesson(id,n,t,rows,m){
      const feedback=m.querySelector('[data-pilot-feedback="'+i+'"]');
      methodSpeakPractice(phrases[i][0],b,feedback,function(){
        methodPilotRuntime.spoken.add(i);
+       markFamilyActivityV107('phrase-speak-'+i);
        updateFamilyPilotProgress();
      });
    };
@@ -363,9 +394,9 @@ function renderFamilyPilotLesson(id,n,t,rows,m){
    }
  };
 
- m.querySelectorAll('[data-word-listen]').forEach(function(b,i){b.onclick=function(){playLessonAudio(words[i][0],b);};});
- m.querySelectorAll('[data-mini-listen]').forEach(function(b,i){b.onclick=function(){playLessonAudio(mini[i][0],b);};});
- m.querySelectorAll('[data-pilot-listen]').forEach(function(b,i){b.onclick=function(){playLessonAudio(phrases[i][0],b);};});
+ m.querySelectorAll('[data-word-listen]').forEach(function(b,i){b.onclick=function(){markFamilyActivityV107('word-'+i);playLessonAudio(words[i][0],b);};});
+ m.querySelectorAll('[data-mini-listen]').forEach(function(b,i){b.onclick=function(){markFamilyActivityV107('mini-'+i);playLessonAudio(mini[i][0],b);};});
+ m.querySelectorAll('[data-pilot-listen]').forEach(function(b,i){b.onclick=function(){markFamilyActivityV107('phrase-listen-'+i);playLessonAudio(phrases[i][0],b);};});
 
  m.querySelectorAll('[data-scramble]').forEach(function(box){
    const q=Number(box.dataset.scramble);
@@ -392,6 +423,7 @@ function renderFamilyPilotLesson(id,n,t,rows,m){
 
      if(exact){
        methodPilotRuntime.review.add(q);
+       markFamilyReviewV107(q);
        feedback.textContent='✅ Perfeito! Frase montada corretamente.';
      }else{
        methodPilotRuntime.review.delete(q);
@@ -452,6 +484,7 @@ function renderFamilyPilotLesson(id,n,t,rows,m){
 
      if(result==='right'){
        methodPilotRuntime.review.add(Number(q));
+       markFamilyReviewV107(Number(q));
        box.classList.add('passed','reviewSuccessV106');
        btn.classList.add('reviewCorrectV106');
        feedback.innerHTML='<b>✓ Muito bem!</b><span>Você escolheu a frase correta.</span>';
@@ -472,6 +505,7 @@ function renderFamilyPilotLesson(id,n,t,rows,m){
    const feedback=challenge.querySelector('.methodReviewFeedbackV100');
    methodSpeakPractice('This is my mother.',reviewSpeak,feedback,function(){
      methodPilotRuntime.review.add(3);
+     markFamilyReviewV107(3);
      challenge.classList.add('passed','finalSpeechSuccessV106');
      feedback.innerHTML='<b>✓ Excelente!</b><span>Você falou a frase corretamente. Esta etapa foi concluída.</span>';
      feedback.className='methodReviewFeedbackV100 good finalSpeechFeedbackV106';
@@ -482,6 +516,8 @@ function renderFamilyPilotLesson(id,n,t,rows,m){
  m.querySelector('.robot').onclick=function(){startLessonTutorSphere(id,n,t);};
  m.querySelector('.finish').onclick=function(){
    if(methodPilotRuntime.review.size<4)return;
+   const progress=document.querySelector('.methodPilotProgressV100 u');
+   if(progress)progress.style.width='100%';
    complete(id,n);
    openLesson(id,n+1);
  };
