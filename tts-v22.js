@@ -15,6 +15,72 @@ let lastApiAt=0;
 const audioCache=new Map();
 const pendingVoice=new Map();
 
+const TTS_DB='meuInglesTTSCacheV1';
+const TTS_STORE='voices';
+let ttsDbPromise=null;
+
+function openTtsDb(){
+  if(!('indexedDB' in window))return Promise.resolve(null);
+  if(ttsDbPromise)return ttsDbPromise;
+  ttsDbPromise=new Promise(resolve=>{
+    try{
+      const req=indexedDB.open(TTS_DB,1);
+      req.onupgradeneeded=()=>{
+        const db=req.result;
+        if(!db.objectStoreNames.contains(TTS_STORE))db.createObjectStore(TTS_STORE);
+      };
+      req.onsuccess=()=>resolve(req.result);
+      req.onerror=()=>resolve(null);
+      req.onblocked=()=>resolve(null);
+    }catch{resolve(null)}
+  });
+  return ttsDbPromise;
+}
+
+async function persistentGet(key){
+  const db=await openTtsDb();
+  if(!db)return null;
+  return await new Promise(resolve=>{
+    try{
+      const tx=db.transaction(TTS_STORE,'readonly');
+      const req=tx.objectStore(TTS_STORE).get(key);
+      req.onsuccess=()=>resolve(req.result||null);
+      req.onerror=()=>resolve(null);
+    }catch{resolve(null)}
+  });
+}
+
+async function persistentPut(key,data){
+  const db=await openTtsDb();
+  if(!db||!data?.audio)return false;
+  return await new Promise(resolve=>{
+    try{
+      const tx=db.transaction(TTS_STORE,'readwrite');
+      tx.objectStore(TTS_STORE).put({
+        audio:data.audio,
+        sample_rate:data.sample_rate||24000,
+        voice:data.voice||'',
+        model:data.model||'',
+        saved_at:Date.now()
+      },key);
+      tx.oncomplete=()=>resolve(true);
+      tx.onerror=()=>resolve(false);
+      tx.onabort=()=>resolve(false);
+    }catch{resolve(false)}
+  });
+}
+
+async function getCachedVoice(key){
+  const mem=audioCache.get(key);
+  if(mem)return mem;
+  const saved=await persistentGet(key);
+  if(saved?.audio){
+    audioCache.set(key,saved);
+    return saved;
+  }
+  return null;
+}
+
 function readState(){try{return JSON.parse(localStorage.getItem(KEY)||'{}')||{}}catch{return {}}}
 function currentVoice(){return readState().voice||'Aoede'}
 function status(text,ok){
@@ -142,7 +208,7 @@ async function geminiSpeak(text,lang='pt-BR',voice=currentVoice()){
     await unlock();
 
     const key=[voice,lang,text].join('|');
-    let d=audioCache.get(key);
+    let d=await getCachedVoice(key);
     if(!d){
       status('🎙️ Gerando voz natural do Gemini…');
       const payload={
@@ -160,8 +226,9 @@ async function geminiSpeak(text,lang='pt-BR',voice=currentVoice()){
       }
       d=await pending;
       audioCache.set(key,d);
+      persistentPut(key,d).catch(()=>{});
     }else{
-      status('🎙️ Reproduzindo voz natural do Gemini…');
+      status('🎙️ Reproduzindo áudio salvo…');
     }
 
     if(seq!==currentSeq)return false;
@@ -190,7 +257,7 @@ async function preloadGeminiTTS(text,lang='pt-BR',voice=currentVoice()){
   text=String(text||'').trim();
   if(!text)return false;
   const key=[voice,lang,text].join('|');
-  if(audioCache.has(key))return true;
+  if(await getCachedVoice(key))return true;
   let pending=pendingVoice.get(key);
   if(!pending){
     const payload={
@@ -202,7 +269,11 @@ async function preloadGeminiTTS(text,lang='pt-BR',voice=currentVoice()){
         :'Português brasileiro natural, humano, expressivo e conversacional.'
     };
     pending=requestVoice(payload)
-      .then(d=>{audioCache.set(key,d);return true})
+      .then(d=>{
+        audioCache.set(key,d);
+        persistentPut(key,d).catch(()=>{});
+        return true;
+      })
       .catch(e=>{console.warn('Gemini TTS preload',e);return false})
       .finally(()=>pendingVoice.delete(key));
     pendingVoice.set(key,pending);
@@ -217,7 +288,8 @@ window.MeuInglesTTS={
   speak:geminiSpeak,
   preload:preloadGeminiTTS,
   stop:stopGeminiTTS,
-  endpoint:TTS
+  endpoint:TTS,
+  cache:'indexeddb'
 };
 
 
