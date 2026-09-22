@@ -209,6 +209,9 @@ async function geminiSpeak(text,lang='pt-BR',voice=currentVoice()){
 
     const key=[voice,lang,text].join('|');
     let d=await getCachedVoice(key);
+    if(d){
+      try{window.dispatchEvent(new CustomEvent('meu-ingles-tts-source',{detail:{source:'cache',text,lang,voice,key}}))}catch{}
+    }
     if(!d){
       status('🎙️ Gerando voz natural do Gemini…');
       const payload={
@@ -227,6 +230,7 @@ async function geminiSpeak(text,lang='pt-BR',voice=currentVoice()){
       d=await pending;
       audioCache.set(key,d);
       persistentPut(key,d).catch(()=>{});
+      try{window.dispatchEvent(new CustomEvent('meu-ingles-tts-source',{detail:{source:'api',text,lang,voice,key}}))}catch{}
     }else{
       status('🎙️ Reproduzindo áudio salvo…');
     }
