@@ -17,11 +17,12 @@ const LESSON_TYPES=['Vocabulário e escuta','Gramática em contexto','Frases ess
 const LESSON_ICONS=['🧠','🧩','💬','🎧','📖','✍️','🗣️','🏁'];
 const NEW_KEY='meuInglesStableV2';
 const OLD_KEY='meuInglesStableV1';
-const defaults={name:'',level:'A1',teacher:'media',voice:'Aoede',scenario:'Livre',xp:0,done:{},onboarded:false,goal:'Conversar melhor',daily:10,errorStreak:0};
+const defaults={name:'',level:'A1',teacher:'media',voice:'Aoede',scenario:'Livre',xp:0,done:{},progress:{},onboarded:false,goal:'Conversar melhor',daily:10,errorStreak:0};
 let saved={};
 try{saved=JSON.parse(localStorage.getItem(NEW_KEY)||localStorage.getItem(OLD_KEY)||'{}')||{}}catch(e){saved={}}
 const state=Object.assign({},defaults,saved);
 state.done=state.done&&typeof state.done==='object'?state.done:{};
+state.progress=state.progress&&typeof state.progress==='object'?state.progress:{};
 
 let audioCtx=null;
 let source=null;
@@ -95,6 +96,23 @@ function setGoal(g){state.goal=String(g||'Conversar melhor').slice(0,80);save()}
 window.setStableGoal=setGoal;
 
 function doneKey(l,m,n){return `${l}-${m}-${n}`}
+function lessonProgress(l,m,n){
+  const k=doneKey(l,m,n);
+  if(state.done[k])return 100;
+  return clamp(Number(state.progress?.[k])||0,0,99);
+}
+function setLessonProgress(l,m,n,p){
+  const k=doneKey(l,m,n);
+  state.progress=state.progress&&typeof state.progress==='object'?state.progress:{};
+  const next=clamp(Math.round(Number(p)||0),0,100);
+  const prev=Number(state.progress[k])||0;
+  if(state.done[k])state.progress[k]=100;
+  else if(next>prev)state.progress[k]=Math.min(99,next);
+  save();
+  return state.progress[k]||0;
+}
+window.getStableLessonProgress=lessonProgress;
+window.setStableLessonProgress=setLessonProgress;
 function moduleDone(l,m){let n=0;for(let i=0;i<8;i++)if(state.done[doneKey(l,m,i)])n++;return n}
 function levelDone(l){let n=0;for(let m=0;m<12;m++)n+=moduleDone(l,m);return n}
 function findNextLesson(l=state.level){
@@ -350,14 +368,16 @@ window.openStableModule=(l,m)=>{
         </div>
       </div>
       <div class="a2LessonGrid">${LESSON_TYPES.map((t,n)=>{
-        const done=!!state.done[doneKey(l,m,n)];
+        const done=!!state.done[doneKey(l,m,n)],pct=lessonProgress(l,m,n);
+        const status=done?'Concluída · toque para revisar':pct>0?`Em andamento · ${pct}%`:'Toque para começar';
         return `<div class="a2LessonCard ${done?'done':''}" role="button" tabindex="0"
           onclick="openStableLesson('A2',${m},${n})"
           onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();openStableLesson('A2',${m},${n})}">
           <div class="a2LessonCopy">
             <div class="a2LessonNumber">AULA ${n+1}</div>
             <h4>${esc(t)}${done?' ✓':''}</h4>
-            <div class="a2LessonStatus">${done?'Concluída · toque para revisar':'Toque para começar'}</div>
+            <div class="a2LessonStatus">${status}</div>
+            <div class="lessonCardProgressV118"><span style="width:${pct}%"></span></div>
           </div>
           <div class="a2LessonArt" aria-hidden="true"><span>${LESSON_ICONS[n]}</span></div>
         </div>`;
@@ -367,7 +387,7 @@ window.openStableModule=(l,m)=>{
     return;
   }
 
-  $('#courseBody').innerHTML=`<div class="top"><button class="back" onclick="renderStableCourse()">‹</button><div><h2 style="margin:0">${esc(title)}</h2><div class="muted">${l} · Módulo ${m+1}</div></div></div><div class="lessonGrid">${LESSON_TYPES.map((t,n)=>{const done=!!state.done[doneKey(l,m,n)];return `<div class="lessonCard ${done?'done':''}"><span class="lessonIcon">${LESSON_ICONS[n]}</span><h4>${n+1}. ${t} ${done?'✓':''}</h4><p>Uma aula curta, guiada e interativa, com professor IA reagindo ao seu desempenho.</p><button class="btn primary" style="margin-top:10px" onclick="openStableLesson('${l}',${m},${n})">${done?'Revisar':'Começar'}</button></div>`}).join('')}</div>`;
+  $('#courseBody').innerHTML=`<div class="top"><button class="back" onclick="renderStableCourse()">‹</button><div><h2 style="margin:0">${esc(title)}</h2><div class="muted">${l} · Módulo ${m+1}</div></div></div><div class="lessonGrid">${LESSON_TYPES.map((t,n)=>{const done=!!state.done[doneKey(l,m,n)],pct=lessonProgress(l,m,n);const status=done?'Concluída':pct>0?`Em andamento · ${pct}%`:'Não iniciada';return `<div class="lessonCard ${done?'done':''}"><span class="lessonIcon">${LESSON_ICONS[n]}</span><h4>${n+1}. ${t} ${done?'✓':''}</h4><p>${status}</p><div class="lessonCardProgressV118"><span style="width:${pct}%"></span></div><button class="btn primary" style="margin-top:10px" onclick="openStableLesson('${l}',${m},${n})">${done?'Revisar':pct>0?'Continuar':'Começar'}</button></div>`}).join('')}</div>`;
   window.scrollTo(0,0);
 };
 
@@ -395,7 +415,9 @@ function prepareLessonRuntime(l,m,n,d){
   const v1=vocab[n%vocab.length],v2=vocab[(n+1)%vocab.length];
   const phrase=examples[n%examples.length];
   const phraseTokens=String(phrase.en).trim().split(/\s+/).map((text,id)=>({id,text}));
-  lessonRuntime={l,m,n,d,stage:0,vocab,examples,vocabTarget:v1,vocabOptions:shuffle(uniq([v1.pt,...vocab.filter(v=>v!==v1).map(v=>v.pt)]).slice(0,4)),listenTarget:v2,listenOptions:shuffle(uniq([v2.en,...vocab.filter(v=>v!==v2).map(v=>v.en)]).slice(0,4)),phrase,phrasePool:shuffle(phraseTokens),built:[],passed:{},busy:false};
+  const savedPct=lessonProgress(l,m,n);
+  const savedStage=state.done[doneKey(l,m,n)]?0:Math.min(5,Math.floor(savedPct/17));
+  lessonRuntime={l,m,n,d,stage:savedStage,vocab,examples,vocabTarget:v1,vocabOptions:shuffle(uniq([v1.pt,...vocab.filter(v=>v!==v1).map(v=>v.pt)]).slice(0,4)),listenTarget:v2,listenOptions:shuffle(uniq([v2.en,...vocab.filter(v=>v!==v2).map(v=>v.en)]).slice(0,4)),phrase,phrasePool:shuffle(phraseTokens),built:[],passed:{},busy:false};
 }
 window.openStableLesson=async(l,m,n)=>{
   const root=$('#courseBody');
@@ -441,7 +463,7 @@ function renderLessonStage(){
   $('#courseBody').innerHTML=lessonShell(content,r.stage);
   window.scrollTo(0,0);
 }
-window.nextStableLessonStage=()=>{if(!lessonRuntime)return;lessonRuntime.stage=Math.min(5,lessonRuntime.stage+1);renderLessonStage()};
+window.nextStableLessonStage=()=>{if(!lessonRuntime)return;lessonRuntime.stage=Math.min(5,lessonRuntime.stage+1);setLessonProgress(lessonRuntime.l,lessonRuntime.m,lessonRuntime.n,Math.round(lessonRuntime.stage/6*100));renderLessonStage()};
 
 async function answerQuiz(kind,encoded){
   const r=lessonRuntime;if(!r||r.busy)return;
@@ -530,12 +552,16 @@ async function handleOpenAnswer(text){
   const good=!['wrong','help'].includes(String(d.verdict||'conversation'));
   state.errorStreak=good?0:Math.min(20,(state.errorStreak||0)+1);save();
   if(box)box.innerHTML=`<div class="coachReaction ${good?'good':'bad'}"><b>Você:</b> ${esc(text)}<br><br><b>Professor:</b> ${esc(d.reply_pt||'')}${d.reply_en?`<div class="muted" style="margin-top:6px">${esc(d.reply_en)}</div>`:''}</div>`;
-  if(good){const finish=$('#finishLessonBox');if(finish)finish.innerHTML='<div class="stageActions"><button class="btn primary wide" onclick="finishStableLesson()">✅ Concluir aula · +30 XP</button></div>'}
+  if(good){setLessonProgress(r.l,r.m,r.n,90);const finish=$('#finishLessonBox');if(finish)finish.innerHTML='<div class="stageActions"><button class="btn primary wide" onclick="finishStableLesson()">✅ Concluir aula · +30 XP</button></div>'}
   r.busy=false;await speakBoth(d.reply_pt||'',d.reply_en||'');
 }
 window.finishStableLesson=()=>{
   const r=lessonRuntime;if(!r)return;
-  if(!state.done[doneKey(r.l,r.m,r.n)]){state.done[doneKey(r.l,r.m,r.n)]=true;state.xp+=30;save()}
+  const k=doneKey(r.l,r.m,r.n);
+  state.progress=state.progress&&typeof state.progress==='object'?state.progress:{};
+  state.progress[k]=100;
+  if(!state.done[k]){state.done[k]=true;state.xp+=30}
+  save();
   window.openStableModule(r.l,r.m);
 };
 
