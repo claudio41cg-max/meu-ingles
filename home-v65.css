@@ -220,8 +220,8 @@
   50%{transform:scale(1.06);opacity:1}
 }
 
-#home .homeConversationChoice.methodsCard{background:linear-gradient(135deg,#d99835,#b8752d 56%,#865523)!important;border-color:rgba(255,205,126,.45)!important;box-shadow:0 10px 24px rgba(102,61,17,.26)!important}
-#home .homeConversationChoice.methodsCard small{color:#fff0cf!important}
+#home .homeConversationChoice.methodsCard{background:linear-gradient(135deg,#d982ad 0%,#c86fa2 52%,#a95b91 100%)!important;border-color:rgba(255,194,225,.46)!important;box-shadow:0 10px 24px rgba(105,40,83,.24)!important}
+#home .homeConversationChoice.methodsCard small{color:#fff0f8!important}
 #home .homeConversationChoice .choiceVisual{width:58px;height:58px;display:grid;place-items:center;border-radius:18px;background:rgba(255,255,255,.14);border:1px solid rgba(255,255,255,.16);font-size:32px!important}
 #home .homeTtsProbe{display:none!important}
 
@@ -417,9 +417,9 @@
   filter:drop-shadow(0 0 6px rgba(214,252,255,.25));
 }
 #home .methodsCard .cardAiMark{
-  color:#fff7df;
-  background:rgba(255,247,223,.13);
-  border-color:rgba(255,238,194,.23);
+  color:#fff0f8;
+  background:rgba(255,240,248,.13);
+  border-color:rgba(255,216,236,.24);
 }
 #home .homeConversationChoice[data-v26mode="module"] .cardAiMark{
   color:#e8fff9;
@@ -433,16 +433,19 @@
 }
 
 #home .exploreChoiceVisual{
-  color:#fff7df;
-  background:
-    radial-gradient(circle at 30% 25%,rgba(255,255,255,.24),transparent 32%),
-    linear-gradient(145deg,rgba(255,255,255,.18),rgba(122,68,15,.16)) !important;
-  border-color:rgba(255,232,184,.26) !important;
-  box-shadow:inset 0 1px 0 rgba(255,255,255,.16),0 8px 16px rgba(87,49,13,.16);
+  background:linear-gradient(145deg,rgba(255,255,255,.17),rgba(255,255,255,.08)) !important;
+  border-color:rgba(255,255,255,.22) !important;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.18),0 6px 14px rgba(91,37,73,.16) !important;
 }
 #home .exploreChoiceVisual svg{
-  width:34px;
-  height:34px;
+  width:52px;
+  height:52px;
+  display:block;
+  filter:drop-shadow(0 4px 7px rgba(75,31,61,.20)) saturate(1.08) contrast(1.04);
+}
+#home .courseChoiceVisual svg{
+  width:48px;
+  height:48px;
   display:block;
 }
 
