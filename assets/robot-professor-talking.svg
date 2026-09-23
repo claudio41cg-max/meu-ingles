@@ -27,9 +27,8 @@
       .head-talk{transform-box:fill-box;transform-origin:50% 62%;animation:headTalk 2s ease-in-out infinite}
       .waving-arm-talk{transform-box:fill-box;transform-origin:20% 70%;animation:waveTalk 2s ease-in-out infinite}
       .eye-left,.eye-right{transform-box:fill-box;transform-origin:center}
-      .eye-left{animation:eyeLeftLife 3.8s ease-in-out infinite}
-      .eye-right{animation:eyeRightLife 3.8s ease-in-out infinite}
-      .brow-left,.brow-right{transform-box:fill-box;transform-origin:center;animation:browLife 2.2s ease-in-out infinite}
+      .eye-left{animation:eyeLeftLife 4.2s ease-in-out infinite}
+      .eye-right{animation:eyeRightLife 4.2s ease-in-out infinite}
       .mouth-bars{animation:mouthGlow .7s ease-in-out infinite}
       @keyframes bodyTalk{
         0%,100%{transform:translateY(0) scale(1)}
@@ -52,28 +51,26 @@
         88%{transform:rotate(4deg)}
       }
       @keyframes eyeLeftLife{
-        0%,100%{transform:scaleY(1) rotate(-6deg) translateY(0)}
-        12%{transform:scaleY(.9) rotate(-7deg) translateY(0)}
-        24%{transform:scaleY(.75) rotate(-8deg) translateY(1px)}
-        36%{transform:scaleY(1.05) rotate(-5deg) translateY(-1px)}
-        52%{transform:scaleY(.82) rotate(-7deg) translateY(0)}
-        68%{transform:scaleY(1) rotate(-6deg) translateY(0)}
-        84%{transform:scaleY(.08) rotate(-6deg) translateY(0)}
+        0%,8%,100%{transform:translateY(0) scaleX(1) scaleY(1) rotate(-2deg)}
+        16%{transform:translateY(1px) scaleX(1.06) scaleY(.62) rotate(-8deg)}
+        26%{transform:translateY(-1px) scaleX(.96) scaleY(1.08) rotate(-3deg)}
+        38%{transform:translateY(1px) scaleX(1.08) scaleY(.72) rotate(-5deg)}
+        50%{transform:translateY(2px) scaleX(1.10) scaleY(.52) rotate(4deg)}
+        60%{transform:translateY(0) scaleX(1) scaleY(.08) rotate(-2deg)}
+        64%{transform:translateY(0) scaleX(1) scaleY(1) rotate(-2deg)}
+        76%{transform:translateY(-1px) scaleX(1.04) scaleY(.78) rotate(-7deg)}
+        88%{transform:translateY(0) scaleX(.98) scaleY(1.04) rotate(-1deg)}
       }
       @keyframes eyeRightLife{
-        0%,100%{transform:scaleY(1) rotate(6deg) translateY(0)}
-        12%{transform:scaleY(.92) rotate(7deg) translateY(0)}
-        24%{transform:scaleY(.78) rotate(8deg) translateY(1px)}
-        36%{transform:scaleY(1.04) rotate(5deg) translateY(-1px)}
-        52%{transform:scaleY(.84) rotate(7deg) translateY(0)}
-        68%{transform:scaleY(1) rotate(6deg) translateY(0)}
-        84%{transform:scaleY(.08) rotate(6deg) translateY(0)}
-      }
-      @keyframes browLife{
-        0%,100%{transform:translateY(0)}
-        25%{transform:translateY(-1px)}
-        50%{transform:translateY(1px)}
-        75%{transform:translateY(-1px)}
+        0%,8%,100%{transform:translateY(0) scaleX(1) scaleY(1) rotate(2deg)}
+        16%{transform:translateY(1px) scaleX(1.06) scaleY(.62) rotate(8deg)}
+        26%{transform:translateY(-1px) scaleX(.96) scaleY(1.08) rotate(3deg)}
+        38%{transform:translateY(1px) scaleX(1.08) scaleY(.72) rotate(5deg)}
+        50%{transform:translateY(2px) scaleX(1.10) scaleY(.52) rotate(-4deg)}
+        60%{transform:translateY(0) scaleX(1) scaleY(.08) rotate(2deg)}
+        64%{transform:translateY(0) scaleX(1) scaleY(1) rotate(2deg)}
+        76%{transform:translateY(-1px) scaleX(1.04) scaleY(.78) rotate(7deg)}
+        88%{transform:translateY(0) scaleX(.98) scaleY(1.04) rotate(1deg)}
       }
       @keyframes mouthGlow{0%,100%{opacity:.92}50%{opacity:1}}
     </style>
@@ -92,8 +89,6 @@
   <g class="head-talk">
     <rect x="80" y="60" width="240" height="170" rx="85" fill="url(#headBodyGradTalk)"/>
     <rect x="102" y="80" width="196" height="130" rx="65" fill="url(#screenGradTalk)" stroke="#1e293b" stroke-width="3"/>
-    <path class="brow-left" d="M145 114 Q158 107 172 111" stroke="#59fbff" stroke-width="5" stroke-linecap="round" fill="none" filter="url(#softGlowTalk)"/>
-    <path class="brow-right" d="M228 111 Q242 107 255 114" stroke="#59fbff" stroke-width="5" stroke-linecap="round" fill="none" filter="url(#softGlowTalk)"/>
     <ellipse class="eye-left" cx="160" cy="136" rx="14" ry="16" fill="#00f3ff" filter="url(#neonGlowTalk)"/>
     <ellipse class="eye-right" cx="240" cy="136" rx="14" ry="16" fill="#00f3ff" filter="url(#neonGlowTalk)"/>
     <g class="mouth-bars" filter="url(#softGlowTalk)" fill="#53fbff">
