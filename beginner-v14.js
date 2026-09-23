@@ -49,6 +49,11 @@ const lessons={
 
 function readState(){try{return JSON.parse(localStorage.getItem(MAIN_KEY)||'{}')||{}}catch{return {}}}
 function writeState(s){localStorage.setItem(MAIN_KEY,JSON.stringify(s))}
+function progressPct(n){
+  try{return window.getStableLessonProgress?.('A1',0,n)??(readState().done?.[`A1-0-${n}`]?100:0)}catch{return 0}
+}
+function saveProgress(n,p){try{window.setStableLessonProgress?.('A1',0,n,p)}catch{}}
+
 function modeLabel(m){return m==='pesada'?'Hard 18+':m==='media'?'Doideira':'Tranquilo'}
 function esc(v){return String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
 function shuffle(a){a=[...a];for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a}
@@ -173,7 +178,7 @@ function shell(inner){
 function nextButton(label='Continuar'){return `<div class="b14Footer"><button class="b14Next" onclick="nextB14()">${label}</button></div>`}
 function audioButton(text){return `<button class="b14Listen" onclick="b14Speak('${encodeURIComponent(text)}')">🔊 Ouvir</button>`}
 window.b14Speak=enc=>speakEnglish(decodeURIComponent(enc));
-window.nextB14=()=>{if(!run)return;run.step=Math.min(lessons[run.n].steps.length-1,run.step+1);run.built=[];run.checked=false;run.feedback='';render()};
+window.nextB14=()=>{if(!run)return;run.step=Math.min(lessons[run.n].steps.length-1,run.step+1);saveProgress(run.n,Math.round(run.step/lessons[run.n].steps.length*100));run.built=[];run.checked=false;run.feedback='';render()};
 
 function renderLearn(st){
   return `<div class="b14Emoji">${st.emoji}</div><div class="b14Word">${esc(st.en)}</div><div class="b14Translation">${esc(st.pt)}</div>${audioButton(st.en)}${nextButton()}`;
@@ -201,7 +206,7 @@ function renderReview(st){
 function renderConversation(st){
   return `<h2>${esc(st.question)}</h2>${audioButton(st.question)}<div class="b14Translation" style="font-size:18px">${esc(st.help)}</div><div class="b14Conversation">${st.choices.map(c=>`<button onclick="conversationB14('${encodeURIComponent(c)}')">${esc(c)}</button>`).join('')}</div><div id="b14Feedback"></div>`;
 }
-window.conversationB14=async enc=>{const text=decodeURIComponent(enc);document.querySelectorAll('.b14Conversation button').forEach(b=>b.disabled=true);await react(true,text,'uma resposta com I want + bebida','Mini conversa A1');const box=document.querySelector('#b14Feedback');if(box)box.insertAdjacentHTML('afterend',`<div class="b14Footer"><button class="b14Next" onclick="finishB14()">Concluir aula · +30 XP</button></div>`)};
+window.conversationB14=async enc=>{const text=decodeURIComponent(enc);document.querySelectorAll('.b14Conversation button').forEach(b=>b.disabled=true);await react(true,text,'uma resposta com I want + bebida','Mini conversa A1');saveProgress(run.n,90);const box=document.querySelector('#b14Feedback');if(box)box.insertAdjacentHTML('afterend',`<div class="b14Footer"><button class="b14Next" onclick="finishB14()">Concluir aula · +30 XP</button></div>`)};
 
 function renderBuild(st){
   const tokens=st.tokens.map((t,i)=>({t,i}));
@@ -226,13 +231,16 @@ function render(){
 }
 
 function start(l,m,n){
-  run={l,m,n,step:0,built:[],checked:false,buildOk:false,errors:0};
   const data=lessons[n];if(!data)return originalOpen?.(l,m,n);
+  const pct=progressPct(n);
+  const step=readState().done?.[`A1-0-${n}`]?0:Math.min(data.steps.length-1,Math.floor(pct/100*data.steps.length));
+  run={l,m,n,step,built:[],checked:false,buildOk:false,errors:0};
   data.steps.forEach(s=>{delete s.answered;delete s._opts;delete s._bank});
   render();
 }
 function completeMainState(){
-  const s=readState();s.done=s.done&&typeof s.done==='object'?s.done:{};const key=`A1-0-${run.n}`;
+  const s=readState();s.done=s.done&&typeof s.done==='object'?s.done:{};s.progress=s.progress&&typeof s.progress==='object'?s.progress:{};const key=`A1-0-${run.n}`;
+  s.progress[key]=100;
   if(!s.done[key]){s.done[key]=true;s.xp=(Number(s.xp)||0)+30}s.level='A1';writeState(s);
 }
 window.finishB14=()=>{if(!run)return;completeMainState();sessionStorage.setItem('b14Return','1');location.reload()};
