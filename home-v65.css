@@ -194,8 +194,9 @@
   transform:scale(.97);
 }
 #home .homeRobotStage.home-guide-speaking .homeRobot{
-  animation:homeGuideTalk .72s ease-in-out infinite;
-  filter:drop-shadow(0 18px 24px rgba(0,0,0,.32)) drop-shadow(0 0 18px rgba(51,226,238,.42));
+  animation:homeGuideTalk 1.55s cubic-bezier(.45,.05,.55,.95) infinite;
+  transform-origin:50% 68%;
+  filter:drop-shadow(0 18px 24px rgba(0,0,0,.32)) drop-shadow(0 0 20px rgba(51,226,238,.46));
 }
 #home .homeRobotStage.home-guide-speaking:before{
   animation:homeGuideGlow .85s ease-in-out infinite;
@@ -210,10 +211,12 @@
   box-shadow:0 0 0 2px rgba(255,255,255,.22) inset,0 0 24px rgba(83,224,232,.24)!important;
 }
 @keyframes homeGuideTalk{
-  0%,100%{transform:translateY(0) rotate(0deg)}
-  25%{transform:translateY(-3px) rotate(-1deg)}
-  50%{transform:translateY(1px) rotate(0deg)}
-  75%{transform:translateY(-2px) rotate(1deg)}
+  0%,100%{transform:translateY(0) scale(1) rotate(0deg)}
+  14%{transform:translateY(-4px) scale(1.025) rotate(-1.4deg)}
+  30%{transform:translateY(1px) scale(.99) rotate(.4deg)}
+  46%{transform:translateY(-3px) scale(1.018) rotate(1.5deg)}
+  62%{transform:translateY(2px) scale(.992) rotate(-.5deg)}
+  80%{transform:translateY(-2px) scale(1.012) rotate(-1deg)}
 }
 @keyframes homeGuideGlow{
   0%,100%{transform:scale(.96);opacity:.7}
