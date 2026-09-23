@@ -122,10 +122,10 @@ function renderHomePath(){
   const totalLessons=Object.keys(LEVELS).length*12*8;
   const allDone=Object.values(state.done||{}).filter(Boolean).length;
   const allPct=Math.round(allDone/totalLessons*100);
-  if($('#allCourseProgressBar'))$('#allCourseProgressBar').style.width=\`\${allPct}%\`;
-  if($('#allCourseProgressText'))$('#allCourseProgressText').textContent=\`\${allDone} de \${totalLessons} aulas concluídas · \${allPct}%\`;
-  if($('#nextLessonTitle'))$('#nextLessonTitle').textContent=next.complete?'Nível concluído!':\`\${MODULES[next.l][next.m]} · Aula \${next.n+1}\`;
-  if($('#nextLessonMeta'))$('#nextLessonMeta').textContent=next.complete?'Você pode revisar este nível ou avançar para o próximo.':\`\${next.l} · \${LESSON_TYPES[next.n]}\`;
+  if($('#allCourseProgressBar'))$('#allCourseProgressBar').style.width=`${allPct}%`;
+  if($('#allCourseProgressText'))$('#allCourseProgressText').textContent=`${allDone} de ${totalLessons} aulas concluídas · ${allPct}%`;
+  if($('#nextLessonTitle'))$('#nextLessonTitle').textContent=next.complete?'Nível concluído!':`${MODULES[next.l][next.m]} · Aula ${next.n+1}`;
+  if($('#nextLessonMeta'))$('#nextLessonMeta').textContent=next.complete?'Você pode revisar este nível ou avançar para o próximo.':`${next.l} · ${LESSON_TYPES[next.n]}`;
 }
 window.continueStableCourse=()=>{
   const next=findNextLesson();
