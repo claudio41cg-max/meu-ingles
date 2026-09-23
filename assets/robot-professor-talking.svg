@@ -1,0 +1,52 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 350" width="100%" height="100%" role="img" aria-label="Robô professor falando">
+  <defs>
+    <radialGradient id="cyanGlowTalk" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#00f3ff" stop-opacity="1"/>
+      <stop offset="70%" stop-color="#00a6ff" stop-opacity="0.8"/>
+      <stop offset="100%" stop-color="#0055ff" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="headBodyGradTalk" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#ffffff"/>
+      <stop offset="70%" stop-color="#dbeafe"/>
+      <stop offset="100%" stop-color="#93c5fd"/>
+    </linearGradient>
+    <linearGradient id="screenGradTalk" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#0a1128"/>
+      <stop offset="100%" stop-color="#001f3f"/>
+    </linearGradient>
+    <filter id="neonGlowTalk" x="-30%" y="-30%" width="160%" height="160%">
+      <feGaussianBlur stdDeviation="6" result="blur"/>
+      <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+    <style>
+      .waving-arm-talk{transform-box:fill-box;transform-origin:20% 70%;animation:waveTalk 2s ease-in-out infinite}
+      .eye-talk{transform-box:fill-box;transform-origin:center;animation:blinkTalk 3.4s ease-in-out infinite}
+      .talk-mouth{animation:mouthGlowTalk .65s ease-in-out infinite}
+      @keyframes waveTalk{0%,45%,100%{transform:rotate(0deg)}55%{transform:rotate(-10deg)}65%{transform:rotate(9deg)}75%{transform:rotate(-7deg)}85%{transform:rotate(5deg)}}
+      @keyframes blinkTalk{0%,38%,42%,70%,74%,100%{transform:scaleY(1)}40%,72%{transform:scaleY(.10)}}
+      @keyframes mouthGlowTalk{0%,100%{opacity:.88}50%{opacity:1}}
+    </style>
+  </defs>
+  <circle cx="200" cy="160" r="140" fill="url(#cyanGlowTalk)" opacity="0.42"/>
+  <path d="M140,240 C140,210 260,210 260,240 C260,280 140,280 140,240 Z" fill="url(#headBodyGradTalk)"/>
+  <path d="M125,230 Q105,250 115,270" stroke="url(#headBodyGradTalk)" stroke-width="24" stroke-linecap="round" fill="none"/>
+  <g class="waving-arm-talk">
+    <path d="M275,230 Q315,200 300,165" stroke="url(#headBodyGradTalk)" stroke-width="26" stroke-linecap="round" fill="none"/>
+    <circle cx="300" cy="160" r="16" fill="url(#headBodyGradTalk)"/>
+    <path d="M315,135 Q325,140 330,150" stroke="#00f3ff" stroke-width="3" stroke-linecap="round" fill="none" filter="url(#neonGlowTalk)"/>
+    <path d="M325,125 Q338,132 342,145" stroke="#00f3ff" stroke-width="3" stroke-linecap="round" fill="none" filter="url(#neonGlowTalk)"/>
+  </g>
+  <rect x="80" y="60" width="240" height="170" rx="85" fill="url(#headBodyGradTalk)"/>
+  <rect x="102" y="80" width="196" height="130" rx="65" fill="url(#screenGradTalk)" stroke="#1e293b" stroke-width="3"/>
+  <ellipse class="eye-talk" cx="160" cy="135" rx="14" ry="16" fill="#00f3ff" filter="url(#neonGlowTalk)"/>
+  <ellipse class="eye-talk" cx="240" cy="135" rx="14" ry="16" fill="#00f3ff" filter="url(#neonGlowTalk)"/>
+  <g class="talk-mouth" filter="url(#neonGlowTalk)">
+    <ellipse cx="200" cy="173" rx="34" ry="6" fill="#00111f" stroke="#00f3ff" stroke-width="6">
+      <animate attributeName="ry" values="5;15;8;18;6;12;5" keyTimes="0;.16;.32;.5;.66;.82;1" dur=".52s" repeatCount="indefinite"/>
+      <animate attributeName="rx" values="34;30;35;28;34;31;34" keyTimes="0;.16;.32;.5;.66;.82;1" dur=".52s" repeatCount="indefinite"/>
+    </ellipse>
+    <path d="M176 171 Q200 181 224 171" stroke="#8cffff" stroke-width="2.5" stroke-linecap="round" fill="none" opacity=".75">
+      <animate attributeName="opacity" values=".75;.18;.6;.12;.75" dur=".52s" repeatCount="indefinite"/>
+    </path>
+  </g>
+</svg>
