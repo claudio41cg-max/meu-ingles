@@ -28,7 +28,7 @@ function homeGuideSteps(){
     },
     {
       sel:'#home [data-v26mode="module"]',
-      text:'Se você quiser continuar o que já está estudando, use Cursos com IA. Ele acompanha o conteúdo do seu curso e ajuda você a revisar e avançar nas aulas. Toque em Cursos com IA e vá direto para a IA.'
+      text:'Se você quiser continuar o que já está estudando, use Inglês com AI. Ele acompanha o conteúdo do seu curso e ajuda você a revisar e avançar nas aulas. Toque em Inglês com AI e vá direto para a IA.'
     },
     {
       sel:'#home [data-v26mode="free"]',
@@ -158,7 +158,10 @@ function aiMark(){
  return '<span class="cardAiMark" aria-hidden="true"><svg viewBox="0 0 32 32"><path d="M16 3c1.25 6.4 4.6 9.75 11 11-6.4 1.25-9.75 4.6-11 11-1.25-6.4-4.6-9.75-11-11 6.4-1.25 9.75-4.6 11-11Z" fill="currentColor"/><path d="M25 3c.55 2.8 2.2 4.45 5 5-2.8.55-4.45 2.2-5 5-.55-2.8-2.2-4.45-5-5 2.8-.55 4.45-2.2 5-5Z" fill="currentColor" opacity=".72"/></svg></span>';
 }
 function exploreVisual(){
- return '<span class="ico choiceVisual exploreChoiceVisual" aria-hidden="true"><svg viewBox="0 0 48 48"><path d="M24 6a18 18 0 1 0 0 36 18 18 0 0 0 0-36Z" fill="none" stroke="currentColor" stroke-width="2.8"/><path d="m30 17-4 9-9 4 4-9 9-4Z" fill="currentColor"/><circle cx="24" cy="24" r="2.2" fill="#fff"/></svg></span>';
+ return '<span class="ico choiceVisual exploreChoiceVisual" aria-hidden="true"><svg viewBox="0 0 72 72" role="img"><defs><linearGradient id="smallMhMapA" x1="10" y1="18" x2="60" y2="58" gradientUnits="userSpaceOnUse"><stop stop-color="#fff4c7"/><stop offset="1" stop-color="#ffd36a"/></linearGradient><linearGradient id="smallMhMapB" x1="16" y1="58" x2="62" y2="28" gradientUnits="userSpaceOnUse"><stop stop-color="#9cf0e2"/><stop offset="1" stop-color="#6fc9ff"/></linearGradient><linearGradient id="smallMhPin" x1="18" y1="30" x2="36" y2="55" gradientUnits="userSpaceOnUse"><stop stop-color="#ff7b88"/><stop offset="1" stop-color="#e84658"/></linearGradient></defs><path d="M9 45.5 24 37l15 6.2L62 32v22L39 65 24 58.8 9 67Z" fill="url(#smallMhMapA)" stroke="rgba(255,255,255,.55)" stroke-width="1.2" stroke-linejoin="round"/><path d="M9 45.5 24 37v21.8L9 67Z" fill="#d7ef95"/><path d="M39 43.2 62 32v22L39 65Z" fill="url(#smallMhMapB)"/><path d="M18 41.5c0-5.3 4.1-9.4 9.2-9.4s9.2 4.1 9.2 9.4c0 7.3-9.2 16.2-9.2 16.2S18 48.8 18 41.5Z" fill="url(#smallMhPin)" stroke="#fff" stroke-width="1.3"/><circle cx="27.2" cy="41.5" r="3.2" fill="#fff"/><path d="M45.8 10v29" stroke="#77512f" stroke-width="4.6" stroke-linecap="round"/><path d="M47 12h13.2l4.7 4.7-4.7 4.7H47Z" fill="#ffc64f" stroke="rgba(255,255,255,.45)" stroke-width=".9"/><path d="M44.7 21.7H30.4l-4.6 4.8 4.6 4.8h14.3Z" fill="#f26f8d" stroke="rgba(255,255,255,.45)" stroke-width=".9"/><path d="M47 31.5h11.8l4.6 4.6-4.6 4.6H47Z" fill="#65b8ef" stroke="rgba(255,255,255,.45)" stroke-width=".9"/><circle cx="45.8" cy="9.4" r="3.2" fill="#fff5d8"/></svg></span>';
+}
+function courseVisual(){
+ return '<span class="ico choiceVisual courseChoiceVisual" aria-hidden="true"><svg viewBox="0 0 86 86" fill="none" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="journeyBlueMini" x1="14" y1="12" x2="70" y2="73" gradientUnits="userSpaceOnUse"><stop stop-color="#7BE7FF"/><stop offset=".5" stop-color="#32B7FF"/><stop offset="1" stop-color="#1677FF"/></linearGradient><linearGradient id="journeyMintMini" x1="20" y1="70" x2="71" y2="25" gradientUnits="userSpaceOnUse"><stop stop-color="#68F2C4"/><stop offset="1" stop-color="#D8FFF3"/></linearGradient></defs><path d="M16 64h14V51H16v13Zm20 0h14V40H36v24Zm20 0h14V27H56v37Z" fill="url(#journeyBlueMini)"/><path d="M17 22h16M17 28h11" stroke="#E8FBFF" stroke-width="4" stroke-linecap="round"/><path d="M18 70c16-1 29-7 38-17 5-5 9-11 12-18" stroke="url(#journeyMintMini)" stroke-width="5" stroke-linecap="round"/><path d="m63 36 7-4-1 8" stroke="#D8FFF3" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/><circle cx="18" cy="70" r="5" fill="#86F8D2"/></svg></span>';
 }
 function micIcon(){return '<svg viewBox="0 0 64 64" aria-hidden="true"><defs><linearGradient id="micg" x1="10" y1="8" x2="54" y2="56"><stop stop-color="#6ee7ff"/><stop offset="1" stop-color="#1688ff"/></linearGradient></defs><rect x="23" y="10" width="18" height="30" rx="9" fill="url(#micg"/><path d="M16 30c0 9 7 16 16 16s16-7 16-16M32 46v9M23 55h18" fill="none" stroke="#dffaff" stroke-width="4" stroke-linecap="round"/></svg>'}
 function moduleButtons(){return (LEVEL_MODULES[currentLevel()]||[]).map((m,i)=>`<button class="modulePickBtn" onclick="pickV26Module(${i})"><b>${i+1}</b><span>${esc(m)}</span></button>`).join('')}
@@ -167,14 +170,14 @@ function render(){
  c.classList.add('homeTalkCard');
  c.innerHTML=`
  <div class="homeConversationTop"><h2>Converse e Divirta-se</h2><button class="teacherTypesBtn" onclick="openTeacherTypes()">🤖 Tipos de professor</button></div>
- <p class="homeConversationIntro">Escolha entre Explorar temas, Cursos com IA ou Bate-papo livre.</p>
+ <p class="homeConversationIntro">Escolha entre Explorar temas, Inglês com AI ou Bate-papo livre.</p>
  <button class="homeRobotStage homeRobotGuideButton" type="button" onclick="playHomeRobotGuide()" aria-label="Ouvir mini tutorial">
    <img class="homeRobot" src="assets/robot-professor.svg?v=26" alt="Robô professor">
    <span class="homeRobotGuideHint">🔊 Toque em mim</span><span class="bot homeTtsProbe" aria-hidden="true"></span>
  </button>
  <div class="homeConversationChoices">
-   <button class="homeConversationChoice methodsCard" data-v26mode="methods" onclick="openMethodsRobot(event)">${exploreVisual()}<span class="choiceCopy"><b>Explorar temas</b><small>Escolha um assunto e pratique do seu jeito</small></span>${aiMark()}</button>
-   <button class="homeConversationChoice ${mode==='module'?'active':''}" data-v26mode="module" onclick="startV26FromCard('module')"><span class="ico choiceVisual">📚</span><span class="choiceCopy"><b>Cursos com IA</b><small>Siga aulas guiadas e avance com a IA</small></span>${aiMark()}</button>
+   <button class="homeConversationChoice methodsCard" data-v26mode="methods" onclick="openMethodsRobot(event)">${exploreVisual()}<span class="choiceCopy"><b>Explorar temas</b><small>Escolha um tema entre família, viagens, comida, hotel e muito mais.</small></span>${aiMark()}</button>
+   <button class="homeConversationChoice ${mode==='module'?'active':''}" data-v26mode="module" onclick="startV26FromCard('module')">${courseVisual()}<span class="choiceCopy"><b>Inglês com AI</b><small>Siga aulas guiadas e avance com a IA</small></span>${aiMark()}</button>
    <button class="homeConversationChoice ${mode==='free'?'active':''}" data-v26mode="free" onclick="startV26FromCard('free')"><span class="ico choiceVisual">💬</span><span class="choiceCopy"><b>Bate-papo livre</b><small>Converse sobre qualquer assunto sem roteiro</small></span>${aiMark()}</button>
  </div>
  <div class="homeInlineChat">
