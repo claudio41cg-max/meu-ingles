@@ -29,6 +29,11 @@ const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&
 const sh=a=>{a=[...a];for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a};
 const state=()=>{try{return JSON.parse(localStorage.getItem(KEY)||'{}')||{}}catch{return {}}};
 const save=s=>localStorage.setItem(KEY,JSON.stringify(s));
+function progress(m,n){
+  try{return window.getStableLessonProgress?.('A1',m,n)??(done(m,n)?100:0)}catch{return done(m,n)?100:0}
+}
+function saveProgress(m,n,p){try{window.setStableLessonProgress?.('A1',m,n,p)}catch{}}
+
 function item(m,n){const x=RAW[m]?.[n];if(!x)return null;const [e,en,pt,title]=x.split('|');return{e,en,pt,title}}
 function known(m,n){const a=BASE.map(([e,en,pt])=>({e,en,pt}));for(let M=0;M<=m;M++)for(let N=0;N<8;N++){if(M===m&&N>n)break;const x=item(M,N);if(x)a.push(x)}const seen=new Set();return a.filter(x=>{const k=x.en.toLowerCase();if(seen.has(k))return false;seen.add(k);return true})}
 function options(cur,m,n){const a=[cur,...known(m,n).reverse().filter(x=>x.en.toLowerCase()!==cur.en.toLowerCase())];return a.slice(0,3)}
@@ -84,7 +89,7 @@ function shell(inner){
  return `<div class="beginner14 ${run.m===0?'firstContactsLessonScreen':''}"><div class="b14Top"><button class="b14Back" onclick="openStableModule('A1',${run.m})">‹</button><div class="b14Progress"><span style="width:${p}%"></span></div></div>${run.m===0?'':top()}<div class="b14Card"><div class="b14Eyebrow">A1 · ${run.i+1} de ${run.lesson.steps.length}</div>${inner}<div id="a15Voice" class="b14VoiceWarn"></div></div></div>`;
 }
 const next=()=>`<div class="b14Footer"><button class="b14Next" onclick="a15Next()">Continuar</button></div>`;
-window.a15Next=()=>{if(++run.i>=run.lesson.steps.length)return finish();run.built=[];run.checked=false;run.used=[];render()};
+window.a15Next=()=>{if(++run.i>=run.lesson.steps.length)return finish();saveProgress(run.m,run.n,Math.round(run.i/run.lesson.steps.length*100));run.built=[];run.checked=false;run.used=[];render()};
 window.a15Speak=e=>speak(decodeURIComponent(e));
 function render(){const s=run.lesson.steps[run.i];let h='';if(s.t==='learn'||s.t==='phrase'){h=`<div class="b14Emoji">${s.x.e||'💬'}</div><div class="b14Word">${esc(s.x.en)}</div><div class="b14Translation">${esc(s.x.pt)}</div><button class="b14Listen" onclick="a15Speak('${encodeURIComponent(s.x.en)}')">🔊 Ouvir</button>${next()}`}
 else if(s.t==='choice'){h=`<h2>${esc(s.q)}</h2>${s.audio?`<button class="b14Listen" onclick="a15Speak('${encodeURIComponent(s.audio)}')">🔊 Ouvir</button>`:''}<div class="b14Choices">${s.op.map(o=>`<button class="b14Choice" data-a15="${encodeURIComponent(o)}" onclick="a15Answer('${encodeURIComponent(o)}')">${esc(o)}</button>`).join('')}</div><div id="a15Feedback"></div>`}
@@ -98,8 +103,8 @@ window.a15Pick=i=>{if(run.checked)return;run.used=run.used||[];if(run.used.inclu
 window.a15Clear=()=>{run.built=[];run.used=[];run.checked=false;run.ok=false;render()};
 window.a15Check=()=>{const s=run.lesson.steps[run.i],v=run.built.join(' ');run.checked=true;run.ok=v===s.target;render();react(run.ok,v,s.target)};
 
-function start(m,n){run={m,n,i:0,lesson:lesson(m,n),built:[],used:[],checked:false,ok:false};render()}
-function finish(){const s=state();s.done=s.done&&typeof s.done==='object'?s.done:{};const k=`A1-${run.m}-${run.n}`;if(!s.done[k]){s.done[k]=true;s.xp=(Number(s.xp)||0)+30}s.level='A1';save(s);sessionStorage.setItem('a15back',String(run.m));location.reload()}
+function start(m,n){const l=lesson(m,n),pct=progress(m,n),i=done(m,n)?0:Math.min(l.steps.length-1,Math.floor(pct/100*l.steps.length));run={m,n,i,lesson:l,built:[],used:[],checked:false,ok:false};render()}
+function finish(){const s=state();s.done=s.done&&typeof s.done==='object'?s.done:{};s.progress=s.progress&&typeof s.progress==='object'?s.progress:{};const k=`A1-${run.m}-${run.n}`;s.progress[k]=100;if(!s.done[k]){s.done[k]=true;s.xp=(Number(s.xp)||0)+30}s.level='A1';save(s);sessionStorage.setItem('a15back',String(run.m));location.reload()}
 window.a15Finish=finish;
 function title(m,n){if(m===0&&n<3)return START[n];return item(m,n)?.title||`Lição ${n+1}`}
 function done(m,n){return !!state().done?.[`A1-${m}-${n}`]}
@@ -114,7 +119,8 @@ function firstContactsCards(){
     <div class="firstContactsLessonCopy">
       <div class="firstContactsLessonNumber">AULA ${n+1}</div>
       <h4>${esc(title(0,n))}</h4>
-      <div class="firstContactsLessonStatus">${isDone?'Concluída · toque para revisar':'Toque para começar'}</div>
+      <div class="firstContactsLessonStatus">${isDone?'Concluída · toque para revisar':progress(0,n)>0?`Em andamento · ${progress(0,n)}%`:'Toque para começar'}</div>
+      <div class="lessonCardProgressV118"><span style="width:${progress(0,n)}%"></span></div>
     </div>
     <div class="firstContactsLessonArt" aria-hidden="true">
       <span class="firstContactsArtGlow"></span>
@@ -142,7 +148,7 @@ function moduleView(m){
    window.scrollTo(0,0);
    return;
  }
- const cards=Array.from({length:8},(_,n)=>`<div class="lessonCard ${done(m,n)?'done':''}"><span class="lessonIcon">${done(m,n)?'✅':(item(m,n)?.e||'💬')}</span><h4>${n+1}. ${esc(title(m,n))}</h4><button class="btn primary" style="margin-top:10px" onclick="openStableLesson('A1',${m},${n})">${done(m,n)?'Revisar':'Começar'}</button></div>`).join('');
+ const cards=Array.from({length:8},(_,n)=>{const pct=progress(m,n),isDone=done(m,n);return `<div class="lessonCard ${isDone?'done':''}"><span class="lessonIcon">${isDone?'✅':(item(m,n)?.e||'💬')}</span><h4>${n+1}. ${esc(title(m,n))}</h4><p>${isDone?'Concluída':pct>0?`Em andamento · ${pct}%`:'Não iniciada'}</p><div class="lessonCardProgressV118"><span style="width:${pct}%"></span></div><button class="btn primary" style="margin-top:10px" onclick="openStableLesson('A1',${m},${n})">${isDone?'Revisar':pct>0?'Continuar':'Começar'}</button></div>`}).join('');
  $('#courseBody').innerHTML=`<div class="top"><button class="back" onclick="renderStableCourse()">‹</button><div><h2 style="margin:0">${m+1}. ${esc(MT[m])}</h2><div class="muted">A1 · poucas palavras, muita repetição</div></div></div><div class="lessonGrid">${cards}</div>`;
  window.scrollTo(0,0);
 }
