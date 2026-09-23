@@ -24,7 +24,7 @@ function homeGuideSteps(){
   return [
     {
       sel:'#home [data-v26mode="methods"]',
-      text:`Oi, ${n}! Se você quiser praticar um assunto específico, comece por Explorar temas. Lá você escolhe o tema que quer treinar e a inteligência artificial conduz a prática com você. Toque em Explorar temas e vá direto para a IA.`
+      text:`Oi, ${n}! Se você quiser praticar por assunto, toque em Explorar temas. Lá você pode escolher temas como família, viagens, comida, hotel e muito mais, e praticar inglês com a inteligência artificial.`
     },
     {
       sel:'#home [data-v26mode="module"]',
@@ -39,6 +39,7 @@ function homeGuideSteps(){
 let homeGuideBusy=false;
 let homeGuidePreloading=false;
 let homeGuidePreloadSignature='';
+let homeGuideRun=0;
 
 function clearGuideHighlight(){
   document.querySelectorAll('#home .homeConversationChoice').forEach(x=>x.classList.remove('guide-highlight'));
@@ -47,6 +48,33 @@ function setGuideHighlight(sel){
   clearGuideHighlight();
   document.querySelector(sel)?.classList.add('guide-highlight');
 }
+function setGuideRobotSpeaking(on){
+  const stage=document.querySelector('#home .homeRobotStage');
+  const img=stage?.querySelector('.homeRobot');
+  const hint=stage?.querySelector('.homeRobotGuideHint');
+  if(img){
+    const wanted=on?'assets/robot-professor-talking.svg?v=1':'assets/robot-professor.svg?v=26';
+    if(img.getAttribute('src')!==wanted)img.setAttribute('src',wanted);
+  }
+  if(hint)hint.textContent=on?'🔇 Toque para parar':'🔊 Toque em mim';
+  stage?.classList.toggle('home-guide-speaking',!!on);
+}
+function stopHomeGuideAudio(){
+  try{window.stopGeminiTTS?.()}catch{}
+  try{window.speechSynthesis?.cancel?.()}catch{}
+}
+window.stopHomeRobotGuide=()=>{
+  if(!homeGuideBusy)return;
+  homeGuideRun++;
+  homeGuideBusy=false;
+  stopHomeGuideAudio();
+  clearGuideHighlight();
+  const robot=document.querySelector('#home .homeRobotStage');
+  robot?.classList.remove('home-guide-speaking','home-guide-react','guide-mood-0','guide-mood-1','guide-mood-2','guide-mood-3');
+  setGuideRobotSpeaking(false);
+  setRobotState('');
+  setTimeout(preloadHomeGuideAudio,220);
+};
 async function preloadHomeGuideAudio(){
   if(homeGuidePreloading||typeof window.preloadGeminiTTS!=='function')return;
   const voice=currentVoice();
@@ -67,41 +95,55 @@ async function preloadHomeGuideAudio(){
 }
 
 window.playHomeRobotGuide=async()=>{
-  if(homeGuideBusy||phase!=='idle')return;
+  if(phase!=='idle')return;
+  if(homeGuideBusy){
+    window.stopHomeRobotGuide();
+    return;
+  }
+
   const robot=document.querySelector('#home .homeRobotStage');
   if(!robot)return;
 
+  const run=++homeGuideRun;
   homeGuideBusy=true;
   clearGuideHighlight();
   robot.classList.add('home-guide-react');
   setRobotState('happy');
 
   try{
-    window.stopGeminiTTS?.();
+    stopHomeGuideAudio();
     await new Promise(r=>setTimeout(r,70));
+    if(run!==homeGuideRun)return;
 
     const voice=currentVoice();
     const steps=homeGuideSteps();
 
     for(let i=0;i<steps.length;i++){
+      if(run!==homeGuideRun||!homeGuideBusy)return;
       const step=steps[i];
       setGuideHighlight(step.sel);
-      robot.classList.remove('guide-mood-0','guide-mood-1','guide-mood-2');
-      robot.classList.add('home-guide-speaking','guide-mood-'+i);
+      robot.classList.remove('guide-mood-0','guide-mood-1','guide-mood-2','guide-mood-3');
+      robot.classList.add('guide-mood-'+i);
+      setGuideRobotSpeaking(true);
       setRobotState('speaking');
 
       const ok=typeof window.geminiSpeak==='function'
         ?await window.geminiSpeak(step.text,'pt-BR',voice)
         :false;
 
+      if(run!==homeGuideRun||!homeGuideBusy)return;
       if(!ok)break;
     }
   }finally{
+    if(run!==homeGuideRun)return;
     clearGuideHighlight();
     robot.classList.remove('home-guide-speaking','home-guide-react','guide-mood-0','guide-mood-1','guide-mood-2','guide-mood-3');
+    setGuideRobotSpeaking(false);
     setRobotState('happy');
-    setTimeout(()=>setRobotState(''),650);
     homeGuideBusy=false;
+    setTimeout(()=>{
+      if(run===homeGuideRun)setRobotState('');
+    },650);
     setTimeout(preloadHomeGuideAudio,250);
   }
 }
@@ -171,7 +213,7 @@ function render(){
  c.innerHTML=`
  <div class="homeConversationTop"><h2>Converse e Divirta-se</h2><button class="teacherTypesBtn" onclick="openTeacherTypes()">🤖 Tipos de professor</button></div>
  <p class="homeConversationIntro">Escolha entre Explorar temas, Inglês com AI ou Bate-papo livre.</p>
- <button class="homeRobotStage homeRobotGuideButton" type="button" onclick="playHomeRobotGuide()" aria-label="Ouvir mini tutorial">
+ <button class="homeRobotStage homeRobotGuideButton" type="button" onclick="playHomeRobotGuide()" aria-label="Iniciar ou parar tutorial">
    <img class="homeRobot" src="assets/robot-professor.svg?v=26" alt="Robô professor">
    <span class="homeRobotGuideHint">🔊 Toque em mim</span><span class="bot homeTtsProbe" aria-hidden="true"></span>
  </button>
