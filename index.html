@@ -37,14 +37,29 @@
 <header><div class="brand"><span class="logo">🇺🇸</span><span>Meu <b>Inglês</b></span></div><div class="avatar">C</div></header>
 <main>
 <section id="onboarding" class="screen"><div id="onboardingBody"></div></section>
-<section id="home" class="screen"><div class="hero"><div class="eyebrow">CURSO DE INGLÊS COM PROFESSOR IA</div><h1>Olá, <span id="homeName">Aluno</span>! 👋</h1></div><div class="panel professorPanel" style="margin-top:14px"></div><div class="pathCard allCoursesCard courseSplitCard" aria-label="Cursos com IA">
-  <button class="courseSplitExplore" type="button" onclick="stableShow('course')" aria-label="Explorar todos os cursos">
-    <div class="pathIcon courseHubIcon" aria-hidden="true"><svg viewBox="0 0 64 64" width="62" height="62" fill="none" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="courseHubGrad" x1="10" y1="8" x2="54" y2="56" gradientUnits="userSpaceOnUse"><stop stop-color="#57C7FF"/><stop offset="1" stop-color="#1677FF"/></linearGradient></defs><rect x="6" y="6" width="52" height="52" rx="16" fill="url(#courseHubGrad)" opacity=".16"/><path d="M17 18h12v12H17zM35 18h12v12H35zM17 36h12v12H17z" fill="url(#courseHubGrad)"/><path d="M36 42l5 5 9-11" stroke="#6FE8FF" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
-    <div class="pathGrow">
-      <small>CURSOS COM IA</small>
-      <h2>Todos os Cursos</h2>
-      <p id="nextLessonTitle" class="courseSplitProgress">Carregando curso atual…</p>
-      <p id="nextLessonMeta" class="courseSplitMeta">Carregando sua aula atual…</p>
+<section id="home" class="screen"><div class="hero"><div class="eyebrow">CURSO DE INGLÊS COM PROFESSOR IA</div><h1>Olá, <span id="homeName">Aluno</span>! 👋</h1></div><div class="panel professorPanel" style="margin-top:14px"></div><div class="pathCard allCoursesCard courseSplitCard courseJourneyCard" aria-label="Curso completo de inglês">
+  <button class="courseSplitExplore" type="button" onclick="stableShow('course')" aria-label="Abrir Inglês do Básico ao Avançado">
+    <div class="pathIcon courseHubIcon courseJourneyIcon" aria-hidden="true">
+      <svg viewBox="0 0 86 86" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <linearGradient id="journeyBlue" x1="14" y1="12" x2="70" y2="73" gradientUnits="userSpaceOnUse"><stop stop-color="#7BE7FF"/><stop offset=".5" stop-color="#32B7FF"/><stop offset="1" stop-color="#1677FF"/></linearGradient>
+          <linearGradient id="journeyMint" x1="20" y1="70" x2="71" y2="25" gradientUnits="userSpaceOnUse"><stop stop-color="#68F2C4"/><stop offset="1" stop-color="#D8FFF3"/></linearGradient>
+        </defs>
+        <path d="M16 64h14V51H16v13Zm20 0h14V40H36v24Zm20 0h14V27H56v37Z" fill="url(#journeyBlue)"/>
+        <path d="M17 22h16M17 28h11" stroke="#E8FBFF" stroke-width="4" stroke-linecap="round"/>
+        <path d="M18 70c16-1 29-7 38-17 5-5 9-11 12-18" stroke="url(#journeyMint)" stroke-width="5" stroke-linecap="round"/>
+        <path d="m63 36 7-4-1 8" stroke="#D8FFF3" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+        <circle cx="18" cy="70" r="5" fill="#86F8D2"/>
+      </svg>
+    </div>
+    <div class="pathGrow courseJourneyCopy">
+      <small>CURSO COMPLETO · A1 AO C2</small>
+      <h2>Inglês do Básico ao Avançado</h2>
+      <p class="courseJourneySubtitle">Escolha seu nível e módulo de estudo.</p>
+      <div class="courseJourneyProgress" aria-label="Progresso geral do curso"><span id="allCourseProgressBar" style="width:0%"></span></div>
+      <p id="allCourseProgressText" class="courseJourneyMeta">0 de 576 aulas concluídas</p>
+      <p id="nextLessonTitle" class="courseSplitHiddenState">Carregando curso atual…</p>
+      <p id="nextLessonMeta" class="courseSplitHiddenState">Carregando sua aula atual…</p>
     </div>
     <span class="courseSplitArrow">›</span>
   </button>
