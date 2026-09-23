@@ -2,7 +2,7 @@
   <defs>
     <radialGradient id="cyanGlowTalk" cx="50%" cy="50%" r="50%">
       <stop offset="0%" stop-color="#00f3ff" stop-opacity="1"/>
-      <stop offset="70%" stop-color="#00a6ff" stop-opacity="0.8"/>
+      <stop offset="70%" stop-color="#00a6ff" stop-opacity=".8"/>
       <stop offset="100%" stop-color="#0055ff" stop-opacity="0"/>
     </radialGradient>
     <linearGradient id="headBodyGradTalk" x1="0%" y1="0%" x2="0%" y2="100%">
@@ -14,39 +14,98 @@
       <stop offset="0%" stop-color="#0a1128"/>
       <stop offset="100%" stop-color="#001f3f"/>
     </linearGradient>
+    <linearGradient id="mouthFrameTalk" x1="164" y1="160" x2="236" y2="188" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#66fbff"/>
+      <stop offset=".5" stop-color="#00e7f4"/>
+      <stop offset="1" stop-color="#18a9ff"/>
+    </linearGradient>
     <filter id="neonGlowTalk" x="-30%" y="-30%" width="160%" height="160%">
-      <feGaussianBlur stdDeviation="6" result="blur"/>
+      <feGaussianBlur stdDeviation="5" result="blur"/>
+      <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+    <filter id="mouthGlowTalk" x="-40%" y="-70%" width="180%" height="240%">
+      <feGaussianBlur stdDeviation="3.5" result="blur"/>
       <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
     </filter>
     <style>
+      .body-talk{transform-box:fill-box;transform-origin:center;animation:bodyTalk 2.3s ease-in-out infinite}
+      .head-talk{transform-box:fill-box;transform-origin:50% 62%;animation:headTalk 2.15s ease-in-out infinite}
       .waving-arm-talk{transform-box:fill-box;transform-origin:20% 70%;animation:waveTalk 2s ease-in-out infinite}
       .eye-talk{transform-box:fill-box;transform-origin:center;animation:blinkTalk 3.4s ease-in-out infinite}
-      .talk-mouth{animation:mouthGlowTalk .65s ease-in-out infinite}
-      @keyframes waveTalk{0%,45%,100%{transform:rotate(0deg)}55%{transform:rotate(-10deg)}65%{transform:rotate(9deg)}75%{transform:rotate(-7deg)}85%{transform:rotate(5deg)}}
-      @keyframes blinkTalk{0%,38%,42%,70%,74%,100%{transform:scaleY(1)}40%,72%{transform:scaleY(.10)}}
-      @keyframes mouthGlowTalk{0%,100%{opacity:.88}50%{opacity:1}}
+      .mouth-panel{animation:mouthPanelPulse .72s ease-in-out infinite}
+      @keyframes bodyTalk{
+        0%,100%{transform:translateY(0) scale(1)}
+        24%{transform:translateY(-2px) scale(1.008)}
+        52%{transform:translateY(2px) scale(.996)}
+        76%{transform:translateY(-1px) scale(1.004)}
+      }
+      @keyframes headTalk{
+        0%,100%{transform:translate(0,0) rotate(0deg)}
+        18%{transform:translate(-2px,-2px) rotate(-2deg)}
+        38%{transform:translate(1px,1px) rotate(.7deg)}
+        58%{transform:translate(3px,-1px) rotate(2deg)}
+        78%{transform:translate(-1px,1px) rotate(-1deg)}
+      }
+      @keyframes waveTalk{
+        0%,42%,100%{transform:rotate(0deg)}
+        54%{transform:rotate(-11deg)}
+        66%{transform:rotate(9deg)}
+        78%{transform:rotate(-7deg)}
+        88%{transform:rotate(4deg)}
+      }
+      @keyframes blinkTalk{
+        0%,34%,38%,67%,71%,100%{transform:scaleY(1)}
+        36%,69%{transform:scaleY(.10)}
+      }
+      @keyframes mouthPanelPulse{0%,100%{opacity:.92}50%{opacity:1}}
     </style>
   </defs>
-  <circle cx="200" cy="160" r="140" fill="url(#cyanGlowTalk)" opacity="0.42"/>
-  <path d="M140,240 C140,210 260,210 260,240 C260,280 140,280 140,240 Z" fill="url(#headBodyGradTalk)"/>
-  <path d="M125,230 Q105,250 115,270" stroke="url(#headBodyGradTalk)" stroke-width="24" stroke-linecap="round" fill="none"/>
-  <g class="waving-arm-talk">
-    <path d="M275,230 Q315,200 300,165" stroke="url(#headBodyGradTalk)" stroke-width="26" stroke-linecap="round" fill="none"/>
-    <circle cx="300" cy="160" r="16" fill="url(#headBodyGradTalk)"/>
-    <path d="M315,135 Q325,140 330,150" stroke="#00f3ff" stroke-width="3" stroke-linecap="round" fill="none" filter="url(#neonGlowTalk)"/>
-    <path d="M325,125 Q338,132 342,145" stroke="#00f3ff" stroke-width="3" stroke-linecap="round" fill="none" filter="url(#neonGlowTalk)"/>
+
+  <circle cx="200" cy="160" r="140" fill="url(#cyanGlowTalk)" opacity=".40"/>
+
+  <g class="body-talk">
+    <path d="M140,240 C140,210 260,210 260,240 C260,280 140,280 140,240 Z" fill="url(#headBodyGradTalk)"/>
+    <path d="M125,230 Q105,250 115,270" stroke="url(#headBodyGradTalk)" stroke-width="24" stroke-linecap="round" fill="none"/>
+    <g class="waving-arm-talk">
+      <path d="M275,230 Q315,200 300,165" stroke="url(#headBodyGradTalk)" stroke-width="26" stroke-linecap="round" fill="none"/>
+      <circle cx="300" cy="160" r="16" fill="url(#headBodyGradTalk)"/>
+      <path d="M315,135 Q325,140 330,150" stroke="#00f3ff" stroke-width="3" stroke-linecap="round" fill="none" filter="url(#neonGlowTalk)"/>
+      <path d="M325,125 Q338,132 342,145" stroke="#00f3ff" stroke-width="3" stroke-linecap="round" fill="none" filter="url(#neonGlowTalk)"/>
+    </g>
   </g>
-  <rect x="80" y="60" width="240" height="170" rx="85" fill="url(#headBodyGradTalk)"/>
-  <rect x="102" y="80" width="196" height="130" rx="65" fill="url(#screenGradTalk)" stroke="#1e293b" stroke-width="3"/>
-  <ellipse class="eye-talk" cx="160" cy="135" rx="14" ry="16" fill="#00f3ff" filter="url(#neonGlowTalk)"/>
-  <ellipse class="eye-talk" cx="240" cy="135" rx="14" ry="16" fill="#00f3ff" filter="url(#neonGlowTalk)"/>
-  <g class="talk-mouth" filter="url(#neonGlowTalk)">
-    <ellipse cx="200" cy="173" rx="34" ry="6" fill="#00111f" stroke="#00f3ff" stroke-width="6">
-      <animate attributeName="ry" values="5;15;8;18;6;12;5" keyTimes="0;.16;.32;.5;.66;.82;1" dur=".52s" repeatCount="indefinite"/>
-      <animate attributeName="rx" values="34;30;35;28;34;31;34" keyTimes="0;.16;.32;.5;.66;.82;1" dur=".52s" repeatCount="indefinite"/>
-    </ellipse>
-    <path d="M176 171 Q200 181 224 171" stroke="#8cffff" stroke-width="2.5" stroke-linecap="round" fill="none" opacity=".75">
-      <animate attributeName="opacity" values=".75;.18;.6;.12;.75" dur=".52s" repeatCount="indefinite"/>
-    </path>
+
+  <g class="head-talk">
+    <rect x="80" y="60" width="240" height="170" rx="85" fill="url(#headBodyGradTalk)"/>
+    <rect x="102" y="80" width="196" height="130" rx="65" fill="url(#screenGradTalk)" stroke="#1e293b" stroke-width="3"/>
+    <ellipse class="eye-talk" cx="160" cy="135" rx="14" ry="16" fill="#00f3ff" filter="url(#neonGlowTalk)"/>
+    <ellipse class="eye-talk" cx="240" cy="135" rx="14" ry="16" fill="#00f3ff" filter="url(#neonGlowTalk)"/>
+
+    <g class="mouth-panel" filter="url(#mouthGlowTalk)">
+      <rect x="162" y="159" width="76" height="30" rx="8" fill="#031b2b" stroke="url(#mouthFrameTalk)" stroke-width="4"/>
+      <rect x="169" y="166" width="62" height="16" rx="4" fill="#06121d" stroke="#1e6f83" stroke-width="1"/>
+      <g fill="#49f7ff">
+        <rect x="174" y="171" width="6" height="6" rx="2">
+          <animate attributeName="y" values="171;168;173;169;171" dur=".46s" repeatCount="indefinite"/>
+          <animate attributeName="height" values="6;12;3;10;6" dur=".46s" repeatCount="indefinite"/>
+        </rect>
+        <rect x="185" y="168" width="6" height="12" rx="2">
+          <animate attributeName="y" values="168;172;166;170;168" dur=".39s" repeatCount="indefinite"/>
+          <animate attributeName="height" values="12;4;16;8;12" dur=".39s" repeatCount="indefinite"/>
+        </rect>
+        <rect x="197" y="166" width="6" height="16" rx="2">
+          <animate attributeName="y" values="166;171;167;164;166" dur=".52s" repeatCount="indefinite"/>
+          <animate attributeName="height" values="16;6;14;18;16" dur=".52s" repeatCount="indefinite"/>
+        </rect>
+        <rect x="209" y="169" width="6" height="10" rx="2">
+          <animate attributeName="y" values="169;166;172;168;169" dur=".43s" repeatCount="indefinite"/>
+          <animate attributeName="height" values="10;16;4;12;10" dur=".43s" repeatCount="indefinite"/>
+        </rect>
+        <rect x="220" y="171" width="6" height="6" rx="2">
+          <animate attributeName="y" values="171;169;173;167;171" dur=".48s" repeatCount="indefinite"/>
+          <animate attributeName="height" values="6;10;3;14;6" dur=".48s" repeatCount="indefinite"/>
+        </rect>
+      </g>
+      <rect x="171" y="184" width="58" height="1.7" rx=".85" fill="#6effff" opacity=".55"/>
+    </g>
   </g>
 </svg>
