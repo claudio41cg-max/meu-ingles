@@ -478,3 +478,185 @@
   }
   #home .cardAiMark svg{width:19px;height:19px}
 }
+
+
+/* Home v115 — curso completo maior, inspirado nos cards grandes de módulo */
+#home .courseJourneyCard{
+  grid-template-columns:minmax(0,1fr) 122px !important;
+  gap:12px !important;
+  padding:14px !important;
+  min-height:188px !important;
+  border-radius:28px !important;
+  background:linear-gradient(135deg,#16aa93 0%,#108d83 48%,#0a6974 100%) !important;
+  box-shadow:0 18px 36px rgba(3,70,65,.28) !important;
+}
+
+#home .courseJourneyCard .courseSplitExplore,
+#home .courseJourneyCard .courseSplitContinue{
+  min-height:158px !important;
+  border-radius:22px !important;
+}
+
+#home .courseJourneyCard .courseSplitExplore{
+  grid-template-columns:82px minmax(0,1fr) auto !important;
+  gap:14px !important;
+  padding:16px 15px !important;
+  background:linear-gradient(135deg,rgba(4,92,82,.76),rgba(6,68,73,.62)) !important;
+}
+
+#home .courseJourneyIcon{
+  width:76px !important;
+  height:76px !important;
+  border-radius:20px !important;
+  display:grid !important;
+  place-items:center !important;
+  background:linear-gradient(145deg,rgba(36,192,174,.30),rgba(7,70,73,.12)) !important;
+  border:1px solid rgba(183,255,239,.34) !important;
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.16),
+    0 9px 20px rgba(0,0,0,.16) !important;
+  overflow:visible !important;
+}
+
+#home .courseJourneyIcon svg{
+  width:72px !important;
+  height:72px !important;
+  display:block !important;
+  filter:drop-shadow(0 7px 10px rgba(0,32,45,.30)) !important;
+  transform:translateY(-1px);
+}
+
+#home .courseJourneyCopy small{
+  font-size:10px !important;
+  letter-spacing:.055em !important;
+  color:#bdf9e9 !important;
+}
+
+#home .courseJourneyCopy h2{
+  margin:4px 0 5px !important;
+  font-size:22px !important;
+  line-height:1.06 !important;
+  max-width:300px;
+}
+
+#home .courseJourneySubtitle{
+  margin:0 0 10px !important;
+  color:#e5fff8 !important;
+  font-size:12px !important;
+  line-height:1.25 !important;
+  font-weight:700;
+}
+
+#home .courseJourneyProgress{
+  width:100%;
+  height:10px;
+  border-radius:999px;
+  overflow:hidden;
+  background:rgba(2,48,53,.48);
+  box-shadow:inset 0 1px 3px rgba(0,0,0,.26);
+}
+
+#home .courseJourneyProgress>span{
+  display:block;
+  height:100%;
+  border-radius:inherit;
+  background:linear-gradient(90deg,#b8fff0 0%,#60e8c5 55%,#32c9ae 100%);
+  box-shadow:0 0 12px rgba(117,247,214,.34);
+  transition:width .3s ease;
+}
+
+#home .courseJourneyMeta{
+  margin:6px 0 0 !important;
+  color:#cff8ee !important;
+  font-size:11px !important;
+  line-height:1.2 !important;
+  font-weight:850;
+}
+
+#home .courseSplitHiddenState{
+  display:none !important;
+}
+
+#home .courseJourneyCard .courseSplitArrow{
+  font-size:34px !important;
+  color:#d7fff5 !important;
+}
+
+#home .courseJourneyCard .courseSplitContinue{
+  gap:11px !important;
+  padding:14px 10px !important;
+  font-size:17px !important;
+  background:linear-gradient(145deg,#32d2b4 0%,#17a997 55%,#0c7d81 100%) !important;
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.16),
+    0 6px 0 #075d63,
+    0 12px 20px rgba(3,65,65,.18) !important;
+}
+
+#home .courseJourneyCard .courseSplitContinue span{
+  width:52px !important;
+  height:52px !important;
+  font-size:21px !important;
+  background:rgba(255,255,255,.16) !important;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.14);
+}
+
+@media(max-width:430px){
+  #home .courseJourneyCard{
+    grid-template-columns:minmax(0,1fr) 108px !important;
+    gap:9px !important;
+    padding:11px !important;
+    min-height:174px !important;
+    border-radius:25px !important;
+  }
+
+  #home .courseJourneyCard .courseSplitExplore,
+  #home .courseJourneyCard .courseSplitContinue{
+    min-height:148px !important;
+  }
+
+  #home .courseJourneyCard .courseSplitExplore{
+    grid-template-columns:62px minmax(0,1fr) auto !important;
+    gap:9px !important;
+    padding:12px 10px !important;
+  }
+
+  #home .courseJourneyIcon{
+    width:60px !important;
+    height:60px !important;
+    border-radius:17px !important;
+  }
+
+  #home .courseJourneyIcon svg{
+    width:59px !important;
+    height:59px !important;
+  }
+
+  #home .courseJourneyCopy h2{
+    font-size:18px !important;
+    max-width:210px;
+  }
+
+  #home .courseJourneyCopy small{
+    font-size:8px !important;
+  }
+
+  #home .courseJourneySubtitle{
+    font-size:10.5px !important;
+    margin-bottom:8px !important;
+  }
+
+  #home .courseJourneyMeta{
+    font-size:9.5px !important;
+  }
+
+  #home .courseJourneyCard .courseSplitContinue{
+    font-size:15px !important;
+  }
+
+  #home .courseJourneyCard .courseSplitContinue span{
+    width:45px !important;
+    height:45px !important;
+    font-size:18px !important;
+  }
+}
