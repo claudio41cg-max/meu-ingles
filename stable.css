@@ -308,3 +308,37 @@ nav{position:fixed;z-index:40;left:50%;transform:translateX(-50%);bottom:0;width
   .guideGlow{width:220px;height:220px}
   .onboardWelcomeChips span{font-size:11px;padding:8px 11px}
 }
+
+
+/* Curso v118 — progresso persistente em cada card de aula */
+.lessonCardProgressV118{
+  width:100%;
+  height:9px;
+  margin-top:10px;
+  border-radius:999px;
+  overflow:hidden;
+  background:rgba(5,35,48,.34);
+  box-shadow:inset 0 1px 3px rgba(0,0,0,.24);
+}
+.lessonCardProgressV118>span{
+  display:block;
+  height:100%;
+  width:0;
+  border-radius:inherit;
+  background:linear-gradient(90deg,#d8fff5 0%,#8cf0d8 45%,#4ad2b3 100%);
+  box-shadow:0 0 9px rgba(135,240,216,.28);
+  transition:width .28s ease;
+}
+.lessonCard.done .lessonCardProgressV118>span,
+.a2LessonCard.done .lessonCardProgressV118>span,
+.firstContactsLessonCard.done .lessonCardProgressV118>span{
+  background:linear-gradient(90deg,#c9ffe1 0%,#75efa9 52%,#38d77d 100%);
+}
+.firstContactsLessonCopy,
+.a2LessonCopy{
+  min-width:0;
+}
+.firstContactsLessonCopy .lessonCardProgressV118,
+.a2LessonCopy .lessonCardProgressV118{
+  max-width:100%;
+}
