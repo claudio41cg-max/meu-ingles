@@ -53,7 +53,7 @@ function setGuideRobotSpeaking(on){
   const img=stage?.querySelector('.homeRobot');
   const hint=stage?.querySelector('.homeRobotGuideHint');
   if(img){
-    const wanted=on?'assets/robot-professor-talking.svg?v=2':'assets/robot-professor.svg?v=26';
+    const wanted=on?'assets/robot-professor-talking.svg?v=3':'assets/robot-professor.svg?v=26';
     if(img.getAttribute('src')!==wanted)img.setAttribute('src',wanted);
   }
   if(hint)hint.textContent=on?'🔇 Toque para parar':'🔊 Toque em mim';
