@@ -146,7 +146,7 @@ const progress=(m,n)=>{try{return window.getStableLessonProgress?.('A2',m,n)??(d
 const saveProgress=(m,n,p)=>{try{window.setStableLessonProgress?.('A2',m,n,p)}catch{}};
 const unlocked=(m,n)=>n===0||done(m,n-1)||progress(m,n)>0;
 const known=(m,n)=>{const a=[];for(let i=0;i<8;i++){const x=item(m,i);if(x&&i<=n)a.push(x)}if(m>0){for(let i=5;i<8;i++){const x=item(m-1,i);if(x)a.push(x)}}return a};
-const opts=(cur,m,n,field)=>sh([cur,...known(m,n).filter(x=>x.en!==cur.en)]).slice(0,3).map(x=>x[field]);
+const opts=(cur,m,n,field)=>sh([cur,...RAW[m].map(parse).filter(x=>x.en!==cur.en),...known(m,n).filter(x=>x.en!==cur.en)]).filter((x,i,a)=>a.findIndex(y=>norm(y[field])===norm(x[field]))===i).slice(0,3).map(x=>x[field]);
 function speak(t,lang='en-US'){try{return window.geminiSpeak?.(t,lang,state().voice||'Aoede')}catch{return Promise.resolve(false)}}
 function feedback(ok){return ok?'Boa! Você acertou.':'Quase. Veja a resposta certa e tente de novo.'}
 
