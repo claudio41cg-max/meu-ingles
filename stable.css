@@ -350,19 +350,22 @@ nav{position:fixed;z-index:40;left:50%;transform:translateX(-50%);bottom:0;width
   overflow:hidden;
   margin-bottom:16px;
   padding:15px;
-  border:1px solid rgba(81,151,194,.38);
+  border:1px solid rgba(181,205,219,.46);
   border-radius:24px;
   background:
-    radial-gradient(circle at 92% 5%,rgba(61,173,235,.11),transparent 30%),
-    linear-gradient(145deg,rgba(15,35,54,.96),rgba(8,23,36,.96));
-  box-shadow:0 14px 32px rgba(0,0,0,.22),inset 0 1px 0 rgba(255,255,255,.025);
+    radial-gradient(circle at 90% 8%,rgba(255,255,255,.12),transparent 30%),
+    linear-gradient(145deg,#465764 0%,#3c4c58 52%,#33434f 100%);
+  box-shadow:
+    0 14px 30px rgba(0,0,0,.18),
+    inset 0 1px 0 rgba(255,255,255,.15),
+    inset 0 -1px 0 rgba(8,22,34,.18);
 }
 #course .courseLevelStatus::after{
   content:"";
   position:absolute;
-  width:170px;height:170px;border-radius:50%;
-  right:-85px;bottom:-105px;
-  background:radial-gradient(circle,rgba(44,165,224,.12),transparent 70%);
+  width:180px;height:180px;border-radius:50%;
+  right:-88px;bottom:-110px;
+  background:radial-gradient(circle,rgba(210,230,240,.12),transparent 70%);
   pointer-events:none;
 }
 #course .courseLevelStatus .levelTabs{
@@ -404,7 +407,7 @@ nav{position:fixed;z-index:40;left:50%;transform:translateX(-50%);bottom:0;width
   gap:14px;
   margin-top:6px;
   padding:14px 2px 12px;
-  border-top:1px solid rgba(255,255,255,.055);
+  border-top:1px solid rgba(255,255,255,.12);
 }
 #course .courseLevelIdentity small{
   display:block;
@@ -440,8 +443,8 @@ nav{position:fixed;z-index:40;left:50%;transform:translateX(-50%);bottom:0;width
   gap:10px;
   padding:10px 12px;
   border-radius:15px;
-  background:rgba(255,255,255,.035);
-  border:1px solid rgba(100,158,192,.18);
+  background:rgba(17,31,41,.16);
+  border:1px solid rgba(220,235,244,.16);
 }
 #course .courseCurrentModuleLabel{
   font-size:8px;
