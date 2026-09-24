@@ -433,3 +433,63 @@
   .moduleTwoArtGlow{width:88px;height:88px}
   .moduleTwoArtIcon{font-size:46px}
 }
+
+
+/* A1 v55 — identidade roxa completa nas aulas do Módulo 2 */
+.moduleTwoLessonScreen .b14Listen,
+.moduleTwoLessonScreen .b14Next,
+.moduleTwoLessonScreen .b14Next.blue,
+.moduleTwoLessonScreen .b14Check,
+.moduleTwoLessonScreen .b14Clear,
+.moduleTwoLessonScreen .b14Teacher button,
+.moduleTwoLessonScreen .b14TeacherMenu button{
+  background:linear-gradient(180deg,#7b66e8 0%,#5d49c2 100%) !important;
+  border-color:rgba(201,191,255,.42) !important;
+  color:#fff !important;
+  box-shadow:0 7px 0 #403490, inset 0 1px 0 rgba(255,255,255,.14) !important;
+}
+.moduleTwoLessonScreen .b14Choice,
+.moduleTwoLessonScreen .b14Conversation button,
+.moduleTwoLessonScreen .b14Bank button{
+  background:linear-gradient(180deg,#241f4f 0%,#1a173b 100%) !important;
+  border:2px solid rgba(143,124,225,.56) !important;
+  color:#fff !important;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.04) !important;
+}
+.moduleTwoLessonScreen .b14Choice:hover,
+.moduleTwoLessonScreen .b14Conversation button:hover,
+.moduleTwoLessonScreen .b14Bank button:hover{
+  border-color:#ab99ff !important;
+  background:linear-gradient(180deg,#2c255f 0%,#201a47 100%) !important;
+}
+.moduleTwoLessonScreen .b14Choice.correct,
+.moduleTwoLessonScreen .b14Conversation button.correct,
+.moduleTwoLessonScreen .b14Token.correct,
+.moduleTwoLessonScreen .b14Feedback.good{
+  background:linear-gradient(180deg,#6f5bd5 0%,#5544b5 100%) !important;
+  border-color:#c2b5ff !important;
+  color:#fff !important;
+  box-shadow:0 0 0 1px rgba(211,204,255,.14) inset,0 0 18px rgba(123,102,232,.18) !important;
+}
+.moduleTwoLessonScreen .b14Choice.wrong,
+.moduleTwoLessonScreen .b14Conversation button.wrong,
+.moduleTwoLessonScreen .b14Token.wrong,
+.moduleTwoLessonScreen .b14Feedback.bad{
+  background:rgba(155,38,55,.34) !important;
+  border-color:#e35c70 !important;
+  color:#ffe9ed !important;
+}
+.moduleTwoLessonScreen .b14Answer,
+.moduleTwoLessonScreen .b14CorrectOrder{
+  border-color:rgba(150,132,231,.34) !important;
+  background:#171633 !important;
+}
+.moduleTwoLessonScreen .b14Token{
+  background:#2a2359 !important;
+  border-color:rgba(154,138,232,.48) !important;
+  color:#fff !important;
+}
+.moduleTwoLessonScreen .b14Eyebrow,
+.moduleTwoLessonScreen .b14VoiceWarn{
+  color:#c5b9ff !important;
+}
