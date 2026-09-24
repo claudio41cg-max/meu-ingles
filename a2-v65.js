@@ -278,11 +278,12 @@ function shell(inner){
  return `<div class="beginner14 a2CourseLesson tone-${run.m%6} module-${run.m}">
   <div class="b14Top"><button class="b14Back" onclick="a2ExitLesson()" aria-label="Voltar ao módulo">‹</button><div class="b14Progress"><span style="width:${pct}%"></span></div><button class="a2ExitLesson" onclick="a2ExitLesson()">Sair</button></div>
   <div class="b14Card"><div class="b14Eyebrow">A2 · MÓDULO ${run.m+1} · AULA ${run.n+1}</div>${inner}</div>
+  <div class="lessonStepNav" aria-label="Navegação entre etapas"><button type="button" onclick="a2Jump(-1)" aria-label="Voltar uma etapa" ${run.i<=0?'disabled':''}>‹</button><button type="button" onclick="a2Jump(1)" aria-label="Avançar uma etapa" ${run.i>=run.lesson.steps.length-1?'disabled':''}>›</button></div>
  </div>`;
 }
 const next=()=>`<div class="b14Footer"><button class="b14Next" onclick="a2Next()">Continuar</button></div>`;
-function render(){
- const s=run.lesson.steps[run.i];let h='';
+function render(preserveScroll=false){
+ const keepY=preserveScroll?window.scrollY:null;const s=run.lesson.steps[run.i];let h='';
  if(s.t==='learn'){
   h=`<div class="b14Emoji">${s.x.e}</div><div class="b14Word">${esc(s.x.en)}</div><div class="b14Translation">${esc(s.x.pt)}</div><button class="b14Listen" onclick="a2Speak('${encodeURIComponent(s.x.en)}')">🔊 Ouvir</button>${next()}`;
  }else if(s.t==='choice'){
@@ -303,7 +304,7 @@ function render(){
  }else{
   h=`<h2>Revisão do que você aprendeu</h2><div class="b14Review">${s.items.map(x=>`<button class="b14Mini" onclick="a2Speak('${encodeURIComponent(x.en)}')"><span>${x.e}</span><b>${esc(x.en)}</b><small>${esc(x.pt)}</small></button>`).join('')}</div><div class="b14Footer"><button class="b14Next" onclick="a2Finish()">Concluir aula · +40 XP</button></div>`;
  }
- $('#courseBody').innerHTML=shell(h);window.scrollTo(0,0);
+ $('#courseBody').innerHTML=shell(h);if(keepY===null)window.scrollTo(0,0);else requestAnimationFrame(()=>requestAnimationFrame(()=>window.scrollTo(0,keepY)));
  if(s.t==='learn')setTimeout(()=>speak(s.x.en),250);
  if(s.t==='choice'&&s.audio)setTimeout(()=>speak(s.audio),250);
 }
@@ -311,12 +312,13 @@ window.a2Speak=e=>speak(decodeURIComponent(e));
 window.a2SpeakLang=(e,lang='en-US')=>speak(decodeURIComponent(e),lang);
 window.a2ExitLesson=()=>{try{window.stopGeminiTTS?.()}catch{};try{window.speechSynthesis?.cancel?.()}catch{};if(run)openStableModule('A2',run.m)};
 window.a2Next=()=>{run.i++;if(run.i>=run.lesson.steps.length)return finish();saveProgress(run.m,run.n,Math.round(run.i/run.lesson.steps.length*100));run.built=[];run.used=[];run.checked=false;run.ok=false;run.gameIndex=0;run.gameScore=0;render()};
+window.a2Jump=delta=>{if(!run)return;const d=Number(delta)||0,ni=Math.max(0,Math.min(run.lesson.steps.length-1,run.i+d));if(ni===run.i)return;run.i=ni;if(d>0)saveProgress(run.m,run.n,Math.round(run.i/run.lesson.steps.length*100));run.built=[];run.used=[];run.checked=false;run.ok=false;run.gameIndex=0;run.gameScore=0;render(false)};
 window.a2Answer=e=>{const s=run.lesson.steps[run.i],v=decodeURIComponent(e),ok=norm(v)===norm(s.ans),msg=feedback(ok);document.querySelectorAll('[data-a2-choice]').forEach(b=>{const x=decodeURIComponent(b.dataset.a2Choice);if(norm(x)===norm(v))b.classList.add(ok?'correct':'wrong');if(!ok&&norm(x)===norm(s.ans))b.classList.add('correct');b.disabled=true});const f=$('#a2Feedback');if(f)f.innerHTML=`<div class="b14Feedback ${ok?'good':'bad'}"><b>${msg}</b></div>${next()}`;speakFeedback(msg);};
-window.a2Pick=i=>{if(run.checked||run.used.includes(i))return;run.used.push(i);run.built.push(run.lesson.steps[run.i].tokens[i]);render()};
-window.a2Clear=()=>{run.built=[];run.used=[];run.checked=false;run.ok=false;render()};
-window.a2Check=()=>{const s=run.lesson.steps[run.i];run.checked=true;run.ok=norm(run.built.join(' '))===norm(s.target);const msg=feedback(run.ok);render();const f=$('#a2Feedback');if(f)f.innerHTML=`<div class="b14Feedback ${run.ok?'good':'bad'}"><b>${msg}</b></div>`;speakFeedback(msg);};
+window.a2Pick=i=>{if(run.checked||run.used.includes(i))return;run.used.push(i);run.built.push(run.lesson.steps[run.i].tokens[i]);render(true)};
+window.a2Clear=()=>{run.built=[];run.used=[];run.checked=false;run.ok=false;render(true)};
+window.a2Check=()=>{const s=run.lesson.steps[run.i];run.checked=true;run.ok=norm(run.built.join(' '))===norm(s.target);const msg=feedback(run.ok);render(true);const f=$('#a2Feedback');if(f)f.innerHTML=`<div class="b14Feedback ${run.ok?'good':'bad'}"><b>${msg}</b></div>`;speakFeedback(msg);};
 window.a2GameAnswer=e=>{const s=run.lesson.steps[run.i],q=s.items[run.gameIndex||0],v=decodeURIComponent(e),ok=norm(v)===norm(q.pt),msg=feedback(ok);if(ok)run.gameScore=(run.gameScore||0)+1;document.querySelectorAll('[data-a2-game]').forEach(b=>{const x=decodeURIComponent(b.dataset.a2Game);if(norm(x)===norm(v))b.classList.add(ok?'correct':'wrong');if(!ok&&norm(x)===norm(q.pt))b.classList.add('correct');b.disabled=true});const f=$('#a2Feedback');if(f)f.innerHTML=`<div class="b14Feedback ${ok?'good':'bad'}"><b>${msg}</b></div><div class="b14Footer"><button class="b14Next blue" onclick="a2GameNext()">Próxima rodada</button></div>`;speakFeedback(msg);};
-window.a2GameNext=()=>{run.gameIndex=(run.gameIndex||0)+1;render()};
+window.a2GameNext=()=>{run.gameIndex=(run.gameIndex||0)+1;render(true)};
 
 function validateLesson(l){
  return !!l&&Array.isArray(l.steps)&&l.steps.length>0&&l.steps.every(s=>{
