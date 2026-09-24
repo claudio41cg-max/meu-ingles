@@ -156,9 +156,100 @@ const opts=(cur,m,n,field)=>{
  return makeOptions(cur[field],pool);
 };
 function speak(t,lang='en-US'){try{return window.geminiSpeak?.(t,lang,state().voice||'Aoede')}catch{return Promise.resolve(false)}}
-function feedback(ok){return ok?'Boa! Continue assim.':'Quase. Tente outra vez.'}
-function speakFeedback(ok){
- const text=feedback(ok);
+const FEEDBACK_BANK={
+ leve:{
+  ok:[
+   'Muito bem. Continue assim.',
+   'Ótimo trabalho. Você acertou.',
+   'Isso mesmo. Mandou bem.',
+   'Perfeito. Vamos continuar.',
+   'Boa. Você está pegando o jeito.',
+   'Excelente. Essa ficou certinha.',
+   'Muito bom. Pode seguir.',
+   'Acertou. Continue nesse ritmo.',
+   'Ótimo. Mais uma concluída.',
+   'Isso aí. Você está indo muito bem.'
+  ],
+  no:[
+   'Quase. Tente outra vez.',
+   'Não foi dessa vez. Vamos de novo.',
+   'Está perto. Tente mais uma vez.',
+   'Tudo bem. Veja a resposta e tente novamente.',
+   'Quase lá. Preste atenção e tente de novo.',
+   'Ainda não. Vamos repetir com calma.',
+   'Não tem problema. Tente mais uma vez.',
+   'Passou perto. Vamos corrigir e continuar.',
+   'Essa escapou. Tente novamente.',
+   'Vamos ajustar essa resposta e tentar de novo.'
+  ]
+ },
+ media:{
+  ok:[
+   'Aí sim! Mandou muito bem.',
+   'Boa demais! Essa foi bonita.',
+   'Agora sim! Inglês saindo bonito.',
+   'Acertou em cheio! Bora para a próxima.',
+   'Mandou bem demais! Continua.',
+   'Boa! Essa entrou sem sofrimento.',
+   'Aí eu gostei! Certinho.',
+   'Brabo! Essa você matou rápido.',
+   'Perfeito! Desse jeito fica fácil.',
+   'Boa, campeão! Mais uma no bolso.'
+  ],
+  no:[
+   'Quase! Essa escapou por pouco.',
+   'Ih, passou raspando. Tenta de novo.',
+   'Não foi dessa vez, mas você chegou perto.',
+   'Opa! Essa tentou fugir de você. Vai outra.',
+   'Quase, meu amigo. Bora acertar agora.',
+   'Essa deu um nó, hein? Tenta mais uma.',
+   'Passou perto! Olha com calma e manda de novo.',
+   'Errou por pouco. Bora virar esse jogo.',
+   'Essa não entrou. Tenta de novo que vai.',
+   'Quase! Não deixa essa palavra ganhar de você.'
+  ]
+ },
+ pesada:{
+  ok:[
+   'Aí, porra! Agora sim. Mandou bem.',
+   'Caralho, essa foi bonita. Acertou.',
+   'Boa pra cacete. Continua assim.',
+   'Aí sim, miserável! Cravou a resposta.',
+   'Porra, finalmente! Essa saiu perfeita.',
+   'Mandou bem pra caralho. Próxima.',
+   'Agora você veio forte. Acertou em cheio.',
+   'Boa, desgraçado! Essa ficou certinha.',
+   'Aí eu respeito. Resposta perfeita.',
+   'Caralho, meu irmão. Essa você matou rápido.'
+  ],
+  no:[
+   'Quase, porra. Tenta de novo.',
+   'Caralho, passou perto. Vai mais uma.',
+   'Porra, essa escapou. Olha direito e tenta outra.',
+   'Não, miserável! Essa não. Tenta de novo.',
+   'Quase, cacete. Não entrega os pontos agora.',
+   'Essa te bateu, hein? Bora devolver e acertar.',
+   'Porra, de novo não. Presta atenção nessa.',
+   'Passou raspando, caralho. Mais uma tentativa.',
+   'Essa foi feia, hein? Corrige e manda de novo.',
+   'Quase, desgraçado. Agora acerta essa porra.'
+  ]
+ }
+};
+const lastFeedback={};
+function feedback(ok){
+ const teacher=state().teacher||'media';
+ const mode=FEEDBACK_BANK[teacher]?teacher:'media';
+ const kind=ok?'ok':'no';
+ const list=FEEDBACK_BANK[mode][kind];
+ const key=mode+'-'+kind;
+ let choices=list.map((_,i)=>i).filter(i=>i!==lastFeedback[key]);
+ if(!choices.length)choices=list.map((_,i)=>i);
+ const idx=choices[Math.floor(Math.random()*choices.length)];
+ lastFeedback[key]=idx;
+ return list[idx];
+}
+function speakFeedback(text){
  try{window.geminiSpeak?.(text,'pt-BR',state().voice||'Aoede')}catch{}
  return text;
 }
@@ -218,11 +309,11 @@ function render(){
 window.a2Speak=e=>speak(decodeURIComponent(e));
 window.a2ExitLesson=()=>{try{window.stopGeminiTTS?.()}catch{};try{window.speechSynthesis?.cancel?.()}catch{};if(run)openStableModule('A2',run.m)};
 window.a2Next=()=>{run.i++;if(run.i>=run.lesson.steps.length)return finish();saveProgress(run.m,run.n,Math.round(run.i/run.lesson.steps.length*100));run.built=[];run.used=[];run.checked=false;run.ok=false;run.gameIndex=0;run.gameScore=0;render()};
-window.a2Answer=e=>{const s=run.lesson.steps[run.i],v=decodeURIComponent(e),ok=norm(v)===norm(s.ans);document.querySelectorAll('[data-a2-choice]').forEach(b=>{const x=decodeURIComponent(b.dataset.a2Choice);if(norm(x)===norm(v))b.classList.add(ok?'correct':'wrong');if(!ok&&norm(x)===norm(s.ans))b.classList.add('correct');b.disabled=true});const f=$('#a2Feedback');if(f)f.innerHTML=`<div class="b14Feedback ${ok?'good':'bad'}"><b>${feedback(ok)}</b></div>${next()}`;speakFeedback(ok);};
+window.a2Answer=e=>{const s=run.lesson.steps[run.i],v=decodeURIComponent(e),ok=norm(v)===norm(s.ans),msg=feedback(ok);document.querySelectorAll('[data-a2-choice]').forEach(b=>{const x=decodeURIComponent(b.dataset.a2Choice);if(norm(x)===norm(v))b.classList.add(ok?'correct':'wrong');if(!ok&&norm(x)===norm(s.ans))b.classList.add('correct');b.disabled=true});const f=$('#a2Feedback');if(f)f.innerHTML=`<div class="b14Feedback ${ok?'good':'bad'}"><b>${msg}</b></div>${next()}`;speakFeedback(msg);};
 window.a2Pick=i=>{if(run.checked||run.used.includes(i))return;run.used.push(i);run.built.push(run.lesson.steps[run.i].tokens[i]);render()};
 window.a2Clear=()=>{run.built=[];run.used=[];run.checked=false;run.ok=false;render()};
-window.a2Check=()=>{const s=run.lesson.steps[run.i];run.checked=true;run.ok=norm(run.built.join(' '))===norm(s.target);render();const f=$('#a2Feedback');if(f)f.innerHTML=`<div class="b14Feedback ${run.ok?'good':'bad'}"><b>${feedback(run.ok)}</b></div>`;speakFeedback(run.ok);};
-window.a2GameAnswer=e=>{const s=run.lesson.steps[run.i],q=s.items[run.gameIndex||0],v=decodeURIComponent(e),ok=norm(v)===norm(q.pt);if(ok)run.gameScore=(run.gameScore||0)+1;document.querySelectorAll('[data-a2-game]').forEach(b=>{const x=decodeURIComponent(b.dataset.a2Game);if(norm(x)===norm(v))b.classList.add(ok?'correct':'wrong');if(!ok&&norm(x)===norm(q.pt))b.classList.add('correct');b.disabled=true});const f=$('#a2Feedback');if(f)f.innerHTML=`<div class="b14Feedback ${ok?'good':'bad'}"><b>${feedback(ok)}</b></div><div class="b14Footer"><button class="b14Next blue" onclick="a2GameNext()">Próxima rodada</button></div>`;speakFeedback(ok);};
+window.a2Check=()=>{const s=run.lesson.steps[run.i];run.checked=true;run.ok=norm(run.built.join(' '))===norm(s.target);const msg=feedback(run.ok);render();const f=$('#a2Feedback');if(f)f.innerHTML=`<div class="b14Feedback ${run.ok?'good':'bad'}"><b>${msg}</b></div>`;speakFeedback(msg);};
+window.a2GameAnswer=e=>{const s=run.lesson.steps[run.i],q=s.items[run.gameIndex||0],v=decodeURIComponent(e),ok=norm(v)===norm(q.pt),msg=feedback(ok);if(ok)run.gameScore=(run.gameScore||0)+1;document.querySelectorAll('[data-a2-game]').forEach(b=>{const x=decodeURIComponent(b.dataset.a2Game);if(norm(x)===norm(v))b.classList.add(ok?'correct':'wrong');if(!ok&&norm(x)===norm(q.pt))b.classList.add('correct');b.disabled=true});const f=$('#a2Feedback');if(f)f.innerHTML=`<div class="b14Feedback ${ok?'good':'bad'}"><b>${msg}</b></div><div class="b14Footer"><button class="b14Next blue" onclick="a2GameNext()">Próxima rodada</button></div>`;speakFeedback(msg);};
 window.a2GameNext=()=>{run.gameIndex=(run.gameIndex||0)+1;render()};
 
 function validateLesson(l){
