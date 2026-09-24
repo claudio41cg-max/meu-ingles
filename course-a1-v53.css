@@ -266,3 +266,170 @@
     font-size:43px;
   }
 }
+
+
+/* A1 v54 — Módulo 2: Alfabeto, números e dados pessoais */
+.moduleTwoView{
+  padding:0 0 18px;
+}
+.moduleTwoHead{
+  display:flex;
+  align-items:flex-start;
+  gap:14px;
+  margin:6px 0 18px;
+}
+.moduleTwoBack{
+  flex:0 0 52px;
+  width:52px;height:52px;
+  border-radius:18px !important;
+  background:linear-gradient(145deg,#604fc5,#423596) !important;
+  border:1px solid rgba(193,181,255,.34) !important;
+  box-shadow:0 9px 22px rgba(29,21,83,.26);
+}
+.moduleTwoEyebrow{
+  margin:1px 0 4px;
+  color:#bfb5ff;
+  font-size:12px;
+  font-weight:950;
+  letter-spacing:.11em;
+}
+.moduleTwoHead h2{
+  margin:0;
+  color:#fff;
+  font-size:27px;
+  line-height:1.08;
+}
+.moduleTwoHead p{
+  margin:7px 0 0;
+  color:#9faec4;
+  font-size:13px;
+}
+.moduleTwoLessons{
+  display:grid;
+  gap:14px;
+}
+.moduleTwoLessonCard{
+  position:relative;
+  overflow:hidden;
+  min-height:154px;
+  display:grid;
+  grid-template-columns:minmax(0,1fr) 116px;
+  align-items:center;
+  gap:12px;
+  padding:20px 20px 18px 22px;
+  border-radius:30px;
+  background:
+    radial-gradient(circle at 88% 20%,rgba(208,197,255,.18),transparent 26%),
+    linear-gradient(135deg,#705bd9 0%,#5948bd 54%,#403492 100%);
+  border:1px solid rgba(198,187,255,.34);
+  box-shadow:0 15px 28px rgba(17,12,55,.24),inset 0 1px 0 rgba(255,255,255,.10);
+  cursor:pointer;
+}
+.moduleTwoLessonCard:active{transform:scale(.986)}
+.moduleTwoLessonCard.done{
+  box-shadow:0 15px 28px rgba(17,12,55,.24),inset 0 0 0 1px rgba(190,255,222,.20);
+}
+.moduleTwoLessonCard.locked{
+  cursor:default;
+  filter:saturate(.55) brightness(.75);
+  opacity:.72;
+}
+.moduleTwoLessonCopy{position:relative;z-index:2;min-width:0}
+.moduleTwoLessonNumber{
+  color:#ddd7ff;
+  font-size:12px;
+  font-weight:950;
+  letter-spacing:.10em;
+}
+.moduleTwoLessonCard h4{
+  margin:7px 0 8px;
+  color:#fff;
+  font-size:23px;
+  line-height:1.08;
+}
+.moduleTwoLessonStatus{
+  color:#f0edff;
+  font-size:13px;
+  font-weight:750;
+}
+.moduleTwoLessonCard .lessonCardProgressV118{
+  width:100%;
+  height:8px;
+  margin-top:13px;
+  background:rgba(28,20,82,.38);
+  border:1px solid rgba(255,255,255,.11);
+}
+.moduleTwoLessonCard .lessonCardProgressV118 span{
+  background:linear-gradient(90deg,#f3efff,#c9bfff,#9d8cff);
+  box-shadow:0 0 13px rgba(202,189,255,.34);
+}
+.moduleTwoLessonArt{
+  position:relative;
+  width:108px;height:108px;
+  display:grid;
+  place-items:center;
+  justify-self:end;
+}
+.moduleTwoArtGlow{
+  position:absolute;
+  width:104px;height:104px;
+  border-radius:50%;
+  background:radial-gradient(circle,rgba(221,213,255,.24),rgba(175,157,255,.12) 48%,transparent 70%);
+}
+.moduleTwoArtIcon{
+  position:relative;
+  z-index:2;
+  font-size:54px;
+  filter:drop-shadow(0 6px 12px rgba(25,18,70,.22));
+}
+
+/* Aulas internas do Módulo 2 puxam para o roxo do card */
+.moduleTwoLessonScreen{
+  --m2a:#7862e5;
+  --m2b:#5b49bf;
+  --m2c:#403490;
+}
+.moduleTwoLessonScreen .b14Card{
+  border-color:rgba(187,174,255,.46) !important;
+  background:
+    radial-gradient(circle at 88% 7%,rgba(157,136,255,.17),transparent 26%),
+    linear-gradient(180deg,#171c3b 0%,#13172f 55%,#101327 100%) !important;
+  box-shadow:0 16px 32px rgba(0,0,0,.24),0 0 22px rgba(103,82,205,.08) !important;
+}
+.moduleTwoLessonScreen .b14Progress span{
+  background:linear-gradient(90deg,#9b89ff,#715de0,#5542bb) !important;
+}
+.moduleTwoLessonScreen .b14Next,
+.moduleTwoLessonScreen .b14Check,
+.moduleTwoLessonScreen .b14Listen{
+  background:linear-gradient(180deg,#7c66e8,#5b49bf) !important;
+  color:#fff !important;
+  box-shadow:0 7px 0 #403490 !important;
+}
+.moduleTwoLessonScreen .b14Choice,
+.moduleTwoLessonScreen .b14Conversation button,
+.moduleTwoLessonScreen .b14Bank button,
+.moduleTwoLessonScreen .b14Token{
+  background:#171b39;
+  border-color:rgba(146,128,225,.46);
+}
+.moduleTwoLessonScreen .b14Choice.correct,
+.moduleTwoLessonScreen .b14Conversation button.correct,
+.moduleTwoLessonScreen .b14Token.correct,
+.moduleTwoLessonScreen .b14Feedback.good{
+  background:rgba(113,91,220,.22) !important;
+  border-color:#a995ff !important;
+}
+@media(max-width:430px){
+  .moduleTwoHead h2{font-size:23px}
+  .moduleTwoLessonCard{
+    min-height:142px;
+    grid-template-columns:minmax(0,1fr) 92px;
+    padding:18px 16px 17px 18px;
+    border-radius:27px;
+  }
+  .moduleTwoLessonCard h4{font-size:20px}
+  .moduleTwoLessonArt{width:90px;height:90px}
+  .moduleTwoArtGlow{width:88px;height:88px}
+  .moduleTwoArtIcon{font-size:46px}
+}
