@@ -146,7 +146,15 @@ const progress=(m,n)=>{try{return window.getStableLessonProgress?.('A2',m,n)??(d
 const saveProgress=(m,n,p)=>{try{window.setStableLessonProgress?.('A2',m,n,p)}catch{}};
 const unlocked=(m,n)=>n===0||done(m,n-1)||progress(m,n)>0;
 const known=(m,n)=>{const a=[];for(let i=0;i<8;i++){const x=item(m,i);if(x&&i<=n)a.push(x)}if(m>0){for(let i=5;i<8;i++){const x=item(m-1,i);if(x)a.push(x)}}return a};
-const opts=(cur,m,n,field)=>sh([cur,...RAW[m].map(parse).filter(x=>x.en!==cur.en),...known(m,n).filter(x=>x.en!==cur.en)]).filter((x,i,a)=>a.findIndex(y=>norm(y[field])===norm(x[field]))===i).slice(0,3).map(x=>x[field]);
+function makeOptions(correct,pool){
+ const c=String(correct??'');
+ const distractors=[...new Set((pool||[]).map(x=>String(x??'')).filter(x=>norm(x)&&norm(x)!==norm(c)))];
+ return sh([c,...sh(distractors).slice(0,2)]);
+}
+const opts=(cur,m,n,field)=>{
+ const pool=[...RAW[m].map(parse),...known(m,n)].filter(x=>x.en!==cur.en).map(x=>x[field]);
+ return makeOptions(cur[field],pool);
+};
 function speak(t,lang='en-US'){try{return window.geminiSpeak?.(t,lang,state().voice||'Aoede')}catch{return Promise.resolve(false)}}
 function feedback(ok){return ok?'Boa! Você acertou.':'Quase. Veja a resposta certa e tente de novo.'}
 
@@ -168,7 +176,7 @@ function lesson(m,n){
 function shell(inner){
  const pct=Math.round((run.i+1)/run.lesson.steps.length*100);
  return `<div class="beginner14 a2CourseLesson tone-${run.m%6}">
-  <div class="b14Top"><button class="b14Back" onclick="openStableModule('A2',${run.m})">‹</button><div class="b14Progress"><span style="width:${pct}%"></span></div></div>
+  <div class="b14Top"><button class="b14Back" onclick="a2ExitLesson()" aria-label="Voltar ao módulo">‹</button><div class="b14Progress"><span style="width:${pct}%"></span></div><button class="a2ExitLesson" onclick="a2ExitLesson()">Sair</button></div>
   <div class="b14Card"><div class="b14Eyebrow">A2 · MÓDULO ${run.m+1} · AULA ${run.n+1}</div>${inner}</div>
  </div>`;
 }
@@ -187,7 +195,7 @@ function render(){
   if(!q){
    h=`<div class="a2GameWin"><div>🎮</div><h2>Desafio concluído!</h2><p>Você acertou ${run.gameScore||0} de ${s.items.length} rodadas.</p></div>${next()}`;
   }else{
-   const options=sh([q.pt,...s.items.filter(x=>x.en!==q.en).map(x=>x.pt)]).slice(0,3);
+   const options=makeOptions(q.pt,s.items.filter(x=>x.en!==q.en).map(x=>x.pt));
    h=`<div class="a2GameBadge">🎮 JOGO RÁPIDO · RODADA ${(run.gameIndex||0)+1}/${s.items.length}</div><h2>Qual tradução combina com:</h2><div class="a2GamePrompt">${esc(q.en)}</div><div class="b14Choices">${options.map(o=>`<button class="b14Choice" data-a2-game="${encodeURIComponent(o)}" onclick="a2GameAnswer('${encodeURIComponent(o)}')">${esc(o)}</button>`).join('')}</div><div id="a2Feedback"></div>`;
   }
  }else{
@@ -198,6 +206,7 @@ function render(){
  if(s.t==='choice'&&s.audio)setTimeout(()=>speak(s.audio),250);
 }
 window.a2Speak=e=>speak(decodeURIComponent(e));
+window.a2ExitLesson=()=>{try{window.stopGeminiTTS?.()}catch{};try{window.speechSynthesis?.cancel?.()}catch{};if(run)openStableModule('A2',run.m)};
 window.a2Next=()=>{run.i++;if(run.i>=run.lesson.steps.length)return finish();saveProgress(run.m,run.n,Math.round(run.i/run.lesson.steps.length*100));run.built=[];run.used=[];run.checked=false;run.ok=false;run.gameIndex=0;run.gameScore=0;render()};
 window.a2Answer=e=>{const s=run.lesson.steps[run.i],v=decodeURIComponent(e),ok=norm(v)===norm(s.ans);document.querySelectorAll('[data-a2-choice]').forEach(b=>{const x=decodeURIComponent(b.dataset.a2Choice);if(norm(x)===norm(v))b.classList.add(ok?'correct':'wrong');if(!ok&&norm(x)===norm(s.ans))b.classList.add('correct');b.disabled=true});const f=$('#a2Feedback');if(f)f.innerHTML=`<div class="b14Feedback ${ok?'good':'bad'}"><b>${feedback(ok)}</b></div>${next()}`;};
 window.a2Pick=i=>{if(run.checked||run.used.includes(i))return;run.used.push(i);run.built.push(run.lesson.steps[run.i].tokens[i]);render()};
@@ -206,9 +215,19 @@ window.a2Check=()=>{const s=run.lesson.steps[run.i];run.checked=true;run.ok=norm
 window.a2GameAnswer=e=>{const s=run.lesson.steps[run.i],q=s.items[run.gameIndex||0],v=decodeURIComponent(e),ok=norm(v)===norm(q.pt);if(ok)run.gameScore=(run.gameScore||0)+1;document.querySelectorAll('[data-a2-game]').forEach(b=>{const x=decodeURIComponent(b.dataset.a2Game);if(norm(x)===norm(v))b.classList.add(ok?'correct':'wrong');if(!ok&&norm(x)===norm(q.pt))b.classList.add('correct');b.disabled=true});const f=$('#a2Feedback');if(f)f.innerHTML=`<div class="b14Feedback ${ok?'good':'bad'}"><b>${feedback(ok)}</b></div><div class="b14Footer"><button class="b14Next blue" onclick="a2GameNext()">Próxima rodada</button></div>`;};
 window.a2GameNext=()=>{run.gameIndex=(run.gameIndex||0)+1;render()};
 
+function validateLesson(l){
+ return !!l&&Array.isArray(l.steps)&&l.steps.length>0&&l.steps.every(s=>{
+  if(s.t==='choice')return Array.isArray(s.op)&&s.op.some(o=>norm(o)===norm(s.ans));
+  if(s.t==='build')return Array.isArray(s.tokens)&&s.tokens.length>0&&!!s.target;
+  if(s.t==='game')return Array.isArray(s.items)&&s.items.length>0;
+  return true;
+ });
+}
 function start(m,n){
  if(!unlocked(m,n))return;
- const l=lesson(m,n),pct=progress(m,n),i=done(m,n)?0:Math.min(l.steps.length-1,Math.floor(pct/100*l.steps.length));
+ const l=lesson(m,n);
+ if(!validateLesson(l)){console.error('A2: aula inválida',m,n,l);openStableModule('A2',m);return}
+ const pct=progress(m,n),i=done(m,n)?0:Math.min(l.steps.length-1,Math.floor(pct/100*l.steps.length));
  run={m,n,i,lesson:l,built:[],used:[],checked:false,ok:false,gameIndex:0,gameScore:0};
  render();
 }
