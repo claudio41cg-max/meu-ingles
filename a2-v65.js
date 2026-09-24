@@ -264,10 +264,10 @@ function lesson(m,n){
    .slice(0,3);
  return {title:cur.title,steps:[
   {t:'learn',x:cur},
-  {t:'choice',q:`“${cur.en}” significa:`,ans:cur.pt,op:opts(cur,m,n,'pt'),audio:cur.en},
-  {t:'choice',q:'Qual frase você ouviu?',ans:cur.en,op:opts(cur,m,n,'en'),audio:cur.en},
+   {t:'choice',q:`“${cur.en}” significa:`,ans:cur.pt,op:opts(cur,m,n,'pt'),audio:cur.en,optionLang:'pt-BR'},
+   {t:'choice',q:'Qual frase você ouviu?',ans:cur.en,op:opts(cur,m,n,'en'),audio:cur.en,optionLang:'en-US'},
   {t:'build',q:'Monte a frase em inglês:',pt:cur.pt,target:words.join(' '),tokens:sh(words)},
-  {t:'choice',q:`Como dizer “${cur.pt}” em inglês?`,ans:cur.en,op:opts(cur,m,n,'en')},
+   {t:'choice',q:`Como dizer “${cur.pt}” em inglês?`,ans:cur.en,op:opts(cur,m,n,'en'),optionLang:'en-US'},
   {t:'game',items:gamePool},
   {t:'review',items:sh([cur,prev,...gamePool]).filter((x,i,a)=>a.findIndex(y=>y.en===x.en)===i).slice(0,3)}
  ]};
@@ -286,7 +286,8 @@ function render(){
  if(s.t==='learn'){
   h=`<div class="b14Emoji">${s.x.e}</div><div class="b14Word">${esc(s.x.en)}</div><div class="b14Translation">${esc(s.x.pt)}</div><button class="b14Listen" onclick="a2Speak('${encodeURIComponent(s.x.en)}')">🔊 Ouvir</button>${next()}`;
  }else if(s.t==='choice'){
-  h=`<h2>${esc(s.q)}</h2>${s.audio?`<button class="b14Listen" onclick="a2Speak('${encodeURIComponent(s.audio)}')">🔊 Ouvir</button>`:''}<div class="b14Choices">${s.op.map(o=>`<button class="b14Choice" data-a2-choice="${encodeURIComponent(o)}" onclick="a2Answer('${encodeURIComponent(o)}')">${esc(o)}</button>`).join('')}</div><div id="a2Feedback"></div>`;
+   const optionLang=s.optionLang||'pt-BR';
+   h=`<h2>${esc(s.q)}</h2>${s.audio?`<button class="b14Listen" onclick="a2Speak('${encodeURIComponent(s.audio)}')">🔊 Ouvir</button>`:''}<div class="b14Choices">${s.op.map(o=>`<div class="a2ChoiceRow"><button class="b14Choice" data-a2-choice="${encodeURIComponent(o)}" onclick="a2Answer('${encodeURIComponent(o)}')">${esc(o)}</button>${optionLang==='en-US'?`<button class="a2ChoiceListen" type="button" aria-label="Ouvir pronúncia" onclick="event.stopPropagation();a2SpeakLang('${encodeURIComponent(o)}','en-US')">🔊</button>`:''}</div>`).join('')}</div><div id="a2Feedback"></div>`;
  }else if(s.t==='build'){
   const ans=run.built.map((x,i)=>`<span class="b14Token ${run.checked?(norm(x)===norm(s.target.split(/\s+/)[i]||'')?'correct':'wrong'):''}">${esc(x)}</span>`).join('');
   h=`<h2>${esc(s.q)}</h2><div class="b14Translation" style="font-size:24px;color:#fff;font-weight:850">${esc(s.pt)}</div><div class="b14Answer">${ans||'<span style="color:#8198aa">Toque nas palavras</span>'}</div><div class="b14Bank">${s.tokens.map((x,i)=>`<button onclick="a2Pick(${i})" ${run.used.includes(i)?'disabled class="used"':''}>${esc(x)}</button>`).join('')}</div><div class="b14Actions"><button class="b14Clear" onclick="a2Clear()">Limpar</button><button class="b14Check" onclick="a2Check()">Verificar</button></div>${run.checked&&!run.ok?`<div class="b14CorrectOrder">Correto: ${esc(s.target)}</div>`:''}<div id="a2Feedback"></div>${run.checked&&run.ok?next():''}`;
