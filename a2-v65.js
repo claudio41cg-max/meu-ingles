@@ -307,6 +307,7 @@ function render(){
  if(s.t==='choice'&&s.audio)setTimeout(()=>speak(s.audio),250);
 }
 window.a2Speak=e=>speak(decodeURIComponent(e));
+window.a2SpeakLang=(e,lang='en-US')=>speak(decodeURIComponent(e),lang);
 window.a2ExitLesson=()=>{try{window.stopGeminiTTS?.()}catch{};try{window.speechSynthesis?.cancel?.()}catch{};if(run)openStableModule('A2',run.m)};
 window.a2Next=()=>{run.i++;if(run.i>=run.lesson.steps.length)return finish();saveProgress(run.m,run.n,Math.round(run.i/run.lesson.steps.length*100));run.built=[];run.used=[];run.checked=false;run.ok=false;run.gameIndex=0;run.gameScore=0;render()};
 window.a2Answer=e=>{const s=run.lesson.steps[run.i],v=decodeURIComponent(e),ok=norm(v)===norm(s.ans),msg=feedback(ok);document.querySelectorAll('[data-a2-choice]').forEach(b=>{const x=decodeURIComponent(b.dataset.a2Choice);if(norm(x)===norm(v))b.classList.add(ok?'correct':'wrong');if(!ok&&norm(x)===norm(s.ans))b.classList.add('correct');b.disabled=true});const f=$('#a2Feedback');if(f)f.innerHTML=`<div class="b14Feedback ${ok?'good':'bad'}"><b>${msg}</b></div>${next()}`;speakFeedback(msg);};
