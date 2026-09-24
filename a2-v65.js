@@ -161,7 +161,11 @@ function feedback(ok){return ok?'Boa! Você acertou.':'Quase. Veja a resposta ce
 function lesson(m,n){
  const cur=item(m,n),prev=item(m,Math.max(0,n-1))||cur;
  const words=cur.en.replace(/[?.!,]/g,'').split(/\s+/);
- const gamePool=sh([cur,prev,...known(m,n).slice(-4)]).filter((x,i,a)=>a.findIndex(y=>y.en===x.en)===i).slice(0,3);
+ const moduleItems=RAW[m].map(parse);
+ const previousModuleItems=m>0?RAW[m-1].map(parse):[];
+ const gamePool=sh([cur,prev,...moduleItems,...previousModuleItems])
+   .filter((x,i,a)=>a.findIndex(y=>norm(y.en)===norm(x.en))===i)
+   .slice(0,3);
  return {title:cur.title,steps:[
   {t:'learn',x:cur},
   {t:'choice',q:`“${cur.en}” significa:`,ans:cur.pt,op:opts(cur,m,n,'pt'),audio:cur.en},
@@ -195,8 +199,9 @@ function render(){
   if(!q){
    h=`<div class="a2GameWin"><div>🎮</div><h2>Desafio concluído!</h2><p>Você acertou ${run.gameScore||0} de ${s.items.length} rodadas.</p></div>${next()}`;
   }else{
-   const options=makeOptions(q.pt,s.items.filter(x=>x.en!==q.en).map(x=>x.pt));
-   h=`<div class="a2GameBadge">🎮 JOGO RÁPIDO · RODADA ${(run.gameIndex||0)+1}/${s.items.length}</div><h2>Qual tradução combina com:</h2><div class="a2GamePrompt">${esc(q.en)}</div><div class="b14Choices">${options.map(o=>`<button class="b14Choice" data-a2-game="${encodeURIComponent(o)}" onclick="a2GameAnswer('${encodeURIComponent(o)}')">${esc(o)}</button>`).join('')}</div><div id="a2Feedback"></div>`;
+   const moduleDistractors=RAW[run.m].map(parse).filter(x=>norm(x.en)!==norm(q.en)).map(x=>x.pt);
+   const options=makeOptions(q.pt,moduleDistractors);
+   h=`<div class="a2GameBadge">🎮 DESAFIO RÁPIDO · RODADA ${(run.gameIndex||0)+1}/${s.items.length}</div><h2>Escolha a tradução correta:</h2><div class="a2GamePrompt">${esc(q.en)}</div><div class="b14Choices">${options.map(o=>`<button class="b14Choice" data-a2-game="${encodeURIComponent(o)}" onclick="a2GameAnswer('${encodeURIComponent(o)}')">${esc(o)}</button>`).join('')}</div><div id="a2Feedback"></div>`;
   }
  }else{
   h=`<h2>Revisão do que você aprendeu</h2><div class="b14Review">${s.items.map(x=>`<button class="b14Mini" onclick="a2Speak('${encodeURIComponent(x.en)}')"><span>${x.e}</span><b>${esc(x.en)}</b><small>${esc(x.pt)}</small></button>`).join('')}</div><div class="b14Footer"><button class="b14Next" onclick="a2Finish()">Concluir aula · +40 XP</button></div>`;
@@ -217,7 +222,7 @@ window.a2GameNext=()=>{run.gameIndex=(run.gameIndex||0)+1;render()};
 
 function validateLesson(l){
  return !!l&&Array.isArray(l.steps)&&l.steps.length>0&&l.steps.every(s=>{
-  if(s.t==='choice')return Array.isArray(s.op)&&s.op.some(o=>norm(o)===norm(s.ans));
+  if(s.t==='choice')return Array.isArray(s.op)&&s.op.length>=3&&s.op.some(o=>norm(o)===norm(s.ans));
   if(s.t==='build')return Array.isArray(s.tokens)&&s.tokens.length>0&&!!s.target;
   if(s.t==='game')return Array.isArray(s.items)&&s.items.length>0;
   return true;
