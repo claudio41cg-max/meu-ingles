@@ -122,7 +122,7 @@ function shell(inner){
  }
  return `<div class="beginner14 ${run.m===0?'firstContactsLessonScreen':''} ${run.m===1?'moduleTwoLessonScreen':''}"><div class="b14Top"><button class="b14Back" onclick="openStableModule('A1',${run.m})">‹</button><div class="b14Progress"><span style="width:${p}%"></span></div></div>${run.m===0?'':top()}<div class="b14Card"><div class="b14Eyebrow">A1 · ${run.i+1} de ${run.lesson.steps.length}</div>${inner}<div id="a15Voice" class="b14VoiceWarn"></div></div><div class="lessonStepNav" aria-label="Navegação entre etapas"><button type="button" onclick="a15Jump(-1)" aria-label="Voltar uma etapa" ${run.i<=0?'disabled':''}>‹</button><button type="button" onclick="a15Jump(1)" aria-label="Avançar uma etapa" ${run.i>=run.lesson.steps.length-1?'disabled':''}>›</button></div></div>`;
 }
-const prevButton=()=>run?.m===1&&run.i>0?`<button class="b14PrevStep" onclick="a15Prev()">‹ Voltar uma etapa</button>`:'';
+const prevButton=()=>'';
 const next=()=>`<div class="b14Footer"><button class="b14Next" onclick="a15Next()">Continuar</button>${prevButton()}</div>`;
 window.a15Next=()=>{if(++run.i>=run.lesson.steps.length)return finish();saveProgress(run.m,run.n,Math.round(run.i/run.lesson.steps.length*100));run.built=[];run.checked=false;run.used=[];render()};
 window.a15Prev=()=>{if(!run||run.i<=0)return;window.a15Jump(-1)};
