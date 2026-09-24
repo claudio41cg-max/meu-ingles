@@ -302,3 +302,33 @@
   border-color:rgba(119,193,255,.42);
   color:#eaf7ff;
 }
+
+
+/* A2 v68 — botão opcional de pronúncia nas alternativas */
+.a2ChoiceRow{
+  display:grid;
+  grid-template-columns:minmax(0,1fr) 52px;
+  gap:10px;
+  align-items:stretch;
+}
+.a2ChoiceRow .b14Choice{
+  width:100%;
+  min-width:0;
+}
+.a2ChoiceListen{
+  border:1px solid rgba(111,194,255,.42);
+  border-radius:18px;
+  background:linear-gradient(180deg,#153d61,#102d49);
+  color:#eaf7ff;
+  font-size:21px;
+  display:grid;
+  place-items:center;
+  cursor:pointer;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.06);
+}
+.a2ChoiceListen:active{transform:scale(.96)}
+.a2ChoiceListen:disabled{opacity:.45;cursor:default}
+@media(max-width:430px){
+  .a2ChoiceRow{grid-template-columns:minmax(0,1fr) 46px;gap:8px}
+  .a2ChoiceListen{border-radius:16px;font-size:19px}
+}
