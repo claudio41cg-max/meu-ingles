@@ -81,6 +81,18 @@ async function getCachedVoice(key){
   return null;
 }
 
+function ttsEstimate(data,text){
+  let seconds=0;
+  try{
+    const b64=String(data?.audio||'');
+    const bytes=Math.floor(b64.length*3/4);
+    seconds=bytes/(2*(Number(data?.sample_rate)||24000));
+  }catch{}
+  const inputTokens=Math.max(1,Math.ceil(String(text||'').length/4));
+  const outputTokens=Math.max(0,Math.round(seconds*25));
+  const usd=inputTokens*(0.50/1e6)+outputTokens*(10/1e6);
+  return {seconds,inputTokens,outputTokens,tokens:inputTokens+outputTokens,usd};
+}
 function readState(){try{return JSON.parse(localStorage.getItem(KEY)||'{}')||{}}catch{return {}}}
 function currentVoice(){return readState().voice||'Aoede'}
 function status(text,ok){
@@ -210,7 +222,10 @@ async function geminiSpeak(text,lang='pt-BR',voice=currentVoice()){
     const key=[voice,lang,text].join('|');
     let d=await getCachedVoice(key);
     if(d){
-      try{window.dispatchEvent(new CustomEvent('meu-ingles-tts-source',{detail:{source:'cache',text,lang,voice,key}}))}catch{}
+      try{
+        const est=ttsEstimate(d,text);
+        window.dispatchEvent(new CustomEvent('meu-ingles-tts-source',{detail:{source:'cache',text,lang,voice,key,...est}});
+      }catch{}
     }
     if(!d){
       status('🎙️ Gerando voz natural do Gemini…');
@@ -230,7 +245,10 @@ async function geminiSpeak(text,lang='pt-BR',voice=currentVoice()){
       d=await pending;
       audioCache.set(key,d);
       persistentPut(key,d).catch(()=>{});
-      try{window.dispatchEvent(new CustomEvent('meu-ingles-tts-source',{detail:{source:'api',text,lang,voice,key}}))}catch{}
+      try{
+        const est=ttsEstimate(d,text);
+        window.dispatchEvent(new CustomEvent('meu-ingles-tts-source',{detail:{source:'api',text,lang,voice,key,...est}});
+      }catch{}
     }else{
       status('🎙️ Reproduzindo áudio salvo…');
     }
