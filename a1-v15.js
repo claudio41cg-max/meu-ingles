@@ -77,7 +77,27 @@ function react(ok,heard,target){
   .then(r=>r.ok?r.json():null).then(d=>{if(d?.reply_pt&&b)b.innerHTML='<b>'+esc(d.reply_pt)+'</b>'}).catch(()=>{});
 }
 
-function lesson(m,n){const cur=item(m,n),k=known(m,n),op=options(cur,m,n),prev=k.filter(x=>x.en.toLowerCase()!==cur.en.toLowerCase()).slice(-1)[0]||{e:'☕',en:'coffee',pt:'café'};const words=cur.en.trim().split(/\s+/),review=(m===1?[cur,...(M2_DISTRACTORS[n]||[]).map(x=>({e:'🔁',en:x.en,pt:x.pt}))]:[cur,prev,...k.slice(-4).reverse()]).filter((x,i,a)=>a.findIndex(y=>y.en.toLowerCase()===x.en.toLowerCase())===i).slice(0,3);const steps=[
+function numberLesson(){
+ const oneToFive={e:'🔢',en:'one, two, three, four, five',pt:'um, dois, três, quatro, cinco'};
+ const sixToTen={e:'🔟',en:'six, seven, eight, nine, ten',pt:'seis, sete, oito, nove, dez'};
+ const haveTwo={e:'👥',en:'I have two brothers.',pt:'Eu tenho dois irmãos.'};
+ const haveEight={e:'📚',en:'I have eight books.',pt:'Eu tenho oito livros.'};
+ const mixed={e:'🙂',en:'My name is Ana. I have three books.',pt:'Meu nome é Ana. Eu tenho três livros.'};
+ return {title:'Números de 1 a 10',steps:[
+  {t:'phrase',x:oneToFive},
+  {t:'phrase',x:sixToTen},
+  {t:'choice',q:'Qual é "sete" em inglês?',ans:'seven',op:sh(['seven','four','ten'])},
+  {t:'choice',q:'Qual número você ouviu?',ans:'eight',op:sh(['three','eight','six']),audio:'eight'},
+  {t:'phrase',x:haveTwo},
+  {t:'choice',q:'Como dizer "Eu tenho oito livros." em inglês?',ans:haveEight.en,op:sh([haveEight.en,'I have five books.','I have two brothers.']),audio:haveEight.en},
+  {t:'build',q:'Monte em inglês:',pt:'Eu tenho três livros.',target:'I have three books.',tokens:sh(['I','have','three','books.'])},
+  {t:'choice',q:'Misturando com a aula anterior, escolha a frase correta:',ans:mixed.en,op:sh([mixed.en,'My name is Ana. I have seven phone.','I am Ana. I have three name.'])},
+  {t:'guided',q:'Escolha a frase que fala de quantidade:',ans:'I have five friends.',op:sh(['My name is Ana.','I have five friends.','Thank you.'])},
+  {t:'review',items:[oneToFive,sixToTen,haveTwo,haveEight,mixed]}
+ ]};
+}
+
+function lesson(m,n){if(m===1&&n===1)return numberLesson();const cur=item(m,n),k=known(m,n),op=options(cur,m,n),prev=k.filter(x=>x.en.toLowerCase()!==cur.en.toLowerCase()).slice(-1)[0]||{e:'☕',en:'coffee',pt:'café'};const words=cur.en.trim().split(/\s+/),review=(m===1?[cur,...(M2_DISTRACTORS[n]||[]).map(x=>({e:'🔁',en:x.en,pt:x.pt}))]:[cur,prev,...k.slice(-4).reverse()]).filter((x,i,a)=>a.findIndex(y=>y.en.toLowerCase()===x.en.toLowerCase())===i).slice(0,3);const steps=[
  {t:words.length>1?'phrase':'learn',x:cur},
  {t:'choice',q:`${cur.en} significa:`,ans:cur.pt,op:sh(op.map(x=>x.pt)),audio:cur.en},
  {t:'choice',q:'Qual você ouviu?',ans:cur.en,op:sh(op.map(x=>x.en)),audio:cur.en},
@@ -100,24 +120,25 @@ function shell(inner){
    const screenTitle=document.querySelector('#course > .top h2');
    if(screenTitle)screenTitle.textContent='Tela inicial';
  }
- return `<div class="beginner14 ${run.m===0?'firstContactsLessonScreen':''} ${run.m===1?'moduleTwoLessonScreen':''}"><div class="b14Top"><button class="b14Back" onclick="openStableModule('A1',${run.m})">‹</button><div class="b14Progress"><span style="width:${p}%"></span></div></div>${run.m===0?'':top()}<div class="b14Card"><div class="b14Eyebrow">A1 · ${run.i+1} de ${run.lesson.steps.length}</div>${inner}<div id="a15Voice" class="b14VoiceWarn"></div></div></div>`;
+ return `<div class="beginner14 ${run.m===0?'firstContactsLessonScreen':''} ${run.m===1?'moduleTwoLessonScreen':''}"><div class="b14Top"><button class="b14Back" onclick="openStableModule('A1',${run.m})">‹</button><div class="b14Progress"><span style="width:${p}%"></span></div></div>${run.m===0?'':top()}<div class="b14Card"><div class="b14Eyebrow">A1 · ${run.i+1} de ${run.lesson.steps.length}</div>${inner}<div id="a15Voice" class="b14VoiceWarn"></div></div><div class="lessonStepNav" aria-label="Navegação entre etapas"><button type="button" onclick="a15Jump(-1)" aria-label="Voltar uma etapa" ${run.i<=0?'disabled':''}>‹</button><button type="button" onclick="a15Jump(1)" aria-label="Avançar uma etapa" ${run.i>=run.lesson.steps.length-1?'disabled':''}>›</button></div></div>`;
 }
 const prevButton=()=>run?.m===1&&run.i>0?`<button class="b14PrevStep" onclick="a15Prev()">‹ Voltar uma etapa</button>`:'';
 const next=()=>`<div class="b14Footer"><button class="b14Next" onclick="a15Next()">Continuar</button>${prevButton()}</div>`;
 window.a15Next=()=>{if(++run.i>=run.lesson.steps.length)return finish();saveProgress(run.m,run.n,Math.round(run.i/run.lesson.steps.length*100));run.built=[];run.checked=false;run.used=[];render()};
-window.a15Prev=()=>{if(!run||run.m!==1||run.i<=0)return;run.i--;run.built=[];run.checked=false;run.ok=false;run.used=[];render()};
+window.a15Prev=()=>{if(!run||run.i<=0)return;window.a15Jump(-1)};
+window.a15Jump=delta=>{if(!run)return;const d=Number(delta)||0,ni=Math.max(0,Math.min(run.lesson.steps.length-1,run.i+d));if(ni===run.i)return;run.i=ni;if(d>0)saveProgress(run.m,run.n,Math.round(run.i/run.lesson.steps.length*100));run.built=[];run.checked=false;run.ok=false;run.used=[];render(false)};
 window.a15Speak=e=>speak(decodeURIComponent(e));
-function render(){const s=run.lesson.steps[run.i];let h='';if(s.t==='learn'||s.t==='phrase'){h=`<div class="b14Emoji">${s.x.e||'💬'}</div><div class="b14Word">${esc(s.x.en)}</div><div class="b14Translation">${esc(s.x.pt)}</div><button class="b14Listen" onclick="a15Speak('${encodeURIComponent(s.x.en)}')">🔊 Ouvir</button>${next()}`}
+function render(preserveScroll=false){const keepY=preserveScroll?window.scrollY:null;const s=run.lesson.steps[run.i];let h='';if(s.t==='learn'||s.t==='phrase'){h=`<div class="b14Emoji">${s.x.e||'💬'}</div><div class="b14Word">${esc(s.x.en)}</div><div class="b14Translation">${esc(s.x.pt)}</div><button class="b14Listen" onclick="a15Speak('${encodeURIComponent(s.x.en)}')">🔊 Ouvir</button>${next()}`}
 else if(s.t==='choice'){h=`<h2>${esc(s.q)}</h2>${s.audio?`<button class="b14Listen" onclick="a15Speak('${encodeURIComponent(s.audio)}')">🔊 Ouvir</button>`:''}<div class="b14Choices">${s.op.map(o=>`<button class="b14Choice" data-a15="${encodeURIComponent(o)}" onclick="a15Answer('${encodeURIComponent(o)}')">${esc(o)}</button>`).join('')}</div><div id="a15Feedback"></div>`}
 else if(s.t==='guided'){h=`<h2>${esc(s.q)}</h2><div class="b14Conversation">${s.op.map(o=>`<button data-a15="${encodeURIComponent(o)}" onclick="a15Answer('${encodeURIComponent(o)}')">${esc(o)}</button>`).join('')}</div><div id="a15Feedback"></div>`}
 else if(s.t==='build'){const exp=s.target.split(/\s+/),ans=run.built.map((x,i)=>`<span class="b14Token ${run.checked?(x===exp[i]?'correct':'wrong'):''}">${esc(x)}</span>`).join('');h=`<h2>${esc(s.q)}</h2><div class="b14Translation" style="font-size:28px;color:#fff;font-weight:850">${esc(s.pt)}</div><div class="b14Answer">${ans||'<span style="color:#8198aa">Toque nas palavras</span>'}</div><div class="b14Bank">${s.tokens.map((x,i)=>`<button onclick="a15Pick(${i})" ${run.used?.includes(i)?'disabled class="used"':''}>${esc(x)}</button>`).join('')}</div><div class="b14Actions"><button class="b14Clear" onclick="a15Clear()">Limpar</button><button class="b14Check" onclick="a15Check()">Verificar</button></div>${run.checked&&!run.ok?`<div class="b14CorrectOrder">Correto: ${esc(s.target)}</div>`:''}<div id="a15Feedback"></div>${run.checked&&run.ok?next():run.checked&&!run.ok?`<div class="b14Footer"><button class="b14Next blue" onclick="a15Clear()">Tentar de novo</button>${prevButton()}</div>`:''}`}
 else{h=`<h2>Você já conhece isso</h2><div class="b14Review">${s.items.map(x=>`<button class="b14Mini" onclick="a15Speak('${encodeURIComponent(x.en)}')"><span>${x.e||'🔁'}</span><b>${esc(x.en)}</b><small>${esc(x.pt)}</small></button>`).join('')}</div><div class="b14Footer"><button class="b14Next" onclick="a15Finish()">Concluir aula · +30 XP</button></div>`}
-$('#courseBody').innerHTML=shell(h);window.scrollTo(0,0);if((s.t==='learn'||s.t==='phrase')&&s.x)setTimeout(()=>speak(s.x.en),250);if(s.t==='choice'&&s.audio)setTimeout(()=>speak(s.audio),250)}
+$('#courseBody').innerHTML=shell(h);if(keepY===null)window.scrollTo(0,0);else requestAnimationFrame(()=>requestAnimationFrame(()=>window.scrollTo(0,keepY)));if((s.t==='learn'||s.t==='phrase')&&s.x)setTimeout(()=>speak(s.x.en),250);if(s.t==='choice'&&s.audio)setTimeout(()=>speak(s.audio),250)}
 window.a15Answer=e=>{const s=run.lesson.steps[run.i],v=decodeURIComponent(e),ok=v===s.ans;document.querySelectorAll('[data-a15]').forEach(b=>{const x=decodeURIComponent(b.dataset.a15);if(x===v)b.classList.add(ok?'correct':'wrong');if(!ok&&x===s.ans)b.classList.add('correct');b.disabled=true});const f=$('#a15Feedback');if(f)f.insertAdjacentHTML('afterend',ok?next():`<div class="b14Footer"><button class="b14Next blue" onclick="a15Retry()">Tentar de novo</button>${prevButton()}</div>`);react(ok,v,s.ans)};
-window.a15Retry=()=>render();
-window.a15Pick=i=>{if(run.checked)return;run.used=run.used||[];if(run.used.includes(i))return;run.used.push(i);run.built.push(run.lesson.steps[run.i].tokens[i]);render()};
-window.a15Clear=()=>{run.built=[];run.used=[];run.checked=false;run.ok=false;render()};
-window.a15Check=()=>{const s=run.lesson.steps[run.i],v=run.built.join(' ');run.checked=true;run.ok=v===s.target;render();react(run.ok,v,s.target)};
+window.a15Retry=()=>render(true);
+window.a15Pick=i=>{if(run.checked)return;run.used=run.used||[];if(run.used.includes(i))return;run.used.push(i);run.built.push(run.lesson.steps[run.i].tokens[i]);render(true)};
+window.a15Clear=()=>{run.built=[];run.used=[];run.checked=false;run.ok=false;render(true)};
+window.a15Check=()=>{const s=run.lesson.steps[run.i],v=run.built.join(' ');run.checked=true;run.ok=v===s.target;render(true);react(run.ok,v,s.target)};
 
 function start(m,n){if(m===1&&!unlocked(m,n))return;const l=lesson(m,n),pct=progress(m,n),i=done(m,n)?0:Math.min(l.steps.length-1,Math.floor(pct/100*l.steps.length));run={m,n,i,lesson:l,built:[],used:[],checked:false,ok:false};render()}
 function finish(){const s=state();s.done=s.done&&typeof s.done==='object'?s.done:{};s.progress=s.progress&&typeof s.progress==='object'?s.progress:{};const k=`A1-${run.m}-${run.n}`;s.progress[k]=100;if(!s.done[k]){s.done[k]=true;s.xp=(Number(s.xp)||0)+30}s.level='A1';save(s);sessionStorage.setItem('a15back',String(run.m));location.reload()}
