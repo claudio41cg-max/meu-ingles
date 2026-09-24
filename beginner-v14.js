@@ -173,12 +173,13 @@ function shell(inner){
   document.querySelector('#course')?.classList.add('first-contacts-lesson-active');
   const screenTitle=document.querySelector('#course > .top h2');
   if(screenTitle)screenTitle.textContent='Tela inicial';
-  return `<div class="beginner14 firstContactsLessonScreen"><div class="b14Top"><button class="b14Back" onclick="openStableModule('A1',0)">‹</button><div class="b14Progress"><span style="width:${pct}%"></span></div></div><div class="b14Card"><div class="b14Eyebrow">A1 · ${run.step+1} de ${total}</div>${inner}</div></div>`;
+  return `<div class="beginner14 firstContactsLessonScreen"><div class="b14Top"><button class="b14Back" onclick="openStableModule('A1',0)">‹</button><div class="b14Progress"><span style="width:${pct}%"></span></div></div><div class="b14Card"><div class="b14Eyebrow">A1 · ${run.step+1} de ${total}</div>${inner}</div><div class="lessonStepNav" aria-label="Navegação entre etapas"><button type="button" onclick="b14Jump(-1)" aria-label="Voltar uma etapa" ${run.step<=0?'disabled':''}>‹</button><button type="button" onclick="b14Jump(1)" aria-label="Avançar uma etapa" ${run.step>=total-1?'disabled':''}>›</button></div></div>`;
 }
 function nextButton(label='Continuar'){return `<div class="b14Footer"><button class="b14Next" onclick="nextB14()">${label}</button></div>`}
 function audioButton(text){return `<button class="b14Listen" onclick="b14Speak('${encodeURIComponent(text)}')">🔊 Ouvir</button>`}
 window.b14Speak=enc=>speakEnglish(decodeURIComponent(enc));
 window.nextB14=()=>{if(!run)return;run.step=Math.min(lessons[run.n].steps.length-1,run.step+1);saveProgress(run.n,Math.round(run.step/lessons[run.n].steps.length*100));run.built=[];run.checked=false;run.feedback='';render()};
+window.b14Jump=delta=>{if(!run)return;const d=Number(delta)||0,ni=Math.max(0,Math.min(lessons[run.n].steps.length-1,run.step+d));if(ni===run.step)return;run.step=ni;if(d>0)saveProgress(run.n,Math.round(run.step/lessons[run.n].steps.length*100));run.built=[];run.checked=false;run.buildOk=false;run.feedback='';render(false)};
 
 function renderLearn(st){
   return `<div class="b14Emoji">${st.emoji}</div><div class="b14Word">${esc(st.en)}</div><div class="b14Translation">${esc(st.pt)}</div>${audioButton(st.en)}${nextButton()}`;
@@ -197,7 +198,7 @@ window.answerB14=async enc=>{
   const box=document.querySelector('#b14Feedback');if(box)box.insertAdjacentHTML('afterend',ok?nextButton():`<div class="b14Footer"><button class="b14Next blue" onclick="retryB14()">Tentar de novo</button></div>`);
   await react(ok,value,st.answer,kindLabel(st.kind));
 };
-window.retryB14=()=>{if(!run)return;const st=lessons[run.n].steps[run.step];st.answered=false;st._opts=shuffle(st.options);render()};
+window.retryB14=()=>{if(!run)return;const st=lessons[run.n].steps[run.step];st.answered=false;st._opts=shuffle(st.options);render(true)};
 function kindLabel(k){return k==='listen'?'Reconhecer pelo áudio':'Vocabulário iniciante'}
 
 function renderReview(st){
@@ -214,19 +215,19 @@ function renderBuild(st){
   const answer=(run.built||[]).map((x,pos)=>{let cls='';if(run.checked)cls=x.t===st.target.split(' ')[pos]?'correct':'wrong';return `<span class="b14Token ${cls}">${esc(x.t)}</span>`}).join('');
   return `<h2>${esc(st.question)}</h2><div class="b14Translation" style="font-size:28px;color:#fff;font-weight:850">${esc(st.pt)}</div><div class="b14Answer">${answer||'<span style="color:#8198aa">Toque nas palavras</span>'}</div><div class="b14Bank">${bank.map(x=>`<button class="${run.built?.some(y=>y.i===x.i)?'used':''}" onclick="pickB14(${x.i})" ${run.built?.some(y=>y.i===x.i)?'disabled':''}>${esc(x.t)}</button>`).join('')}</div><div class="b14Actions"><button class="b14Clear" onclick="clearB14()">Limpar</button><button class="b14Check" onclick="checkB14()">Verificar</button></div>${run.checked&&!run.buildOk?`<div class="b14CorrectOrder">Correto: ${esc(st.target)}</div>`:''}<div id="b14Feedback"></div>${run.checked&&run.buildOk?nextButton():run.checked&&!run.buildOk?`<div class="b14Footer"><button class="b14Next blue" onclick="clearB14()">Tentar de novo</button></div>`:''}`;
 }
-window.pickB14=i=>{if(!run||run.checked)return;const st=lessons[run.n].steps[run.step],item=(st._bank||[]).find(x=>x.i===i);if(item&&!run.built.some(x=>x.i===i)){run.built.push(item);render()}};
-window.clearB14=()=>{if(!run)return;run.built=[];run.checked=false;run.buildOk=false;render()};
-window.checkB14=async()=>{if(!run)return;const st=lessons[run.n].steps[run.step];const heard=run.built.map(x=>x.t).join(' ');run.checked=true;run.buildOk=heard===st.target;render();await react(run.buildOk,heard,st.target,'Montar uma frase curta A1')};
+window.pickB14=i=>{if(!run||run.checked)return;const st=lessons[run.n].steps[run.step],item=(st._bank||[]).find(x=>x.i===i);if(item&&!run.built.some(x=>x.i===i)){run.built.push(item);render(true)}};
+window.clearB14=()=>{if(!run)return;run.built=[];run.checked=false;run.buildOk=false;render(true)};
+window.checkB14=async()=>{if(!run)return;const st=lessons[run.n].steps[run.step];const heard=run.built.map(x=>x.t).join(' ');run.checked=true;run.buildOk=heard===st.target;render(true);await react(run.buildOk,heard,st.target,'Montar uma frase curta A1')};
 
-function render(){
-  if(!run)return;const root=document.querySelector('#courseBody');if(!root)return;const st=lessons[run.n].steps[run.step];let inner='';
+function render(preserveScroll=false){
+  if(!run)return;const keepY=preserveScroll?window.scrollY:null;const root=document.querySelector('#courseBody');if(!root)return;const st=lessons[run.n].steps[run.step];let inner='';
   if(st.kind==='learn')inner=renderLearn(st);
   else if(st.kind==='phrase')inner=renderPhrase(st);
   else if(st.kind==='choosePt'||st.kind==='chooseEn'||st.kind==='listen')inner=renderChoice(st,st.kind);
   else if(st.kind==='build')inner=renderBuild(st);
   else if(st.kind==='conversation')inner=renderConversation(st);
   else if(st.kind==='review')inner=renderReview(st);
-  root.innerHTML=shell(inner);window.scrollTo(0,0);
+  root.innerHTML=shell(inner);if(keepY===null)window.scrollTo(0,0);else requestAnimationFrame(()=>requestAnimationFrame(()=>window.scrollTo(0,keepY)));
   if((st.kind==='learn'||st.kind==='phrase'||st.kind==='listen')&&st.audio!==false){setTimeout(()=>speakEnglish(st.audio||st.en),250)}
 }
 
