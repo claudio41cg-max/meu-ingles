@@ -308,10 +308,41 @@ function a2ModuleArt(m){
     <span class="a2ArtIcon">${icon}</span>
   </div>`;
 }
+function currentModuleIndexForLevel(l){
+  for(let m=0;m<12;m++)if(moduleDone(l,m)<8)return m;
+  return 11;
+}
+function syncActiveLevelTab(){
+  requestAnimationFrame(()=>{
+    const tabs=document.querySelector('#course .levelTabs');
+    const active=tabs?.querySelector('.levelTab.active');
+    if(!tabs||!active)return;
+    const left=active.offsetLeft-(tabs.clientWidth-active.offsetWidth)/2;
+    tabs.scrollTo({left:Math.max(0,left),behavior:'smooth'});
+  });
+}
 function renderCourse(){
   const root=$('#courseBody'); if(!root)return;
   const l=state.level;
-  const head=`<div class="panel"><div class="levelTabs">${Object.keys(LEVELS).map(x=>`<button data-level="${x}" class="levelTab ${x===l?'active':''}" onclick="setStableLevel('${x}')">${x} · ${LEVELS[x]}</button>`).join('')}</div><h2 style="margin:16px 0 4px">${l} · ${LEVELS[l]}</h2><p class="muted" style="margin:0">12 módulos · 96 aulas neste nível · ${levelDone(l)}/96 concluídas</p></div>`;
+  const levelCompleted=levelDone(l);
+  const currentModuleIndex=currentModuleIndexForLevel(l);
+  const currentModuleTitle=MODULES[l]?.[currentModuleIndex]||'Curso concluído';
+  const currentModuleDone=moduleDone(l,currentModuleIndex);
+  const head=`<section class="courseLevelStatus" aria-label="Resumo do nível atual">
+    <div class="levelTabs">${Object.keys(LEVELS).map(x=>`<button data-level="${x}" class="levelTab ${x===l?'active':''}" onclick="setStableLevel('${x}')">${x} · ${LEVELS[x]}</button>`).join('')}</div>
+    <div class="courseLevelSummary">
+      <div class="courseLevelIdentity">
+        <small>NÍVEL ATUAL</small>
+        <h2>${l} · ${LEVELS[l]}</h2>
+      </div>
+      <div class="courseLevelProgressText"><b>${levelCompleted}</b><span>de 96 aulas concluídas</span></div>
+    </div>
+    <div class="courseCurrentModule">
+      <span class="courseCurrentModuleLabel">MÓDULO ATUAL</span>
+      <div><b>Módulo ${currentModuleIndex+1}</b><strong>${esc(currentModuleTitle)}</strong></div>
+      <em>${currentModuleDone}/8 aulas</em>
+    </div>
+  </section>`;
 
   if(l==='A1'){
     root.innerHTML=head+`<div class="a1ModuleGrid">${MODULES.A1.map((title,m)=>{
@@ -328,6 +359,7 @@ function renderCourse(){
         ${a1ModuleArt(m)}
       </div>`;
     }).join('')}</div>`;
+    syncActiveLevelTab();
     return;
   }
 
@@ -346,10 +378,12 @@ function renderCourse(){
         ${a2ModuleArt(m)}
       </div>`;
     }).join('')}</div>`;
+    syncActiveLevelTab();
     return;
   }
 
   root.innerHTML=head+`${MODULES[l].map((title,m)=>{const d=moduleDone(l,m),pct=Math.round(d/8*100);return `<div class="module ${d===8?'complete':''}"><h3>${d===8?'✅ ':''}${m+1}. ${esc(title)}</h3><p>8 aulas progressivas com explicação, vocabulário, escuta, tradução, fala e professor IA.</p><div class="moduleProgress"><span style="width:${pct}%"></span></div><div class="moduleMeta"><span class="tag">${d}/8 concluídas</span><span class="tag">Nível ${l}</span></div><button class="btn primary" onclick="openStableModule('${l}',${m})">${d?'Continuar módulo':'Abrir módulo'}</button></div>`}).join('')}`;
+  syncActiveLevelTab();
 }
 window.renderStableCourse=renderCourse;
 
