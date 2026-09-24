@@ -36,7 +36,20 @@ function saveProgress(m,n,p){try{window.setStableLessonProgress?.('A1',m,n,p)}ca
 
 function item(m,n){const x=RAW[m]?.[n];if(!x)return null;const [e,en,pt,title]=x.split('|');return{e,en,pt,title}}
 function known(m,n){const a=BASE.map(([e,en,pt])=>({e,en,pt}));for(let M=0;M<=m;M++)for(let N=0;N<8;N++){if(M===m&&N>n)break;const x=item(M,N);if(x)a.push(x)}const seen=new Set();return a.filter(x=>{const k=x.en.toLowerCase();if(seen.has(k))return false;seen.add(k);return true})}
-function options(cur,m,n){const a=[cur,...known(m,n).reverse().filter(x=>x.en.toLowerCase()!==cur.en.toLowerCase())];return a.slice(0,3)}
+const M2_DISTRACTORS=[
+ [{en:'My phone number is...',pt:'Meu telefone é...'},{en:'My address is...',pt:'Meu endereço é...'}],
+ [{en:'six, seven, eight, nine, ten',pt:'seis, sete, oito, nove, dez'},{en:'eleven, twelve, thirteen, fourteen, fifteen',pt:'onze, doze, treze, quatorze, quinze'}],
+ [{en:'sixteen, seventeen, eighteen, nineteen, twenty',pt:'dezesseis, dezessete, dezoito, dezenove, vinte'},{en:'one, two, three, four, five',pt:'um, dois, três, quatro, cinco'}],
+ [{en:'My address is...',pt:'Meu endereço é...'},{en:'I am ... years old.',pt:'Eu tenho ... anos.'}],
+ [{en:'My phone number is...',pt:'Meu telefone é...'},{en:'My address is...',pt:'Meu endereço é...'}],
+ [{en:'My phone number is...',pt:'Meu telefone é...'},{en:'I am ... years old.',pt:'Eu tenho ... anos.'}],
+ [{en:'What is your phone number?',pt:'Qual é o seu telefone?'},{en:'How old are you?',pt:'Quantos anos você tem?'}],
+ [{en:'My address is... and I am ... years old.',pt:'Meu endereço é... e eu tenho ... anos.'},{en:'My name is... and my address is...',pt:'Meu nome é... e meu endereço é...'}]
+];
+function options(cur,m,n){
+ if(m===1){const extras=M2_DISTRACTORS[n]||[];return [cur,...extras.map(x=>({e:'',en:x.en,pt:x.pt}))]}
+ const a=[cur,...known(m,n).reverse().filter(x=>x.en.toLowerCase()!==cur.en.toLowerCase())];return a.slice(0,3)
+}
 function teacher(){const m=state().teacher||'media';return m==='pesada'?['Hard 18+','Algenib']:m==='media'?['Doideira','Puck']:['Tranquilo','Achird']}
 function style(){const m=state().teacher||'media';return m==='pesada'?'Voz brasileira humana, adulta, rouca, expressiva e irônica. Fale como pessoa real, nunca como robô.':m==='media'?'Voz brasileira humana, divertida, brincalhona e espontânea. Entonação de conversa real, nunca de locução.':'Voz brasileira humana, amigável, calma e natural. Ritmo de conversa real, sem cadência de robô.'}
 function status(t=''){const e=$('#a15Voice');if(e)e.textContent=t}
@@ -64,17 +77,17 @@ function react(ok,heard,target){
   .then(r=>r.ok?r.json():null).then(d=>{if(d?.reply_pt&&b)b.innerHTML='<b>'+esc(d.reply_pt)+'</b>'}).catch(()=>{});
 }
 
-function lesson(m,n){const cur=item(m,n),k=known(m,n),op=options(cur,m,n),prev=k.filter(x=>x.en.toLowerCase()!==cur.en.toLowerCase()).slice(-1)[0]||{e:'☕',en:'coffee',pt:'café'};const words=cur.en.trim().split(/\s+/),review=[cur,prev,...k.slice(-4).reverse()].filter((x,i,a)=>a.findIndex(y=>y.en.toLowerCase()===x.en.toLowerCase())===i).slice(0,3);const steps=[
-{t:words.length>1?'phrase':'learn',x:cur},
-{t:'choice',q:`${cur.en} significa:`,ans:cur.pt,op:sh(op.map(x=>x.pt)),audio:cur.en},
-{t:'choice',q:'Qual você ouviu?',ans:cur.en,op:sh(op.map(x=>x.en)),audio:cur.en},
-{t:'choice',q:`Qual é "${cur.pt}" em inglês?`,ans:cur.en,op:sh(op.map(x=>x.en))},
-{t:prev.en.split(/\s+/).length>1?'phrase':'learn',x:prev},
-{t:'choice',q:'Ouça de novo e escolha:',ans:cur.en,op:sh(op.map(x=>x.en)),audio:cur.en},
-words.length>1&&words.length<=5?{t:'build',q:'Monte em inglês:',pt:cur.pt,target:cur.en,tokens:sh(words)}:{t:'choice',q:`Só para fixar: ${cur.en}`,ans:cur.pt,op:sh(op.map(x=>x.pt)),audio:cur.en},
-{t:'choice',q:`Lembra de "${cur.pt}"?`,ans:cur.en,op:sh(op.map(x=>x.en))},
-{t:'guided',q:'Escolha o inglês que você acabou de aprender:',ans:cur.en,op:sh(op.map(x=>x.en))},
-{t:'review',items:review}
+function lesson(m,n){const cur=item(m,n),k=known(m,n),op=options(cur,m,n),prev=k.filter(x=>x.en.toLowerCase()!==cur.en.toLowerCase()).slice(-1)[0]||{e:'☕',en:'coffee',pt:'café'};const words=cur.en.trim().split(/\s+/),review=(m===1?[cur,...(M2_DISTRACTORS[n]||[]).map(x=>({e:'🔁',en:x.en,pt:x.pt}))]:[cur,prev,...k.slice(-4).reverse()]).filter((x,i,a)=>a.findIndex(y=>y.en.toLowerCase()===x.en.toLowerCase())===i).slice(0,3);const steps=[
+ {t:words.length>1?'phrase':'learn',x:cur},
+ {t:'choice',q:`${cur.en} significa:`,ans:cur.pt,op:sh(op.map(x=>x.pt)),audio:cur.en},
+ {t:'choice',q:'Qual você ouviu?',ans:cur.en,op:sh(op.map(x=>x.en)),audio:cur.en},
+ {t:'choice',q:`Qual é "${cur.pt}" em inglês?`,ans:cur.en,op:sh(op.map(x=>x.en))},
+ m===1?{t:'choice',q:'Vamos fixar esta mesma ideia:',ans:cur.en,op:sh(op.map(x=>x.en)),audio:cur.en}:{t:prev.en.split(/\s+/).length>1?'phrase':'learn',x:prev},
+ {t:'choice',q:'Ouça de novo e escolha:',ans:cur.en,op:sh(op.map(x=>x.en)),audio:cur.en},
+ words.length>1&&words.length<=5?{t:'build',q:'Monte em inglês:',pt:cur.pt,target:cur.en,tokens:sh(words)}:{t:'choice',q:`Só para fixar: ${cur.en}`,ans:cur.pt,op:sh(op.map(x=>x.pt)),audio:cur.en},
+ {t:'choice',q:`Lembra de "${cur.pt}"?`,ans:cur.en,op:sh(op.map(x=>x.en))},
+ {t:'guided',q:'Escolha o inglês que você acabou de aprender:',ans:cur.en,op:sh(op.map(x=>x.en))},
+ {t:'review',items:review}
 ];return{title:cur.title,steps}}
 
 function top(){const [label]=teacher();return `<div class="b14Teacher"><button onclick="a15Menu()">Professor: ${label} ▾</button></div>${menu?`<div class="b14TeacherMenu"><button onclick="a15Teacher('leve')">🙂 Tranquilo</button><button onclick="a15Teacher('media')">🤪 Doideira</button><button onclick="a15Teacher('pesada')">🔥 Hard 18+</button></div>`:''}`}
