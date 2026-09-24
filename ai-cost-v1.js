@@ -51,11 +51,70 @@ function recordLiveUsage(m){
 }
 function liveTurn(){add('live-turn',{usd:0})}
 function since(ts){return(load().events||[]).filter(e=>e.ts>=ts)}
-function sum(arr){return arr.reduce((a,e)=>{a.usd+=Number(e.usd)||0;a.tokens+=Number(e.tokens)||0;a.tts+=e.kind.startsWith('tts')?(Number(e.usd)||0):0;a.live+=e.kind.startsWith('live')?(Number(e.usd)||0):0;a.turns+=e.kind==='live-turn'?1:0;a.inSec+=e.kind==='live-in'?(Number(e.seconds)||0):0;a.outSec+=e.kind==='live-out'?(Number(e.seconds)||0):0;a.ttsSec+=e.kind==='tts'?(Number(e.seconds)||0):0;return a},{usd:0,tokens:0,tts:0,live:0,turns:0,inSec:0,outSec:0,ttsSec:0})}
+function sum(arr){return arr.reduce((a,e)=>{a.usd+=Number(e.usd)||0;a.tokens+=Number(e.tokens)||0;a.tts+=e.kind==='tts'?(Number(e.usd)||0):0;a.live+=e.kind.startsWith('live')?(Number(e.usd)||0):0;a.turns+=e.kind==='live-turn'?1:0;a.inSec+=e.kind==='live-in'?(Number(e.seconds)||0):0;a.outSec+=e.kind==='live-out'?(Number(e.seconds)||0):0;a.ttsSec+=e.kind==='tts'?(Number(e.seconds)||0):0;return a},{usd:0,tokens:0,tts:0,live:0,turns:0,inSec:0,outSec:0,ttsSec:0})}
 function startDay(d=new Date()){return new Date(d.getFullYear(),d.getMonth(),d.getDate()).getTime()}
 function startMonth(d=new Date()){return new Date(d.getFullYear(),d.getMonth(),1).getTime()}
 function fmt(n){return 'US$ '+(Number(n)||0).toFixed(4).replace('.',',')}
 function mins(s){return((Number(s)||0)/60).toFixed(1).replace('.',',')+' min'}
+function auditStats(arr){
+ const paid=arr.filter(e=>e.kind==='tts');
+ const cached=arr.filter(e=>e.kind==='tts-cache');
+ return {
+  paidCount:paid.length,
+  cachedCount:cached.length,
+  paidUsd:paid.reduce((s,e)=>s+(Number(e.usd)||0),0),
+  paidTokens:paid.reduce((s,e)=>s+(Number(e.tokens)||0),0),
+  paidSec:paid.reduce((s,e)=>s+(Number(e.seconds)||0),0),
+  savedUsd:cached.reduce((s,e)=>s+(Number(e.savedUsd)||0),0),
+  savedTokens:cached.reduce((s,e)=>s+(Number(e.savedTokens)||0),0),
+  savedSec:cached.reduce((s,e)=>s+(Number(e.seconds)||0),0)
+ };
+}
+function shortText(s,n=58){s=String(s||'').replace(/\s+/g,' ').trim();return s.length>n?s.slice(0,n-1)+'…':s}
+function auditModal(){
+ let m=document.getElementById('miTtsAuditModal');if(m)return m;
+ m=document.createElement('div');m.id='miTtsAuditModal';m.innerHTML=`<div class="mi-cost-card mi-audit-card">
+  <div class="mi-cost-head"><div><h2>🔊 Áudios Gemini 2.5</h2><p>Gerados pela IA x reutilizados do cache deste aparelho</p></div><button class="mi-audit-close" aria-label="Fechar">×</button></div>
+  <div class="mi-cost-grid">
+   <div class="mi-cost-box"><small>Gerados pela IA</small><b id="miAuditPaidCount">0</b><em id="miAuditPaidTokens">0 tokens cobrados</em></div>
+   <div class="mi-cost-box"><small>Repetidos do cache</small><b id="miAuditCacheCount">0</b><em id="miAuditSavedTokens">0 tokens evitados</em></div>
+   <div class="mi-cost-box"><small>Gasto TTS medido</small><b id="miAuditPaidUsd">US$ 0,0000</b><em>Chamadas reais ao Gemini 2.5</em></div>
+   <div class="mi-cost-box"><small>Economia estimada</small><b id="miAuditSavedUsd">US$ 0,0000</b><em>O que custaria regerar o cache</em></div>
+  </div>
+  <div class="mi-cost-section"><h3>Resumo de hoje</h3>
+   <div class="mi-cost-row"><span>Áudios tocados</span><span id="miAuditTotal">0</span></div>
+   <div class="mi-cost-row"><span>Taxa de reutilização</span><span id="miAuditRate">0%</span></div>
+   <div class="mi-cost-row"><span>Voz gerada pela IA</span><span id="miAuditPaidMin">0,0 min</span></div>
+   <div class="mi-cost-row"><span>Voz reaproveitada</span><span id="miAuditSavedMin">0,0 min</span></div>
+   <p class="mi-cost-sub">Cache local: a primeira geração pode usar o Gemini 2.5; depois, a mesma frase + voz + idioma é reproduzida do áudio salvo no celular sem nova geração.</p>
+  </div>
+  <div class="mi-cost-section"><h3>Áudios recentes</h3><div id="miAuditRecent" class="mi-audit-list"></div></div>
+  <p class="mi-cost-sub">Valores são medidos/estimados no próprio app. O Google Cloud continua sendo a fonte final da cobrança.</p>
+ </div>`;
+ document.body.appendChild(m);
+ m.addEventListener('click',e=>{if(e.target===m||e.target.closest('.mi-audit-close'))m.classList.remove('open')});
+ return m;
+}
+function renderAudit(){
+ if(!document.getElementById('miTtsAuditModal'))return;
+ const events=load().events||[],todayEvents=events.filter(e=>e.ts>=startDay(new Date())),a=auditStats(todayEvents);
+ const total=a.paidCount+a.cachedCount,rate=total?Math.round(a.cachedCount/total*100):0;
+ const set=(id,v)=>{const el=document.getElementById(id);if(el)el.textContent=v};
+ set('miAuditPaidCount',a.paidCount.toLocaleString('pt-BR'));
+ set('miAuditCacheCount',a.cachedCount.toLocaleString('pt-BR'));
+ set('miAuditPaidTokens',Math.round(a.paidTokens).toLocaleString('pt-BR')+' tokens cobrados');
+ set('miAuditSavedTokens',Math.round(a.savedTokens).toLocaleString('pt-BR')+' tokens evitados');
+ set('miAuditPaidUsd',fmt(a.paidUsd));set('miAuditSavedUsd',fmt(a.savedUsd));
+ set('miAuditTotal',total.toLocaleString('pt-BR'));set('miAuditRate',rate+'%');
+ set('miAuditPaidMin',mins(a.paidSec));set('miAuditSavedMin',mins(a.savedSec));
+ const list=document.getElementById('miAuditRecent');
+ if(list){
+  const recent=events.filter(e=>e.kind==='tts'||e.kind==='tts-cache').slice(-30).reverse();
+  list.innerHTML=recent.length?recent.map(e=>`<div class="mi-audit-item"><span class="${e.kind==='tts'?'paid':'cache'}">${e.kind==='tts'?'IA 2.5':'CACHE'}</span><div><b>${shortText(e.text||'Áudio TTS')}</b><small>${new Date(e.ts).toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'})} · ${e.kind==='tts'?fmt(e.usd):'economizou '+fmt(e.savedUsd)}</small></div></div>`).join(''):'<p class="mi-cost-sub">Ainda não há áudio registrado hoje.</p>';
+ }
+ const btn=document.getElementById('miTtsAuditBtn');
+ if(btn)btn.dataset.count=String(a.cachedCount);
+}
 function modal(){
  let m=document.getElementById('miAiCostModal');if(m)return m;
  m=document.createElement('div');m.id='miAiCostModal';m.innerHTML=`<div class="mi-cost-card">
@@ -96,7 +155,11 @@ function modal(){
 }
 function install(){
  if(!document.getElementById('miAiCostBtn')){const h=document.querySelector('header');if(h){const b=document.createElement('button');b.id='miAiCostBtn';b.type='button';b.title='Créditos IA';b.textContent='💳';b.onclick=()=>{modal().classList.add('open');render()};const av=h.querySelector('.avatar');h.insertBefore(b,av||null)}}
- modal();render();
+ if(!document.getElementById('miTtsAuditBtn')){
+   const h=document.querySelector('header'),credit=document.getElementById('miAiCostBtn');
+   if(h){const b=document.createElement('button');b.id='miTtsAuditBtn';b.type='button';b.title='Uso de áudios Gemini 2.5';b.textContent='🔊';b.onclick=()=>{auditModal().classList.add('open');renderAudit()};const av=h.querySelector('.avatar');h.insertBefore(b,av||null)}
+  }
+ modal();auditModal();render();renderAudit();
 }
 function render(){
  if(!document.getElementById('miAiCostModal'))return;
@@ -116,7 +179,13 @@ function render(){
  set('miTurnAvg',fmt(today.turns>0?today.live/today.turns:0));
  set('miSessionAvg',fmt(session.usd));
  set('miP1',fmt(proj));set('miP10',fmt(proj*10));set('miP50',fmt(proj*50));set('miP100',fmt(proj*100));
+ renderAudit();
 }
-window.MeuInglesAiCost={recordTTS,recordLiveAudioIn,recordLiveAudioOut,recordLiveUsage,liveTurn,open(){modal().classList.add('open');render()},render};
+window.addEventListener('meu-ingles-tts-source',e=>{
+ const d=e?.detail||{};
+ if(d.source!=='cache')return;
+ add('tts-cache',{usd:0,tokens:0,savedUsd:Number(d.usd)||0,savedTokens:Number(d.tokens)||0,seconds:Number(d.seconds)||0,text:String(d.text||''),voice:String(d.voice||''),lang:String(d.lang||''),model:MODEL_TTS});
+});
+window.MeuInglesAiCost={recordTTS,recordLiveAudioIn,recordLiveAudioOut,recordLiveUsage,liveTurn,open(){modal().classList.add('open');render()},openTtsAudit(){auditModal().classList.add('open');renderAudit()},render};
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',install);else install();
 })();
