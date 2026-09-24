@@ -8,7 +8,7 @@ let run=null,menu=false,ctx=null,src=null;
 
 const RAW=[
 ['','','','👋|hello|olá|Olá!','🙏|thank you|obrigado|Obrigado','✅|yes, please|sim, por favor|Sim, por favor','🙅|no, thank you|não, obrigado|Não, obrigado','👋|goodbye|adeus|Até logo'],
-['🙂|my name is|meu nome é|Meu nome é','1️⃣|one|um|Um','2️⃣|two|dois|Dois','3️⃣|three|três|Três','📱|phone|telefone|Telefone','🙋|I am|eu sou|Eu sou','🇧🇷|I am from Brazil.|eu sou do Brasil.|Eu sou do Brasil','🤝|nice to meet you|prazer em conhecer você|Prazer em conhecer'],
+['🙂|My name is...|Meu nome é...|Meu nome é...','🔢|one, two, three, four, five|um, dois, três, quatro, cinco|Números de 1 a 10','🔟|eleven, twelve, thirteen, fourteen, fifteen|onze, doze, treze, quatorze, quinze|Números até 20','📱|My phone number is...|Meu telefone é...|Meu telefone','🎂|I am ... years old.|Eu tenho ... anos.|Minha idade','🏠|My address is...|Meu endereço é...|Meu endereço','🔤|How do you spell your name?|Como se soletra seu nome?|Soletrando meu nome','🪪|My name is... and my phone number is...|Meu nome é... e meu telefone é...|Revisão: meus dados pessoais'],
 ['👩|mother|mãe|Mãe','👨|father|pai|Pai','👦|brother|irmão|Irmão','👧|sister|irmã|Irmã','🧑‍🤝‍🧑|friend|amigo|Amigo','👨‍👩‍👧‍👦|family|família|Família','👉|this is|este é|Este é','🏠|this is my family.|esta é minha família.|Esta é minha família'],
 ['🌅|morning|manhã|Manhã','💼|work|trabalho|Trabalho','🍽️|eat|comer|Comer','🥤|drink|beber|Beber','🏠|home|casa|Casa','🌙|night|noite|Noite','😴|sleep|dormir|Dormir','📅|today|hoje|Hoje'],
 ['❤️|I like|eu gosto|Eu gosto','☕|I like coffee.|eu gosto de café.|Eu gosto de café','❓|do you like?|você gosta?|Você gosta?','👉|do you want?|você quer?|Você quer?','💼|do you work?|você trabalha?|Você trabalha?','📍|where?|onde?|Onde?','❔|what?|o quê?|O quê?','✅|yes|sim|Sim'],
@@ -42,7 +42,7 @@ function style(){const m=state().teacher||'media';return m==='pesada'?'Voz brasi
 function status(t=''){const e=$('#a15Voice');if(e)e.textContent=t}
 function bytes(b){const x=atob(b),u=new Uint8Array(x.length);for(let i=0;i<x.length;i++)u[i]=x.charCodeAt(i);return u}
 async function pcm(b,rate=24000){const u=bytes(b),a=new Float32Array(u.length/2),v=new DataView(u.buffer,u.byteOffset,u.byteLength);for(let i=0;i<a.length;i++)a[i]=Math.max(-1,Math.min(1,v.getInt16(i*2,true)/32768));ctx=ctx||new(window.AudioContext||window.webkitAudioContext)();if(ctx.state==='suspended')await ctx.resume();if(src)try{src.stop()}catch{}const bf=ctx.createBuffer(1,a.length,rate);bf.copyToChannel(a,0);src=ctx.createBufferSource();src.buffer=bf;src.connect(ctx.destination);await new Promise(r=>{src.onended=()=>{src=null;r()};src.start()})}
-async function speak(text,lang='en-US',isTeacher=false){status('');const [,tv]=teacher();try{const r=await fetch(TTS,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({text,lang,voice:isTeacher?tv:'Achird',style:isTeacher?style():'Natural American English for a complete beginner. Clear, warm, human pronunciation. Say it once at a comfortable pace.'})});const d=await r.json();if(!r.ok||!d.audio)throw 0;await pcm(d.audio,d.sample_rate||24000);return true}catch{status('⚠️ A voz Gemini não carregou. Toque em ouvir para tentar de novo.');return false}}
+async function speak(text,lang='en-US',isTeacher=false){status('');if(run?.m===1&&window.geminiSpeak){try{return await window.geminiSpeak(text,lang,isTeacher?(state().voice||'Aoede'):'Achird')}catch{}}const [,tv]=teacher();try{const r=await fetch(TTS,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({text,lang,voice:isTeacher?tv:'Achird',style:isTeacher?style():'Natural American English for a complete beginner. Clear, warm, human pronunciation. Say it once at a comfortable pace.'})});const d=await r.json();if(!r.ok||!d.audio)throw 0;await pcm(d.audio,d.sample_rate||24000);return true}catch{status('⚠️ A voz Gemini não carregou. Toque em ouvir para tentar de novo.');return false}}
 function quickReaction(ok){
  const mode=state().teacher||'media';
  const lines={
@@ -86,7 +86,7 @@ function shell(inner){
    const screenTitle=document.querySelector('#course > .top h2');
    if(screenTitle)screenTitle.textContent='Tela inicial';
  }
- return `<div class="beginner14 ${run.m===0?'firstContactsLessonScreen':''}"><div class="b14Top"><button class="b14Back" onclick="openStableModule('A1',${run.m})">‹</button><div class="b14Progress"><span style="width:${p}%"></span></div></div>${run.m===0?'':top()}<div class="b14Card"><div class="b14Eyebrow">A1 · ${run.i+1} de ${run.lesson.steps.length}</div>${inner}<div id="a15Voice" class="b14VoiceWarn"></div></div></div>`;
+ return `<div class="beginner14 ${run.m===0?'firstContactsLessonScreen':''} ${run.m===1?'moduleTwoLessonScreen':''}"><div class="b14Top"><button class="b14Back" onclick="openStableModule('A1',${run.m})">‹</button><div class="b14Progress"><span style="width:${p}%"></span></div></div>${run.m===0?'':top()}<div class="b14Card"><div class="b14Eyebrow">A1 · ${run.i+1} de ${run.lesson.steps.length}</div>${inner}<div id="a15Voice" class="b14VoiceWarn"></div></div></div>`;
 }
 const next=()=>`<div class="b14Footer"><button class="b14Next" onclick="a15Next()">Continuar</button></div>`;
 window.a15Next=()=>{if(++run.i>=run.lesson.steps.length)return finish();saveProgress(run.m,run.n,Math.round(run.i/run.lesson.steps.length*100));run.built=[];run.checked=false;run.used=[];render()};
@@ -103,11 +103,12 @@ window.a15Pick=i=>{if(run.checked)return;run.used=run.used||[];if(run.used.inclu
 window.a15Clear=()=>{run.built=[];run.used=[];run.checked=false;run.ok=false;render()};
 window.a15Check=()=>{const s=run.lesson.steps[run.i],v=run.built.join(' ');run.checked=true;run.ok=v===s.target;render();react(run.ok,v,s.target)};
 
-function start(m,n){const l=lesson(m,n),pct=progress(m,n),i=done(m,n)?0:Math.min(l.steps.length-1,Math.floor(pct/100*l.steps.length));run={m,n,i,lesson:l,built:[],used:[],checked:false,ok:false};render()}
+function start(m,n){if(m===1&&!unlocked(m,n))return;const l=lesson(m,n),pct=progress(m,n),i=done(m,n)?0:Math.min(l.steps.length-1,Math.floor(pct/100*l.steps.length));run={m,n,i,lesson:l,built:[],used:[],checked:false,ok:false};render()}
 function finish(){const s=state();s.done=s.done&&typeof s.done==='object'?s.done:{};s.progress=s.progress&&typeof s.progress==='object'?s.progress:{};const k=`A1-${run.m}-${run.n}`;s.progress[k]=100;if(!s.done[k]){s.done[k]=true;s.xp=(Number(s.xp)||0)+30}s.level='A1';save(s);sessionStorage.setItem('a15back',String(run.m));location.reload()}
 window.a15Finish=finish;
 function title(m,n){if(m===0&&n<3)return START[n];return item(m,n)?.title||`Lição ${n+1}`}
 function done(m,n){return !!state().done?.[`A1-${m}-${n}`]}
+function unlocked(m,n){return n===0||done(m,n-1)||progress(m,n)>0}
 const FIRST_CONTACTS_ART=['☕','🥤','👉','👋','🙏','✅','🙅','👋'];
 function firstContactsCards(){
  return Array.from({length:8},(_,n)=>{
@@ -129,6 +130,24 @@ function firstContactsCards(){
   </div>`;
  }).join('');
 }
+const MODULE_TWO_ART=['🙂','🔢','🔟','📱','🎂','🏠','🔤','🪪'];
+function moduleTwoCards(){
+ return Array.from({length:8},(_,n)=>{
+  const pct=progress(1,n),isDone=done(1,n),isUnlocked=unlocked(1,n);
+  const icon=MODULE_TWO_ART[n]||'🔤';
+  const statusText=isDone?'Concluída · toque para revisar':!isUnlocked?'🔒 Conclua a aula anterior':pct>0?`Em andamento · ${pct}%`:'Toque para começar';
+  return `<div class="moduleTwoLessonCard ${isDone?'done':''} ${!isUnlocked?'locked':''}" role="button" tabindex="${isUnlocked?0:-1}"
+    ${isUnlocked?`onclick="openStableLesson('A1',1,${n})" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();openStableLesson('A1',1,${n})}"`:''}>
+    <div class="moduleTwoLessonCopy">
+      <div class="moduleTwoLessonNumber">AULA ${n+1}</div>
+      <h4>${esc(title(1,n))}</h4>
+      <div class="moduleTwoLessonStatus">${statusText}</div>
+      <div class="lessonCardProgressV118"><span style="width:${pct}%"></span></div>
+    </div>
+    <div class="moduleTwoLessonArt" aria-hidden="true"><span class="moduleTwoArtGlow"></span><span class="moduleTwoArtIcon">${!isUnlocked?'🔒':icon}</span></div>
+  </div>`;
+ }).join('');
+}
 function moduleView(m){
  m=Number(m)||0;
  document.querySelector('#course')?.classList.remove('first-contacts-lesson-active');
@@ -144,6 +163,21 @@ function moduleView(m){
        </div>
      </div>
      <div class="firstContactsLessons">${firstContactsCards()}</div>
+   </div>`;
+   window.scrollTo(0,0);
+   return;
+ }
+ if(m===1){
+   $('#courseBody').innerHTML=`<div class="moduleTwoView">
+     <div class="moduleTwoHead">
+       <button class="back moduleTwoBack" onclick="renderStableCourse()">‹</button>
+       <div>
+         <div class="moduleTwoEyebrow">A1 · MÓDULO 2</div>
+         <h2>Alfabeto, números e dados pessoais</h2>
+         <p>8 aulas progressivas · ouvir, responder, montar frases e revisar</p>
+       </div>
+     </div>
+     <div class="moduleTwoLessons">${moduleTwoCards()}</div>
    </div>`;
    window.scrollTo(0,0);
    return;
