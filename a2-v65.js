@@ -179,7 +179,7 @@ function lesson(m,n){
 
 function shell(inner){
  const pct=Math.round((run.i+1)/run.lesson.steps.length*100);
- return `<div class="beginner14 a2CourseLesson tone-${run.m%6}">
+ return `<div class="beginner14 a2CourseLesson tone-${run.m%6} module-${run.m}">
   <div class="b14Top"><button class="b14Back" onclick="a2ExitLesson()" aria-label="Voltar ao módulo">‹</button><div class="b14Progress"><span style="width:${pct}%"></span></div><button class="a2ExitLesson" onclick="a2ExitLesson()">Sair</button></div>
   <div class="b14Card"><div class="b14Eyebrow">A2 · MÓDULO ${run.m+1} · AULA ${run.n+1}</div>${inner}</div>
  </div>`;
