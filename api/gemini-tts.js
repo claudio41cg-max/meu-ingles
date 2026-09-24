@@ -24,6 +24,8 @@ export default async function handler(req, res) {
     'Zubenelgenubi','Vindemiatrix','Sadachbia','Sadaltager','Sulafat'
   ]);
 
+  const sleep = ms => new Promise(resolve => setTimeout(resolve, ms));
+
   const sampleRateFromMime = (mime = '') => {
     const m = String(mime).match(/rate=(\d+)/i);
     return m ? Number(m[1]) || 24000 : 24000;
@@ -155,12 +157,49 @@ export default async function handler(req, res) {
       return res.status(429).json({
         error: 'gemini_rate_limited',
         retry_after_seconds: retryAfter,
-        message: `Limite gratuito temporário do Gemini TTS. Tente novamente em ${retryAfter} segundos.`
+        message: `Limite temporário do Gemini TTS. Tente novamente em ${retryAfter} segundos.`
       });
     }
+
+    // Falhas 5xx/transitórias do Gemini: tenta novamente com instrução curta
+    // e vozes conhecidas antes de devolver erro ao aluno.
+    const fallbackVoices = [...new Set([voice, 'Aoede', 'Puck'])];
+    const retryErrors = [String(error?.message || error)];
+    for (const fallbackVoice of fallbackVoices) {
+      try {
+        await sleep(450);
+        const out = await generate(
+          text,
+          fallbackVoice,
+          lang,
+          lang === 'en-US'
+            ? 'Clear, natural American English pronunciation. Say only the requested text.'
+            : 'Português brasileiro natural e claro. Diga somente o texto solicitado.'
+        );
+        return res.status(200).json({
+          ok: true,
+          ...out,
+          recovered: true,
+          requested_voice: voice
+        });
+      } catch (retryError) {
+        if (Number(retryError?.statusCode) === 429) {
+          const retryAfter = Number(retryError?.retryAfter) || 15;
+          res.setHeader('Retry-After', String(retryAfter));
+          return res.status(429).json({
+            error: 'gemini_rate_limited',
+            retry_after_seconds: retryAfter,
+            message: `Limite temporário do Gemini TTS. Tente novamente em ${retryAfter} segundos.`
+          });
+        }
+        retryErrors.push(String(retryError?.message || retryError));
+      }
+    }
+
     return res.status(502).json({
       error: 'gemini_tts_error',
-      details: String(error?.message || error).slice(0, 1000)
+      message: 'Falha temporária ao gerar o áudio. Toque em Ouvir novamente.',
+      details: retryErrors.slice(-4).join(' | ').slice(0, 1600)
     });
   }
 }
