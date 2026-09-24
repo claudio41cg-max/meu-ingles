@@ -224,7 +224,7 @@ async function geminiSpeak(text,lang='pt-BR',voice=currentVoice()){
     if(d){
       try{
         const est=ttsEstimate(d,text);
-        window.dispatchEvent(new CustomEvent('meu-ingles-tts-source',{detail:{source:'cache',text,lang,voice,key,...est}});
+        window.dispatchEvent(new CustomEvent('meu-ingles-tts-source',{detail:{source:'cache',text,lang,voice,key,...est}}));
       }catch{}
     }
     if(!d){
@@ -247,7 +247,7 @@ async function geminiSpeak(text,lang='pt-BR',voice=currentVoice()){
       persistentPut(key,d).catch(()=>{});
       try{
         const est=ttsEstimate(d,text);
-        window.dispatchEvent(new CustomEvent('meu-ingles-tts-source',{detail:{source:'api',text,lang,voice,key,...est}});
+        window.dispatchEvent(new CustomEvent('meu-ingles-tts-source',{detail:{source:'api',text,lang,voice,key,...est}}));
       }catch{}
     }else{
       status('🎙️ Reproduzindo áudio salvo…');
