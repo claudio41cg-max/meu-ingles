@@ -216,3 +216,25 @@
   .a2GamePrompt{font-size:21px;padding:15px 13px}
   .a2GameWin>div{font-size:64px}
 }
+
+
+/* A2 v66 — saída segura das aulas */
+.a2CourseLesson .b14Top{
+  position:sticky;
+  top:0;
+  z-index:6;
+  padding:6px 0;
+  background:linear-gradient(180deg,rgba(7,17,29,.96),rgba(7,17,29,.84),transparent);
+  backdrop-filter:blur(5px);
+}
+.a2ExitLesson{
+  flex:0 0 auto;
+  border:1px solid rgba(147,190,220,.34);
+  background:rgba(15,38,57,.92);
+  color:#dff2ff;
+  border-radius:14px;
+  padding:9px 12px;
+  font-size:13px;
+  font-weight:900;
+}
+.a2ExitLesson:active{transform:scale(.97)}
