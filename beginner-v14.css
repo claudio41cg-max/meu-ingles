@@ -283,3 +283,48 @@
   outline:2px solid rgba(17,167,141,.48);
   outline-offset:2px;
 }
+
+
+/* A1 Módulo 2 — identidade roxa em todos os estados normais */
+.moduleTwoLessonScreen .b14Listen,
+.moduleTwoLessonScreen .b14Next,
+.moduleTwoLessonScreen .b14Next.blue,
+.moduleTwoLessonScreen .b14Check,
+.moduleTwoLessonScreen .b14Clear,
+.moduleTwoLessonScreen .b14Teacher button,
+.moduleTwoLessonScreen .b14TeacherMenu button{
+  background:linear-gradient(180deg,#7b66e8 0%,#5d49c2 100%) !important;
+  border-color:rgba(201,191,255,.42) !important;
+  color:#fff !important;
+  box-shadow:0 7px 0 #403490,inset 0 1px 0 rgba(255,255,255,.14) !important;
+}
+.moduleTwoLessonScreen .b14Choice,
+.moduleTwoLessonScreen .b14Conversation button,
+.moduleTwoLessonScreen .b14Bank button,
+.moduleTwoLessonScreen .b14Token{
+  background:linear-gradient(180deg,#241f4f 0%,#1a173b 100%) !important;
+  border-color:rgba(143,124,225,.56) !important;
+  color:#fff !important;
+}
+.moduleTwoLessonScreen .b14Choice.correct,
+.moduleTwoLessonScreen .b14Conversation button.correct,
+.moduleTwoLessonScreen .b14Token.correct,
+.moduleTwoLessonScreen .b14Feedback.good{
+  background:linear-gradient(180deg,#8f7aff 0%,#6d58dd 100%) !important;
+  border-color:#d2c8ff !important;
+  color:#fff !important;
+  box-shadow:0 0 0 1px rgba(255,255,255,.12) inset,0 0 22px rgba(151,128,255,.32) !important;
+}
+.moduleTwoLessonScreen .b14Choice.wrong,
+.moduleTwoLessonScreen .b14Conversation button.wrong,
+.moduleTwoLessonScreen .b14Token.wrong,
+.moduleTwoLessonScreen .b14Feedback.bad{
+  background:rgba(155,38,55,.38) !important;
+  border-color:#ee6075 !important;
+  color:#ffe9ed !important;
+}
+.moduleTwoLessonScreen .b14CorrectOrder{
+  background:#251e52 !important;
+  color:#e7e0ff !important;
+  border-color:rgba(164,145,255,.42) !important;
+}
