@@ -346,3 +346,38 @@
 .moduleTwoLessonScreen .b14PrevStep:active{
   transform:translateY(1px) scale(.99);
 }
+
+
+/* Navegação universal entre etapas das aulas */
+.beginner14 .lessonStepNav{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:18px;
+  margin:18px 4px 8px;
+  padding:0 6px;
+}
+.beginner14 .lessonStepNav button{
+  width:58px;
+  height:52px;
+  display:grid;
+  place-items:center;
+  border:1px solid rgba(163,137,255,.62);
+  border-radius:18px;
+  background:linear-gradient(180deg,#7657e9,#5740bd);
+  color:#fff;
+  font-size:38px;
+  font-weight:900;
+  line-height:1;
+  box-shadow:0 6px 0 rgba(54,38,130,.82);
+  touch-action:manipulation;
+}
+.beginner14 .lessonStepNav button:active:not(:disabled){
+  transform:translateY(3px);
+  box-shadow:0 3px 0 rgba(54,38,130,.82);
+}
+.beginner14 .lessonStepNav button:disabled{
+  opacity:.24;
+  filter:saturate(.55);
+  box-shadow:none;
+}
