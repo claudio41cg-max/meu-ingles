@@ -16,7 +16,8 @@ export default async function handler(req, res) {
   const apiKey = String(process.env.GEMINI_API_KEY || '').trim();
   if (!apiKey) return res.status(503).json({ error: 'gemini_not_configured' });
 
-  const MODEL = 'gemini-2.5-flash-preview-tts';
+  const DEFAULT_MODEL = 'gemini-2.5-flash-preview-tts';
+  const supportedModels = new Set(['gemini-2.5-flash-preview-tts','gemini-3.8-flash-lite-tts']);
   const supportedVoices = new Set([
     'Zephyr','Puck','Charon','Kore','Fenrir','Leda','Orus','Aoede','Callirrhoe','Autonoe',
     'Enceladus','Iapetus','Umbriel','Algieba','Despina','Erinome','Algenib','Rasalgethi',
@@ -39,12 +40,12 @@ export default async function handler(req, res) {
     return Number.isFinite(n) && n > 0 ? Math.ceil(n) : 15;
   };
 
-  async function generate(text, voice, lang, style) {
+  async function generate(text, voice, lang, style, model = DEFAULT_MODEL) {
     const instruction = lang === 'pt-BR'
       ? `Fale apenas em português brasileiro. Soe como uma pessoa conversando cara a cara, com ritmo natural, pequenas pausas e entonação espontânea. Não use voz de locutor, assistente virtual ou robô. ${style}\n\nDiga somente isto: ${text}`
       : `Speak only in natural American English for a complete beginner. Use clear pronunciation, warm human rhythm and small natural pauses. Do not sound like an announcer, screen reader or robot. ${style}\n\nSay only this: ${text}`;
 
-    const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${MODEL}:generateContent`, {
+    const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent`, {
       method: 'POST',
       headers: {
         'x-goog-api-key': apiKey,
@@ -66,7 +67,7 @@ export default async function handler(req, res) {
 
     const raw = await response.text();
     if (!response.ok) {
-      const err = new Error(`${MODEL}_${response.status}:${raw.slice(0, 500)}`);
+      const err = new Error(`${model}_${response.status}:${raw.slice(0, 500)}`);
       err.statusCode = response.status;
       if (response.status === 429) err.retryAfter = retrySecondsFrom(raw);
       throw err;
@@ -82,7 +83,7 @@ export default async function handler(req, res) {
       audio: part.inlineData.data,
       mime,
       sample_rate: sampleRateFromMime(mime),
-      model: MODEL,
+      model,
       protocol: 'generateContent',
       provider: 'Gemini',
       voice,
@@ -95,7 +96,7 @@ export default async function handler(req, res) {
       return res.status(200).json({
         ok: true,
         provider: 'Gemini',
-        model: MODEL,
+        model: DEFAULT_MODEL,
         key_configured: true,
         tts_api: 'generateContent',
         default_voice: 'Puck'
@@ -103,7 +104,8 @@ export default async function handler(req, res) {
     }
 
     try {
-      const out = await generate('Hello, this is a Gemini voice test.', 'Puck', 'en-US', 'Natural and conversational.');
+      const diagModel = supportedModels.has(String(req.query?.model||'')) ? String(req.query.model) : DEFAULT_MODEL;
+      const out = await generate('Hello, this is a Gemini voice test.', 'Puck', 'en-US', 'Natural and conversational.', diagModel);
       return res.status(200).json({
         ok: true,
         diagnostic: true,
@@ -146,9 +148,11 @@ export default async function handler(req, res) {
   const requestedVoice = String(body.voice || 'Puck').trim();
   const voice = supportedVoices.has(requestedVoice) ? requestedVoice : 'Puck';
   const style = String(body.style || 'natural').slice(0, 320);
+  const requestedModel = String(body.model || DEFAULT_MODEL).trim();
+  const model = supportedModels.has(requestedModel) ? requestedModel : DEFAULT_MODEL;
 
   try {
-    const out = await generate(text, voice, lang, style);
+    const out = await generate(text, voice, lang, style, model);
     return res.status(200).json({ ok: true, ...out });
   } catch (error) {
     if (Number(error?.statusCode) === 429) {
@@ -174,7 +178,8 @@ export default async function handler(req, res) {
           lang,
           lang === 'en-US'
             ? 'Clear, natural American English pronunciation. Say only the requested text.'
-            : 'Português brasileiro natural e claro. Diga somente o texto solicitado.'
+            : 'Português brasileiro natural e claro. Diga somente o texto solicitado.',
+          model
         );
         return res.status(200).json({
           ok: true,
