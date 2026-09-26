@@ -46,7 +46,7 @@ export default async function handler(req, res) {
       ? `Fale apenas em português brasileiro. Soe como uma pessoa conversando cara a cara, com ritmo natural, pequenas pausas e entonação espontânea. Não use voz de locutor, assistente virtual ou robô. ${style}\n\nDiga somente isto: ${text}`
       : `Speak only in natural American English for a complete beginner. Use clear pronunciation, warm human rhythm and small natural pauses. Do not sound like an announcer, screen reader or robot. ${style}\n\nSay only this: ${text}`;
 
-    const part = is38
+    const requestPart = is38
       ? { text, speech_metadata: { style: String(style || 'natural').trim() } }
       : { text: instruction };
 
@@ -81,7 +81,7 @@ export default async function handler(req, res) {
         'Content-Type': 'application/json'
       },
       body: JSON.stringify({
-        contents: [{ role: 'user', parts: [part] }],
+        contents: [{ role: 'user', parts: [requestPart] }],
         generationConfig
       })
     });
