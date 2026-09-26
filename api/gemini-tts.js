@@ -41,9 +41,38 @@ export default async function handler(req, res) {
   };
 
   async function generate(text, voice, lang, style, model = DEFAULT_MODEL) {
+    const is38 = model.startsWith('gemini-3.8-');
     const instruction = lang === 'pt-BR'
       ? `Fale apenas em português brasileiro. Soe como uma pessoa conversando cara a cara, com ritmo natural, pequenas pausas e entonação espontânea. Não use voz de locutor, assistente virtual ou robô. ${style}\n\nDiga somente isto: ${text}`
       : `Speak only in natural American English for a complete beginner. Use clear pronunciation, warm human rhythm and small natural pauses. Do not sound like an announcer, screen reader or robot. ${style}\n\nSay only this: ${text}`;
+
+    const part = is38
+      ? { text, speech_metadata: { style: String(style || 'natural').trim() } }
+      : { text: instruction };
+
+    const generationConfig = is38
+      ? {
+          responseModalities: ['AUDIO'],
+          responseFormat: {
+            audio: {
+              mimeType: 'AUDIO_L16',
+              sampleRate: 24000
+            }
+          },
+          speechConfig: {
+            languageCode: lang,
+            voiceConfig: { voice }
+          }
+        }
+      : {
+          responseModalities: ['AUDIO'],
+          speechConfig: {
+            languageCode: lang,
+            voiceConfig: {
+              prebuiltVoiceConfig: { voiceName: voice }
+            }
+          }
+        };
 
     const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent`, {
       method: 'POST',
@@ -52,16 +81,8 @@ export default async function handler(req, res) {
         'Content-Type': 'application/json'
       },
       body: JSON.stringify({
-        contents: [{ parts: [{ text: instruction }] }],
-        generationConfig: {
-          responseModalities: ['AUDIO'],
-          speechConfig: {
-            languageCode: lang,
-            voiceConfig: {
-              prebuiltVoiceConfig: { voiceName: voice }
-            }
-          }
-        }
+        contents: [{ role: 'user', parts: [part] }],
+        generationConfig
       })
     });
 
