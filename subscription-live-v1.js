@@ -81,6 +81,16 @@ function parseEvent(raw){
   if(type==='response.output_audio.done'||type==='response.audio.done'){
     emit('assistant-done');
   }
+  if(type==='session.output_transcript.delta'||type==='response.output_audio_transcript.delta'){
+    const text=String(event?.delta||'');
+    if(text)try{state.onTranscript?.({role:'assistant',text,final:false,delta:true})}catch{}
+    return;
+  }
+  if(type==='session.input_transcript.delta'){
+    const text=String(event?.delta||'');
+    if(text)try{state.onTranscript?.({role:'user',text,final:false,delta:true})}catch{}
+    return;
+  }
   if(type==='turn.done'){
     const role=event?.turn?.role;
     const text=String(event?.turn?.transcript||'').trim();
