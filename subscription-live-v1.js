@@ -241,12 +241,20 @@ async function speakExact(text){
   if(!state.running&&!state.starting)throw new Error('GPT Live não está conectado.');
   await waitChannelOpen();
   try{state.pendingSpeak?.resolve?.(false)}catch{}
-  const done=new Promise(resolve=>{state.pendingSpeak={resolve}});
+  const done=new Promise(resolve=>{
+    const timer=setTimeout(()=>{
+      if(state.pendingSpeak){
+        state.pendingSpeak=null;
+        resolve(false);
+      }
+    },30000);
+    state.pendingSpeak={resolve:value=>{clearTimeout(timer);resolve(value)}};
+  });
   const event={
     type:'response.create',
     response:{
       input:[],
-      output_modalities:['audio','text'],
+      output_modalities:['audio'],
       instructions:'Fale exatamente o texto a seguir, sem acrescentar, remover, resumir ou responder nada antes ou depois. Use português brasileiro natural e claro:\n\n'+text
     }
   };
