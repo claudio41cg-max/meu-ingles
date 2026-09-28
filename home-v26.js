@@ -187,13 +187,19 @@ async function say(text,emotion='neutral'){
  if(!text)return;
  setRobotState(emotion==='angry'?'angry':emotion==='oops'?'oops':emotion==='happy'?'happy':'speaking');
  try{
-  if(window.geminiSpeak)await Promise.race([window.geminiSpeak(text,'pt-BR',currentVoice()),wait(18000)]);
-  else throw new Error('tts');
- }catch(e){
-  try{
-    window.nativeSpeechFallback?.(text,'pt-BR');
-  }catch{}
- }
+   window.stopGeminiTTS?.();
+   window.speechSynthesis?.cancel?.();
+   if('speechSynthesis' in window){
+     await new Promise(resolve=>{
+       const u=new SpeechSynthesisUtterance(String(text));
+       u.lang='pt-BR';
+       u.rate=1;
+       u.onend=resolve;
+       u.onerror=resolve;
+       window.speechSynthesis.speak(u);
+     });
+   }
+ }catch{}
  setRobotState('');
 }
 function aiMark(){
@@ -245,34 +251,33 @@ window.startV26FromCard=async m=>{
 window.openTeacherTypes=()=>{window.stableShow?.('settings');setTimeout(()=>{[...document.querySelectorAll('#settings h3')].find(x=>/Personalidade do professor/i.test(x.textContent||''))?.scrollIntoView({behavior:'smooth',block:'start'})},120)};
 window.startV26Conversation=async()=>{
  if(phase!=='idle')return;
- phase=mode==='module'?'live_course':'live_free';topic='';history=[];turn=0;errorStreak=0;render();
-
- /* A esfera usa exclusivamente Gemini 3.1 Live.
-    Gemini 2.5 TTS fica somente nas aulas normais/botões Ouvir. */
- if(window.MeuInglesGeminiLiveV38?.available){
-   try{window.stopGeminiTTS?.()}catch{}
-   try{window.speechSynthesis?.cancel?.()}catch{}
-   const pill=document.querySelector('#homeTopicPill');
-   if(pill)pill.textContent=mode==='module'?'📚 Escolhendo curso':'💬 Escolhendo assunto';
-   document.querySelector('#homeModulePicker')?.classList.remove('open');
-   await window.MeuInglesGeminiLiveV38.start({kind:mode==='module'?'course':'free'});
-   return;
+ try{window.MeuInglesGeminiLiveV38?.stop?.()}catch{}
+ try{window.stopGeminiTTS?.()}catch{}
+ try{window.speechSynthesis?.cancel?.()}catch{}
+ topic='';history=[];turn=0;errorStreak=0;
+ phase=mode==='module'?'choose_module':'choose_free';
+ render();
+ setTopicPill();
+ if(mode==='module'){
+   document.querySelector('#homeModulePicker')?.classList.add('open');
+ }else{
+   const prompt=pickOpening();
+   addMsg(prompt,'bot');
+   await say(prompt,'happy');
  }
-
- const prompt=pickOpening();addMsg(prompt,'bot');setTopicPill();await say(prompt,'happy');
 };
 window.closeV26Conversation=e=>{e?.preventDefault?.();e?.stopPropagation?.();try{window.MeuInglesGeminiLiveV38?.stop?.()}catch{}try{window.stopGeminiTTS?.()}catch{}phase='idle';topic='';history=[];turn=0;errorStreak=0;setBusy(false);setRobotState('');setFocus(false);render();setTimeout(()=>card()?.scrollIntoView({behavior:'smooth',block:'start'}),30)};
 window.startV26LiveContext=async context=>{
- try{await window.MeuInglesGeminiLiveV38?.stop?.()}catch{}
+ try{window.MeuInglesGeminiLiveV38?.stop?.()}catch{}
  try{window.stopGeminiTTS?.()}catch{}
  mode='free';
- phase='live_external';
+ phase='learning';
  topic=String(context?.topic||'').trim();
  history=[];turn=0;errorStreak=0;
  render();
  const pill=document.querySelector('#homeTopicPill');
  if(pill&&topic)pill.textContent=`💬 Tema: ${topic}`;
- await window.MeuInglesGeminiLiveV38?.start?.(context||{kind:'free'});
+ if(topic)await ask(`Quero praticar inglês sobre ${topic}. Comece com uma pergunta simples e natural.`);
 };
 window.changeV26Topic=()=>{
  if(phase==='idle'||busy)return;
@@ -306,13 +311,8 @@ function matchModule(text){
 }
 function moodFrom(d){if(d?.emotion)return d.emotion;if(d?.verdict==='wrong')return currentTeacher()==='pesada'?'angry':'oops';if(d?.verdict==='almost')return 'oops';if(d?.verdict==='correct')return 'happy';return 'neutral'}
 async function fetchAI(body){
- const controller=new AbortController();const timer=setTimeout(()=>controller.abort(),12000);
- try{
-  const r=await fetch(CHAT,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body),signal:controller.signal});
-  const raw=await r.text();let d={};try{d=JSON.parse(raw)}catch{}
-  if(!r.ok)throw new Error(d?.details||d?.error||'Falha da IA');
-  return d;
- }finally{clearTimeout(timer)}
+ if(typeof window.meuInglesGptAsk!=='function')throw new Error('Ponte GPT indisponível');
+ return window.meuInglesGptAsk(body);
 }
 function fallbackReply(){
  if(topic){
@@ -351,14 +351,32 @@ window.v26Send=()=>{
  i.value='';handleUser(t);
 };
 window.v26Mic=()=>{
-  /* O microfone da esfera pertence exclusivamente ao Gemini 3.1 Live. */
-  const live=window.MeuInglesGeminiLiveV38;
-  if(!live?.available){
-    console.warn('Gemini Live indisponível: microfone da esfera não usa SpeechRecognition como fallback.');
+  if(busy)return;
+  const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+  if(!SR){
+    addMsg('O reconhecimento de voz não está disponível neste navegador. Você pode digitar normalmente.','bot');
     return;
   }
-  if(live.state?.running||live.state?.starting)live.stop?.();
-  else live.start?.({kind:phase==='live_course'?'course':phase==='live_external'?'external':'free'});
+  const mic=document.querySelector('#homeChatMic');
+  const rec=new SR();
+  rec.lang='pt-BR';
+  rec.interimResults=false;
+  rec.continuous=false;
+  mic?.classList.add('listening');
+  setRobotState('listening');
+  rec.onresult=e=>{
+    mic?.classList.remove('listening');
+    setRobotState('');
+    const text=String(e.results?.[0]?.[0]?.transcript||'').trim();
+    if(text)handleUser(text);
+  };
+  rec.onerror=()=>{
+    mic?.classList.remove('listening');
+    setRobotState('');
+    addMsg('Não consegui entender. Tente falar novamente.','bot');
+  };
+  rec.onend=()=>{mic?.classList.remove('listening');setRobotState('');};
+  try{rec.start()}catch{}
 };
 function hookNav(){
  const goal=document.querySelector('nav button[data-screen="goal"]');
