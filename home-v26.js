@@ -234,9 +234,9 @@ function render(){
  c.innerHTML=`
  <div class="homeConversationTop"><h2>Converse e Divirta-se</h2><button class="teacherTypesBtn" onclick="openTeacherTypes()">🤖 Tipos de professor</button></div>
  <p class="homeConversationIntro">Escolha entre Explorar temas, Inglês com AI ou Bate-papo livre.</p>
- <button class="homeRobotStage homeRobotGuideButton" type="button" onclick="startV26RobotLive()" aria-label="Conversar com o professor GPT Live">
+ <button class="homeRobotStage homeRobotGuideButton" type="button" onclick="playHomeRobotGuide()" aria-label="Iniciar ou parar tutorial">
    <img class="homeRobot" src="assets/robot-professor.svg?v=26" alt="Robô professor">
-   <span class="homeRobotGuideHint">🎙️ Fale comigo</span><span class="bot homeTtsProbe" aria-hidden="true"></span>
+   <span class="homeRobotGuideHint">🔊 Toque em mim</span><span class="bot homeTtsProbe" aria-hidden="true"></span>
  </button>
  <div class="homeConversationChoices">
    <button class="homeConversationChoice methodsCard" data-v26mode="methods" onclick="openMethodsRobot(event)">${exploreVisual()}<span class="choiceCopy"><b>Explorar temas</b><small>Escolha um tema entre família, viagens, comida, hotel e muito mais.</small></span>${aiMark()}</button>
