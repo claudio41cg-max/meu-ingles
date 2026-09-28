@@ -614,10 +614,17 @@ async function sendChat(text){
   text=String(text||'').trim();if(!text)return;
   addMsg(text,'user');const bot=$('#chatBot');bot?.classList.add('thinking');
   try{
-    const d=await askAI({mode:'conversation',message:text,level:state.level,personality:state.teacher,scenario:state.scenario,history:chatHistory.slice(-8),error_streak:state.errorStreak});
+    const payload={mode:'conversation',message:text,level:state.level,personality:state.teacher,scenario:state.scenario,history:chatHistory.slice(-8),error_streak:state.errorStreak};
+    const d=typeof window.meuInglesGptAsk==='function'
+      ?await window.meuInglesGptAsk(payload)
+      :await askAI(payload);
     chatHistory.push({role:'user',content:text},{role:'assistant',content:(d.reply_pt||'')+' '+(d.reply_en||'')});
-    const reply=[d.reply_pt,d.reply_en].filter(Boolean).join(' • ');addMsg(reply,'bot',d.provider||'');bot?.classList.remove('thinking');await speakBoth(d.reply_pt||'',d.reply_en||'');
-  }catch(e){bot?.classList.remove('thinking');addMsg('A IA não respondeu agora. Tente novamente em alguns segundos.','bot')}
+    const reply=[d.reply_pt,d.reply_en].filter(Boolean).join(' • ');addMsg(reply,'bot',d.provider||'GPT');bot?.classList.remove('thinking');await speakBoth(d.reply_pt||'',d.reply_en||'');
+  }catch(e){
+    bot?.classList.remove('thinking');
+    const message=String(e?.message||'');
+    addMsg(message==='Login cancelado.'?'Entre no GPT quando quiser continuar.':'O GPT não respondeu agora. Tente novamente em alguns segundos.','bot');
+  }
 }
 window.stableChatSend=()=>{const i=$('#chatText');const t=i?.value.trim();if(t){i.value='';sendChat(t)}};
 window.stableChatMic=async()=>{
