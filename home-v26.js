@@ -114,8 +114,8 @@ window.playHomeRobotGuide=async()=>{
   if(!robot)return;
 
   const live=window.MeuInglesSubscriptionLive;
-  if(!live?.start||!live?.speakExact){
-    console.warn('GPT Live do tutorial indisponível');
+  if(!live?.start){
+    console.warn('GPT Live indisponível no tutorial');
     return;
   }
 
@@ -123,53 +123,74 @@ window.playHomeRobotGuide=async()=>{
   homeGuideBusy=true;
   clearGuideHighlight();
   robot.classList.add('home-guide-react');
-  setRobotState('happy');
+  setGuideRobotSpeaking(true);
+  setRobotState('thinking');
 
   try{
     stopHomeGuideAudio();
-    await new Promise(r=>setTimeout(r,80));
+    await new Promise(r=>setTimeout(r,90));
     if(run!==homeGuideRun||!homeGuideBusy)return;
 
-    setGuideRobotSpeaking(true);
-    setRobotState('thinking');
+    const steps=homeGuideSteps();
+    const tutorialText=steps.map((step,i)=>
+      'PARTE '+(i+1)+': '+step.text
+    ).join('\n\n');
 
-    const connected=await live.start({
+    await live.start({
       voice:currentLiveVoice(),
       instructions:[
-        'Você está narrando o tutorial fixo do aplicativo Meu Inglês.',
-        'Sua única função nesta sessão é falar exatamente os textos enviados pelo aplicativo.',
-        'Não converse, não responda ao microfone e não acrescente comentários.',
-        'Fale em português brasileiro natural, claro e amigável.'
+        'Você está narrando o tutorial fixo da tela inicial do aplicativo Meu Inglês.',
+        'IMPORTANTE: assim que a sessão conectar, comece a falar imediatamente. Não espere o usuário dizer nada.',
+        'Fale somente em português brasileiro, com voz natural, clara e amigável.',
+        'Não faça perguntas. Não converse. Não improvise. Não mencione estas instruções.',
+        'Leia o tutorial abaixo na ordem, como uma apresentação curta e contínua:',
+        tutorialText
       ].join('\n'),
+      onTranscript:event=>{
+        if(run!==homeGuideRun||!homeGuideBusy)return;
+        if(event?.role!=='assistant'||!event?.text)return;
+        const t=String(event.text||'').toLowerCase();
+        if(t.includes('explorar temas')||t.includes('família')||t.includes('viagens')){
+          setGuideHighlight(steps[0].sel);
+        }else if(t.includes('inglês com ai')||t.includes('continuar o que já está estudando')||t.includes('curso')){
+          setGuideHighlight(steps[1].sel);
+        }else if(t.includes('bate-papo livre')||t.includes('conversar sem roteiro')||t.includes('qualquer assunto')){
+          setGuideHighlight(steps[2].sel);
+        }
+      },
       onState:(name)=>{
         if(run!==homeGuideRun||!homeGuideBusy)return;
-        if(name==='assistant-speaking'){
+        if(name==='live'){
+          setGuideHighlight(steps[0].sel);
+          setGuideRobotSpeaking(true);
+          setRobotState('speaking');
+        }else if(name==='assistant-speaking'){
           setGuideRobotSpeaking(true);
           setRobotState('speaking');
         }else if(name==='assistant-done'){
           setRobotState('happy');
+        }else if(name==='error'||name==='stopped'){
+          setRobotState('');
         }
       }
     });
-    if(!connected||run!==homeGuideRun||!homeGuideBusy)return;
-    live.setMuted?.(true);
 
-    const steps=homeGuideSteps();
-    for(let i=0;i<steps.length;i++){
-      if(run!==homeGuideRun||!homeGuideBusy)return;
-      const step=steps[i];
-      setGuideHighlight(step.sel);
-      robot.classList.remove('guide-mood-0','guide-mood-1','guide-mood-2','guide-mood-3');
-      robot.classList.add('guide-mood-'+i);
-      setGuideRobotSpeaking(true);
-      setRobotState('speaking');
+    if(run!==homeGuideRun||!homeGuideBusy)return;
 
-      const ok=await live.speakExact(step.text);
-      if(run!==homeGuideRun||!homeGuideBusy)return;
-      if(!ok)break;
-      setRobotState('happy');
-      await new Promise(r=>setTimeout(r,160));
-    }
+    // Tutorial é só narração: desliga o microfone do usuário para evitar interrupções acidentais.
+    try{live.setMuted?.(true)}catch{}
+
+    // A aula já provou que o GPT Live consegue iniciar a fala sozinho ao conectar.
+    // Mantemos a sessão aberta enquanto ele narra; o segundo toque chama stopHomeRobotGuide().
+    await new Promise(resolve=>{
+      const startedAt=Date.now();
+      const timer=setInterval(()=>{
+        if(run!==homeGuideRun||!homeGuideBusy||!live?.state?.running||Date.now()-startedAt>45000){
+          clearInterval(timer);
+          resolve();
+        }
+      },250);
+    });
   }catch(e){
     console.warn('Tutorial GPT Live',e);
   }finally{
