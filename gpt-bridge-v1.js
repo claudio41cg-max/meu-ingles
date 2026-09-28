@@ -160,6 +160,8 @@ async function ask(payload,retry=true){
 }
 
 window.meuInglesGptAsk=ask;
+window.meuInglesTurboAuth=token;
+window.meuInglesTurboBase=TURBO;
 window.meuInglesGptReset=()=>{
   localStorage.removeItem(SESSION_KEY);
 };
