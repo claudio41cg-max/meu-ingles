@@ -83,6 +83,8 @@ function setGuideRobotSpeaking(on){
 function stopHomeGuideAudio(){
   try{window.stopGeminiTTS?.()}catch{}
   try{window.speechSynthesis?.cancel?.()}catch{}
+  try{window.MeuInglesSubscriptionLive?.cancelSpeech?.()}catch{}
+  try{window.MeuInglesSubscriptionLive?.stop?.()}catch{}
 }
 window.stopHomeRobotGuide=()=>{
   if(!homeGuideBusy)return;
@@ -111,6 +113,12 @@ window.playHomeRobotGuide=async()=>{
   const robot=document.querySelector('#home .homeRobotStage');
   if(!robot)return;
 
+  const live=window.MeuInglesSubscriptionLive;
+  if(!live?.start||!live?.speakExact){
+    console.warn('GPT Live do tutorial indisponível');
+    return;
+  }
+
   const run=++homeGuideRun;
   homeGuideBusy=true;
   clearGuideHighlight();
@@ -119,12 +127,34 @@ window.playHomeRobotGuide=async()=>{
 
   try{
     stopHomeGuideAudio();
-    await new Promise(r=>setTimeout(r,70));
-    if(run!==homeGuideRun)return;
+    await new Promise(r=>setTimeout(r,80));
+    if(run!==homeGuideRun||!homeGuideBusy)return;
 
-    const voice=currentVoice();
+    setGuideRobotSpeaking(true);
+    setRobotState('thinking');
+
+    const connected=await live.start({
+      voice:currentLiveVoice(),
+      instructions:[
+        'Você está narrando o tutorial fixo do aplicativo Meu Inglês.',
+        'Sua única função nesta sessão é falar exatamente os textos enviados pelo aplicativo.',
+        'Não converse, não responda ao microfone e não acrescente comentários.',
+        'Fale em português brasileiro natural, claro e amigável.'
+      ].join('\n'),
+      onState:(name)=>{
+        if(run!==homeGuideRun||!homeGuideBusy)return;
+        if(name==='assistant-speaking'){
+          setGuideRobotSpeaking(true);
+          setRobotState('speaking');
+        }else if(name==='assistant-done'){
+          setRobotState('happy');
+        }
+      }
+    });
+    if(!connected||run!==homeGuideRun||!homeGuideBusy)return;
+    live.setMuted?.(true);
+
     const steps=homeGuideSteps();
-
     for(let i=0;i<steps.length;i++){
       if(run!==homeGuideRun||!homeGuideBusy)return;
       const step=steps[i];
@@ -134,23 +164,17 @@ window.playHomeRobotGuide=async()=>{
       setGuideRobotSpeaking(true);
       setRobotState('speaking');
 
-      let ok=false;
-      if('speechSynthesis' in window){
-        ok=await new Promise(resolve=>{
-          const u=new SpeechSynthesisUtterance(step.text);
-          u.lang='pt-BR';
-          u.rate=1;
-          u.onend=()=>resolve(true);
-          u.onerror=()=>resolve(false);
-          window.speechSynthesis.speak(u);
-        });
-      }
-
+      const ok=await live.speakExact(step.text);
       if(run!==homeGuideRun||!homeGuideBusy)return;
       if(!ok)break;
+      setRobotState('happy');
+      await new Promise(r=>setTimeout(r,160));
     }
+  }catch(e){
+    console.warn('Tutorial GPT Live',e);
   }finally{
     if(run!==homeGuideRun)return;
+    try{await live.stop?.()}catch{}
     clearGuideHighlight();
     robot.classList.remove('home-guide-speaking','home-guide-react','guide-mood-0','guide-mood-1','guide-mood-2','guide-mood-3');
     setGuideRobotSpeaking(false);
@@ -159,7 +183,6 @@ window.playHomeRobotGuide=async()=>{
     setTimeout(()=>{
       if(run===homeGuideRun)setRobotState('');
     },650);
-    setTimeout(preloadHomeGuideAudio,250);
   }
 }
 
