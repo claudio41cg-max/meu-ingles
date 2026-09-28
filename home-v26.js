@@ -12,12 +12,33 @@ const LEVEL_MODULES={
  C1:['Nuances de tempo e aspecto','Ênfase e inversão','Modalidade avançada','Registro e nominalização','Colocações e idiomaticidade','Escrita profissional e acadêmica','Apresentações de alto nível','Debate e pensamento crítico','Inglês social e humor','Inglês profissional avançado','Escuta rápida e sotaques','Projeto C1: painel profissional'],
  C2:['Precisão e escolha de registro','Modalidade e posicionamento','Retórica e persuasão','Linguagem figurada','Idiomaticidade profunda','Argumentação complexa','Edição e precisão','Mediação e paráfrase','Velocidade, sotaques e ruído','Cultura, humor e pragmática','Domínio profissional','Projeto C2: domínio total']
 };
-let mode='module',phase='idle',topic='',history=[],turn=0,errorStreak=0,busy=false;
+let mode='module',phase='idle',topic='',history=[],turn=0,errorStreak=0,busy=false,liveExtra='';
+const LIVE_VOICE_KEY='meuIngles.liveVoice.v1';
 function st(){try{return JSON.parse(localStorage.getItem(KEY)||'{}')||{}}catch{return {}}}
 function norm(s){return String(s||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().replace(/[^a-z0-9 ]/g,' ').replace(/\s+/g,' ').trim()}
 function currentLevel(){return (st().level||'A1').toUpperCase()}
 function currentTeacher(){return st().teacher||'media'}
 function currentVoice(){return st().voice||'Aoede'}
+function currentLiveVoice(){
+  const saved=String(localStorage.getItem(LIVE_VOICE_KEY)||'').trim();
+  if(saved)return saved;
+  const legacy=currentVoice();
+  return ({Aoede:'cove',Kore:'ember',Leda:'juniper',Zephyr:'breeze'})[legacy]||'juniper';
+}
+function liveVoiceOptions(){
+  const voices=[
+    ['cove','Cove'],['juniper','Juniper'],['maple','Maple'],['spruce','Spruce'],['ember','Ember'],
+    ['vale','Vale'],['breeze','Breeze'],['arbor','Arbor'],['sol','Sol']
+  ];
+  const active=currentLiveVoice();
+  return voices.map(([id,label])=>'<option value="'+id+'" '+(id===active?'selected':'')+'>'+label+'</option>').join('');
+}
+function setLiveRobotImage(speaking){
+  const img=document.querySelector('#home .homeRobot');
+  if(!img)return;
+  const src=speaking?'assets/robot-professor-talking.svg?v=4':'assets/robot-professor.svg?v=26';
+  if(img.getAttribute('src')!==src)img.setAttribute('src',src);
+}
 function currentName(){return String(st().name||'aluno').trim()||'aluno'}
 function homeGuideSteps(){
   const n=currentName();
@@ -223,7 +244,7 @@ function render(){
    <button class="homeConversationChoice ${mode==='free'?'active':''}" data-v26mode="free" onclick="startV26FromCard('free')"><span class="ico choiceVisual">💬</span><span class="choiceCopy"><b>Bate-papo livre</b><small>Converse sobre qualquer assunto sem roteiro</small></span>${aiMark()}</button>
  </div>
  <div class="homeInlineChat">
-   <div class="homeChatHead"><b>Professor ${esc(personaLabel())}</b><button class="homeChatClose" onclick="closeV26Conversation(event)">Sair</button></div>
+   <div class="homeChatHead"><div class="homeLiveHeadLeft"><b>Professor ${esc(personaLabel())}</b><label class="homeLiveVoiceLabel">Voz <select id="homeLiveVoice" class="homeLiveVoice" onchange="changeV26LiveVoice(this.value)">${liveVoiceOptions()}</select></label></div><button class="homeChatClose" onclick="closeV26Conversation(event)">Sair</button></div>
    <button id="homeTopicPill" class="homeTopicPill" onclick="changeV26Topic()"></button>
    <div id="homeModulePicker" class="homeModulePicker">${moduleButtons()}</div>
    <div id="homeInlineChatBox" class="homeChatBox"></div>
@@ -272,34 +293,54 @@ function syncLiveUi(){
   const running=!!live?.state?.running;
   mic?.classList.toggle('listening',running&&!live?.state?.muted);
   mic?.classList.toggle('muted',running&&!!live?.state?.muted);
-  if(running)setRobotState(live.state.muted?'':'listening');
+  if(running){setRobotState(live.state.muted?'':'listening');setLiveRobotImage(false)}
 }
 async function startV26SubscriptionLive(extra=''){
   const live=subscriptionLive();
+  liveExtra=String(extra||liveExtra||'');
   if(!live?.start)throw new Error('GPT Live por assinatura indisponível.');
   setBusy(true);
   addMsg('🎙️ Conectando ao GPT Live...','bot');
   try{
     await live.start({
-      voice:currentVoice(),
-      instructions:liveInstructions(extra),
+      voice:currentLiveVoice(),
+      instructions:liveInstructions(liveExtra),
       onTranscript:event=>{
         if(!event?.final||!event?.text)return;
         addMsg(event.text,event.role==='user'?'user':'bot');
-        if(event.role==='assistant')setRobotState('speaking');
-        else setRobotState('listening');
       },
       onState:(name,detail)=>{
         if(name==='live'){
           setBusy(false);
           addMsg('GPT Live conectado. Pode falar normalmente.','bot');
+          setLiveRobotImage(false);
           syncLiveUi();
+        }else if(name==='user-speaking'){
+          setLiveRobotImage(false);
+          setRobotState('listening');
+        }else if(name==='user-stopped'){
+          setLiveRobotImage(false);
+          setRobotState('thinking');
+        }else if(name==='assistant-speaking'){
+          setLiveRobotImage(true);
+          setRobotState('speaking');
+        }else if(name==='assistant-done'){
+          setLiveRobotImage(false);
+          setRobotState('listening');
+        }else if(name==='muted'){
+          setLiveRobotImage(false);
+          setRobotState('');
+        }else if(name==='unmuted'){
+          setLiveRobotImage(false);
+          setRobotState('listening');
         }else if(name==='error'){
           setBusy(false);
+          setLiveRobotImage(false);
           addMsg('Não consegui abrir o GPT Live: '+String(detail||'erro desconhecido'),'bot');
           setRobotState('oops');
         }else if(name==='stopped'){
           setBusy(false);
+          setLiveRobotImage(false);
           setRobotState('');
           syncLiveUi();
         }
@@ -316,13 +357,29 @@ async function startV26SubscriptionLive(extra=''){
   }
 }
 
+window.changeV26LiveVoice=async value=>{
+  const allowed=new Set(['cove','juniper','maple','spruce','ember','vale','breeze','arbor','sol']);
+  const voice=String(value||'');
+  if(!allowed.has(voice))return;
+  localStorage.setItem(LIVE_VOICE_KEY,voice);
+  const live=subscriptionLive();
+  if(!(live?.state?.running||live?.state?.starting))return;
+  addMsg('🔊 Trocando voz para '+voice+'...','bot');
+  try{
+    await live.stop();
+    await startV26SubscriptionLive(liveExtra);
+  }catch{
+    addMsg('Não consegui trocar a voz agora. Tente novamente.','bot');
+  }
+};
+
 window.startV26Conversation=async()=>{
  if(phase!=='idle')return;
  try{window.MeuInglesGeminiLiveV38?.stop?.()}catch{}
  try{window.MeuInglesSubscriptionLive?.stop?.()}catch{}
  try{window.stopGeminiTTS?.()}catch{}
  try{window.speechSynthesis?.cancel?.()}catch{}
- topic='';history=[];turn=0;errorStreak=0;
+ topic='';history=[];turn=0;errorStreak=0;liveExtra='';
  phase=mode==='module'?'choose_module':'learning';
  render();
  setTopicPill();
@@ -332,7 +389,7 @@ window.startV26Conversation=async()=>{
    await startV26SubscriptionLive('Modo bate-papo livre. Quando o aluno falar pela primeira vez, cumprimente-o e pergunte qual assunto ele quer praticar. Depois mantenha a conversa natural.');
  }
 };
-window.closeV26Conversation=e=>{e?.preventDefault?.();e?.stopPropagation?.();try{window.MeuInglesGeminiLiveV38?.stop?.()}catch{}try{window.MeuInglesSubscriptionLive?.stop?.()}catch{}try{window.stopGeminiTTS?.()}catch{}phase='idle';topic='';history=[];turn=0;errorStreak=0;setBusy(false);setRobotState('');setFocus(false);render();setTimeout(()=>card()?.scrollIntoView({behavior:'smooth',block:'start'}),30)};
+window.closeV26Conversation=e=>{e?.preventDefault?.();e?.stopPropagation?.();try{window.MeuInglesGeminiLiveV38?.stop?.()}catch{}try{window.MeuInglesSubscriptionLive?.stop?.()}catch{}try{window.stopGeminiTTS?.()}catch{}phase='idle';topic='';history=[];turn=0;errorStreak=0;liveExtra='';setBusy(false);setLiveRobotImage(false);setRobotState('');setFocus(false);render();setTimeout(()=>card()?.scrollIntoView({behavior:'smooth',block:'start'}),30)};
 window.startV26LiveContext=async context=>{
  try{window.MeuInglesGeminiLiveV38?.stop?.()}catch{}
  try{window.MeuInglesSubscriptionLive?.stop?.()}catch{}
