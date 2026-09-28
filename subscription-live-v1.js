@@ -174,7 +174,13 @@ async function start(options={}){
     pc.ontrack=e=>{
       const media=e.streams?.[0]||new MediaStream([e.track]);
       audio.srcObject=media;
-      audio.play().catch(()=>{});
+      audio.onplaying=()=>emit('assistant-speaking');
+      audio.onpause=()=>emit('assistant-done');
+      audio.onended=()=>emit('assistant-done');
+      const play=audio.play();
+      if(play&&typeof play.then==='function'){
+        play.then(()=>emit('assistant-speaking')).catch(()=>{});
+      }
       emit('audio');
     };
     pc.onconnectionstatechange=()=>{
