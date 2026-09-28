@@ -77,3 +77,15 @@
  #home.conversation-focus .homeTalkCard.chat-open .homeRobotStage{height:245px}
  #home.conversation-focus .homeTalkCard.chat-open .homeRobot{height:235px}
 }
+
+.homeLiveHeadLeft{display:flex;align-items:center;gap:10px;min-width:0;flex-wrap:wrap}
+.homeLiveVoiceLabel{display:inline-flex;align-items:center;gap:7px;font-size:12px;font-weight:850;color:#92bed8;background:#0b2538;border:1px solid #2e5b78;border-radius:999px;padding:5px 8px 5px 10px}
+.homeLiveVoice{appearance:auto;border:0;outline:0;background:#133852;color:#effaff;border-radius:999px;padding:6px 8px;font-size:13px;font-weight:850}
+.homeChatMic.muted{background:radial-gradient(circle at 35% 25%,#8697a8 0,#566a7e 48%,#34465a 100%);box-shadow:0 0 0 5px rgba(115,137,158,.12),0 8px 20px rgba(0,0,0,.25);animation:none}
+.homeTalkCard.chat-open.robot-speaking .homeRobotStage:before{background:radial-gradient(circle,rgba(0,243,255,.3),rgba(0,132,255,.12) 50%,transparent 74%)}
+@media(max-width:390px){
+ .homeChatHead{align-items:flex-start}
+ .homeLiveHeadLeft{gap:6px}
+ .homeLiveVoiceLabel{font-size:11px}
+ .homeLiveVoice{font-size:12px;padding:5px 6px}
+}
