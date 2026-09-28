@@ -67,3 +67,14 @@
     min-height:340px!important;
   }
 }
+/* Quando o Live é aberto pelo robozinho, mantém o robô e não troca pela esfera. */
+#home.conversation-focus .homeTalkCard.chat-open.robot-live-view .conversationSphereV46{
+  display:none!important;
+}
+#home.conversation-focus .homeTalkCard.chat-open.robot-live-view .homeRobot{
+  opacity:1!important;
+  visibility:visible!important;
+}
+#home.conversation-focus .homeTalkCard.chat-open.robot-live-view .robotFaceOverlay{
+  display:block!important;
+}
