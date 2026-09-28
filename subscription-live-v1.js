@@ -250,15 +250,27 @@ async function speakExact(text){
     },30000);
     state.pendingSpeak={resolve:value=>{clearTimeout(timer);resolve(value)}};
   });
-  const event={
-    type:'response.create',
-    response:{
-      input:[],
-      output_modalities:['audio'],
-      instructions:'Fale exatamente o texto a seguir, sem acrescentar, remover, resumir ou responder nada antes ou depois. Use português brasileiro natural e claro:\n\n'+text
+  const itemEvent={
+    type:'conversation.item.create',
+    item:{
+      type:'message',
+      role:'user',
+      content:[{
+        type:'input_text',
+        text:'Leia em voz alta exatamente este texto, sem acrescentar nada antes ou depois:\n\n'+text
+      }]
     }
   };
-  state.channel.send(JSON.stringify(event));
+  state.channel.send(JSON.stringify(itemEvent));
+
+  const responseEvent={
+    type:'response.create',
+    response:{
+      output_modalities:['audio'],
+      instructions:'Apenas leia em voz alta o texto enviado pelo usuário. Não converse, não explique e não acrescente comentários.'
+    }
+  };
+  state.channel.send(JSON.stringify(responseEvent));
   return await done;
 }
 
