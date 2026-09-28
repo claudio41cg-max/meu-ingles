@@ -14,6 +14,7 @@ const LEVEL_MODULES={
 };
 let mode='module',phase='idle',topic='',history=[],turn=0,errorStreak=0,busy=false,liveExtra='';
 const LIVE_VOICE_KEY='meuIngles.liveVoice.v1';
+const ROBOT_LIVE_VOICE_KEY='meuIngles.robotLiveVoice.v1';
 function st(){try{return JSON.parse(localStorage.getItem(KEY)||'{}')||{}}catch{return {}}}
 function norm(s){return String(s||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().replace(/[^a-z0-9 ]/g,' ').replace(/\s+/g,' ').trim()}
 function currentLevel(){return (st().level||'A1').toUpperCase()}
@@ -33,6 +34,28 @@ function liveVoiceOptions(){
   const active=currentLiveVoice();
   return voices.map(([id,label])=>'<option value="'+id+'" '+(id===active?'selected':'')+'>'+label+'</option>').join('');
 }
+function currentRobotLiveVoice(){
+  const saved=String(localStorage.getItem(ROBOT_LIVE_VOICE_KEY)||'').trim();
+  return saved||currentLiveVoice();
+}
+function robotLiveVoiceOptions(){
+  const voices=[
+    ['cove','Cove'],['juniper','Juniper'],['maple','Maple'],['spruce','Spruce'],['ember','Ember'],
+    ['vale','Vale'],['breeze','Breeze'],['arbor','Arbor'],['sol','Sol']
+  ];
+  const active=currentRobotLiveVoice();
+  return voices.map(([id,label])=>'<option value="'+id+'" '+(id===active?'selected':'')+'>'+label+'</option>').join('');
+}
+window.changeRobotLiveVoice=value=>{
+  const allowed=new Set(['cove','juniper','maple','spruce','ember','vale','breeze','arbor','sol']);
+  const voice=String(value||'');
+  if(!allowed.has(voice))return;
+  localStorage.setItem(ROBOT_LIVE_VOICE_KEY,voice);
+  if(homeGuideBusy){
+    window.stopHomeRobotGuide();
+    setTimeout(()=>window.playHomeRobotGuide?.(),180);
+  }
+};
 function setLiveRobotImage(speaking){
   const img=document.querySelector('#home .homeRobot');
   if(!img)return;
@@ -67,7 +90,14 @@ function clearGuideHighlight(){
 }
 function setGuideHighlight(sel){
   clearGuideHighlight();
-  document.querySelector(sel)?.classList.add('guide-highlight');
+  const active=document.querySelector(sel);
+  active?.classList.add('guide-highlight');
+  document.querySelector('#home .homeConversationChoices')?.classList.add('guide-running');
+  active?.scrollIntoView?.({behavior:'smooth',block:'nearest'});
+}
+function finishGuideHighlight(){
+  clearGuideHighlight();
+  document.querySelector('#home .homeConversationChoices')?.classList.remove('guide-running');
 }
 function setGuideRobotSpeaking(on){
   const stage=document.querySelector('#home .homeRobotStage');
@@ -91,7 +121,7 @@ window.stopHomeRobotGuide=()=>{
   homeGuideRun++;
   homeGuideBusy=false;
   stopHomeGuideAudio();
-  clearGuideHighlight();
+  finishGuideHighlight();
   const robot=document.querySelector('#home .homeRobotStage');
   robot?.classList.remove('home-guide-speaking','home-guide-react','guide-mood-0','guide-mood-1','guide-mood-2','guide-mood-3');
   setGuideRobotSpeaking(false);
@@ -120,6 +150,8 @@ window.playHomeRobotGuide=async()=>{
   }
 
   const run=++homeGuideRun;
+  window.__homeGuideTranscript='';
+  window.__homeGuideTimingStarted=false;
   homeGuideBusy=true;
   clearGuideHighlight();
   robot.classList.add('home-guide-react');
@@ -137,7 +169,7 @@ window.playHomeRobotGuide=async()=>{
     ).join('\n\n');
 
     await live.start({
-      voice:currentLiveVoice(),
+      voice:currentRobotLiveVoice(),
       instructions:[
         'Você está narrando o tutorial fixo da tela inicial do aplicativo Meu Inglês.',
         'IMPORTANTE: assim que a sessão conectar, comece a falar imediatamente. Não espere o usuário dizer nada.',
@@ -146,18 +178,22 @@ window.playHomeRobotGuide=async()=>{
         'Leia o tutorial abaixo na ordem, como uma apresentação curta e contínua:',
         tutorialText
       ].join('\n'),
-      onTranscript:event=>{
-        if(run!==homeGuideRun||!homeGuideBusy)return;
-        if(event?.role!=='assistant'||!event?.text)return;
-        const t=String(event.text||'').toLowerCase();
-        if(t.includes('explorar temas')||t.includes('família')||t.includes('viagens')){
-          setGuideHighlight(steps[0].sel);
-        }else if(t.includes('inglês com ai')||t.includes('continuar o que já está estudando')||t.includes('curso')){
-          setGuideHighlight(steps[1].sel);
-        }else if(t.includes('bate-papo livre')||t.includes('conversar sem roteiro')||t.includes('qualquer assunto')){
-          setGuideHighlight(steps[2].sel);
-        }
-      },
+      onTranscript:(()=>{
+        return e=>{
+          if(run!==homeGuideRun||!homeGuideBusy)return;
+          if(e?.role!=='assistant'||!e?.text)return;
+          if(e?.delta)window.__homeGuideTranscript=(window.__homeGuideTranscript||'')+String(e.text||'');
+          else window.__homeGuideTranscript=String(e.text||window.__homeGuideTranscript||'');
+          const t=norm(window.__homeGuideTranscript||'');
+          if(t.includes('bate papo livre')||t.includes('conversar sem roteiro')||t.includes('qualquer assunto')){
+            setGuideHighlight(steps[2].sel);
+          }else if(t.includes('ingles com ai')||t.includes('continuar o que ja esta estudando')||t.includes('revisar e avancar')){
+            setGuideHighlight(steps[1].sel);
+          }else if(t.includes('explorar temas')||t.includes('praticar por assunto')||t.includes('familia')||t.includes('viagens')){
+            setGuideHighlight(steps[0].sel);
+          }
+        };
+      })(),
       onState:(name)=>{
         if(run!==homeGuideRun||!homeGuideBusy)return;
         if(name==='live'){
@@ -167,6 +203,14 @@ window.playHomeRobotGuide=async()=>{
         }else if(name==='assistant-speaking'){
           setGuideRobotSpeaking(true);
           setRobotState('speaking');
+          if(!window.__homeGuideTimingStarted){
+            window.__homeGuideTimingStarted=true;
+            const words=steps.map(x=>String(x.text||'').trim().split(/\s+/).filter(Boolean).length);
+            const ms=n=>Math.max(4200,Math.round(n/2.45*1000));
+            setGuideHighlight(steps[0].sel);
+            setTimeout(()=>{if(run===homeGuideRun&&homeGuideBusy)setGuideHighlight(steps[1].sel)},ms(words[0]));
+            setTimeout(()=>{if(run===homeGuideRun&&homeGuideBusy)setGuideHighlight(steps[2].sel)},ms(words[0])+ms(words[1]));
+          }
         }else if(name==='assistant-done'){
           setRobotState('happy');
         }else if(name==='error'||name==='stopped'){
@@ -196,7 +240,9 @@ window.playHomeRobotGuide=async()=>{
   }finally{
     if(run!==homeGuideRun)return;
     try{await live.stop?.()}catch{}
-    clearGuideHighlight();
+    finishGuideHighlight();
+    window.__homeGuideTranscript='';
+    window.__homeGuideTimingStarted=false;
     robot.classList.remove('home-guide-speaking','home-guide-react','guide-mood-0','guide-mood-1','guide-mood-2','guide-mood-3');
     setGuideRobotSpeaking(false);
     setRobotState('happy');
@@ -282,6 +328,11 @@ function render(){
    <img class="homeRobot" src="assets/robot-professor.svg?v=26" alt="Robô professor">
    <span class="homeRobotGuideHint">🔊 Toque em mim</span><span class="bot homeTtsProbe" aria-hidden="true"></span>
  </button>
+ <div class="homeRobotVoiceRow" onclick="event.stopPropagation()">
+   <label>Voz do robozinho
+     <select class="homeRobotVoiceSelect" onchange="changeRobotLiveVoice(this.value)">${robotLiveVoiceOptions()}</select>
+   </label>
+ </div>
  <div class="homeConversationChoices">
    <button class="homeConversationChoice methodsCard" data-v26mode="methods" onclick="openMethodsRobot(event)">${exploreVisual()}<span class="choiceCopy"><b>Explorar temas</b><small>Escolha um tema entre família, viagens, comida, hotel e muito mais.</small></span>${aiMark()}</button>
    <button class="homeConversationChoice ${mode==='module'?'active':''}" data-v26mode="module" onclick="startV26FromCard('module')">${courseVisual()}<span class="choiceCopy"><b>Inglês com AI</b><small>Siga aulas guiadas e avance com a IA</small></span>${aiMark()}</button>
