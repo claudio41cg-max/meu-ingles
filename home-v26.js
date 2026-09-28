@@ -76,22 +76,8 @@ window.stopHomeRobotGuide=()=>{
   setTimeout(preloadHomeGuideAudio,220);
 };
 async function preloadHomeGuideAudio(){
-  if(homeGuidePreloading||typeof window.preloadGeminiTTS!=='function')return;
-  const voice=currentVoice();
-  const steps=homeGuideSteps();
-  const signature=[voice,currentName(),...steps.map(x=>x.text)].join('|');
-  if(signature===homeGuidePreloadSignature)return;
-  homeGuidePreloading=true;
-  try{
-    for(const step of steps){
-      await window.preloadGeminiTTS(step.text,'pt-BR',voice);
-    }
-    homeGuidePreloadSignature=signature;
-  }catch(e){
-    console.warn('Pré-carga do tutorial do robô',e);
-  }finally{
-    homeGuidePreloading=false;
-  }
+  // Tutorial fixo: não pré-carrega Gemini/API.
+  return;
 }
 
 window.playHomeRobotGuide=async()=>{
@@ -127,9 +113,17 @@ window.playHomeRobotGuide=async()=>{
       setGuideRobotSpeaking(true);
       setRobotState('speaking');
 
-      const ok=typeof window.geminiSpeak==='function'
-        ?await window.geminiSpeak(step.text,'pt-BR',voice)
-        :false;
+      let ok=false;
+      if('speechSynthesis' in window){
+        ok=await new Promise(resolve=>{
+          const u=new SpeechSynthesisUtterance(step.text);
+          u.lang='pt-BR';
+          u.rate=1;
+          u.onend=()=>resolve(true);
+          u.onerror=()=>resolve(false);
+          window.speechSynthesis.speak(u);
+        });
+      }
 
       if(run!==homeGuideRun||!homeGuideBusy)return;
       if(!ok)break;
@@ -249,26 +243,99 @@ window.startV26FromCard=async m=>{
  await window.startV26Conversation();
 };
 window.openTeacherTypes=()=>{window.stableShow?.('settings');setTimeout(()=>{[...document.querySelectorAll('#settings h3')].find(x=>/Personalidade do professor/i.test(x.textContent||''))?.scrollIntoView({behavior:'smooth',block:'start'})},120)};
+
+function subscriptionLive(){return window.MeuInglesSubscriptionLive}
+function livePersonality(){
+  return currentTeacher()==='pesada'
+    ?'Hard 18+: direto, adulto, bem-humorado, com palavrões ocasionais quando combinarem com a conversa, sem humilhar o aluno.'
+    :currentTeacher()==='media'
+      ?'Doideira: animado, espontâneo, brincalhão, com energia alta e conversa natural.'
+      :'Tranquilo: paciente, acolhedor, didático e natural.';
+}
+function liveInstructions(extra=''){
+  const base=[
+    'Você é o professor de inglês do aplicativo Meu Inglês.',
+    'Aluno: '+currentName()+'. Nível: '+currentLevel()+'.',
+    'Personalidade: '+livePersonality(),
+    'Converse por voz em tempo real, de forma humana e curta.',
+    'Use português para orientar quando necessário e inglês para prática.',
+    'Corrija erros sem interromper demais o ritmo da conversa.',
+    'Faça uma pergunta de cada vez e adapte a dificuldade conforme o aluno responde.',
+    'Não diga que é Gemini, Android ou TTS. Você é o professor GPT Live do Meu Inglês.'
+  ];
+  if(extra)base.push(extra);
+  return base.join('\n');
+}
+function syncLiveUi(){
+  const live=subscriptionLive();
+  const mic=document.querySelector('#homeChatMic');
+  const running=!!live?.state?.running;
+  mic?.classList.toggle('listening',running&&!live?.state?.muted);
+  mic?.classList.toggle('muted',running&&!!live?.state?.muted);
+  if(running)setRobotState(live.state.muted?'':'listening');
+}
+async function startV26SubscriptionLive(extra=''){
+  const live=subscriptionLive();
+  if(!live?.start)throw new Error('GPT Live por assinatura indisponível.');
+  setBusy(true);
+  addMsg('🎙️ Conectando ao GPT Live...','bot');
+  try{
+    await live.start({
+      voice:currentVoice(),
+      instructions:liveInstructions(extra),
+      onTranscript:event=>{
+        if(!event?.final||!event?.text)return;
+        addMsg(event.text,event.role==='user'?'user':'bot');
+        if(event.role==='assistant')setRobotState('speaking');
+        else setRobotState('listening');
+      },
+      onState:(name,detail)=>{
+        if(name==='live'){
+          setBusy(false);
+          addMsg('GPT Live conectado. Pode falar normalmente.','bot');
+          syncLiveUi();
+        }else if(name==='error'){
+          setBusy(false);
+          addMsg('Não consegui abrir o GPT Live: '+String(detail||'erro desconhecido'),'bot');
+          setRobotState('oops');
+        }else if(name==='stopped'){
+          setBusy(false);
+          setRobotState('');
+          syncLiveUi();
+        }
+      }
+    });
+    phase='learning';
+    syncLiveUi();
+    return true;
+  }catch(error){
+    setBusy(false);
+    setRobotState('oops');
+    addMsg('Não consegui abrir o GPT Live. Tente novamente.','bot');
+    return false;
+  }
+}
+
 window.startV26Conversation=async()=>{
  if(phase!=='idle')return;
  try{window.MeuInglesGeminiLiveV38?.stop?.()}catch{}
+ try{window.MeuInglesSubscriptionLive?.stop?.()}catch{}
  try{window.stopGeminiTTS?.()}catch{}
  try{window.speechSynthesis?.cancel?.()}catch{}
  topic='';history=[];turn=0;errorStreak=0;
- phase=mode==='module'?'choose_module':'choose_free';
+ phase=mode==='module'?'choose_module':'learning';
  render();
  setTopicPill();
  if(mode==='module'){
    document.querySelector('#homeModulePicker')?.classList.add('open');
  }else{
-   const prompt=pickOpening();
-   addMsg(prompt,'bot');
-   await say(prompt,'happy');
+   await startV26SubscriptionLive('Modo bate-papo livre. Quando o aluno falar pela primeira vez, cumprimente-o e pergunte qual assunto ele quer praticar. Depois mantenha a conversa natural.');
  }
 };
-window.closeV26Conversation=e=>{e?.preventDefault?.();e?.stopPropagation?.();try{window.MeuInglesGeminiLiveV38?.stop?.()}catch{}try{window.stopGeminiTTS?.()}catch{}phase='idle';topic='';history=[];turn=0;errorStreak=0;setBusy(false);setRobotState('');setFocus(false);render();setTimeout(()=>card()?.scrollIntoView({behavior:'smooth',block:'start'}),30)};
+window.closeV26Conversation=e=>{e?.preventDefault?.();e?.stopPropagation?.();try{window.MeuInglesGeminiLiveV38?.stop?.()}catch{}try{window.MeuInglesSubscriptionLive?.stop?.()}catch{}try{window.stopGeminiTTS?.()}catch{}phase='idle';topic='';history=[];turn=0;errorStreak=0;setBusy(false);setRobotState('');setFocus(false);render();setTimeout(()=>card()?.scrollIntoView({behavior:'smooth',block:'start'}),30)};
 window.startV26LiveContext=async context=>{
  try{window.MeuInglesGeminiLiveV38?.stop?.()}catch{}
+ try{window.MeuInglesSubscriptionLive?.stop?.()}catch{}
  try{window.stopGeminiTTS?.()}catch{}
  mode='free';
  phase='learning';
@@ -277,7 +344,9 @@ window.startV26LiveContext=async context=>{
  render();
  const pill=document.querySelector('#homeTopicPill');
  if(pill&&topic)pill.textContent=`💬 Tema: ${topic}`;
- if(topic)await ask(`Quero praticar inglês sobre ${topic}. Comece com uma pergunta simples e natural.`);
+ await startV26SubscriptionLive(topic
+   ?`Tema escolhido: ${topic}. Comece a prática desse tema assim que o aluno falar.`
+   :'Modo conversa livre. Deixe o aluno escolher o assunto pela fala.');
 };
 window.changeV26Topic=()=>{
  if(phase==='idle'||busy)return;
@@ -337,10 +406,14 @@ async function handleUser(text){
  text=String(text||'').trim();if(!text||busy)return;addMsg(text,'user');
  if(phase==='choose_module'){
    const m=matchModule(text);if(!m){document.querySelector('#homeModulePicker')?.classList.add('open');const mods=LEVEL_MODULES[currentLevel()]||[];const msg=`Escolhe um dos módulos abaixo ou fala o número de 1 a ${mods.length}.`;addMsg(msg,'bot');await say(msg,'oops');return}
-   topic=m;phase='learning';document.querySelector('#homeModulePicker')?.classList.remove('open');setTopicPill();await ask(`Escolhi o módulo ${m}. Comece agora pelo exercício oral mais fácil desse módulo e faça uma pergunta curta em inglês, com ajuda em português se necessário.`);return;
+   topic=m;phase='learning';document.querySelector('#homeModulePicker')?.classList.remove('open');setTopicPill();
+   await startV26SubscriptionLive(`Treino guiado do módulo ${m}. Assim que o aluno falar, comece pelo exercício oral mais fácil desse módulo, com uma pergunta curta em inglês e ajuda em português quando necessário.`);
+   return;
  }
  if(phase==='choose_free'){
-   topic=text.slice(0,80);phase='learning';setTopicPill();await ask(`Quero praticar sobre ${topic}. Comece pela pergunta oral mais fácil possível e aumente a dificuldade aos poucos conforme eu acertar.`);return;
+   topic=text.slice(0,80);phase='learning';setTopicPill();
+   await startV26SubscriptionLive(`Tema escolhido: ${topic}. Comece pela pergunta oral mais fácil possível e aumente a dificuldade aos poucos conforme o aluno acertar.`);
+   return;
  }
  await ask(text);
 }
@@ -348,9 +421,23 @@ window.v26Send=()=>{
  if(busy)return;
  const i=document.querySelector('#homeChatInput');const t=String(i?.value||'').trim();
  if(!t)return;
- i.value='';handleUser(t);
+ i.value='';
+ const live=subscriptionLive();
+ if(live?.state?.running){
+   addMsg(t,'user');
+   addMsg('No modo GPT Live, fale pelo microfone para continuar a conversa em tempo real.','bot');
+   return;
+ }
+ handleUser(t);
 };
 window.v26Mic=()=>{
+  const live=subscriptionLive();
+  if(live?.state?.running){
+    live.toggleMute?.();
+    syncLiveUi();
+    return;
+  }
+  if(live?.state?.starting)return;
   if(busy)return;
   const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
   if(!SR){
