@@ -12,7 +12,7 @@ const LEVEL_MODULES={
  C1:['Nuances de tempo e aspecto','Ênfase e inversão','Modalidade avançada','Registro e nominalização','Colocações e idiomaticidade','Escrita profissional e acadêmica','Apresentações de alto nível','Debate e pensamento crítico','Inglês social e humor','Inglês profissional avançado','Escuta rápida e sotaques','Projeto C1: painel profissional'],
  C2:['Precisão e escolha de registro','Modalidade e posicionamento','Retórica e persuasão','Linguagem figurada','Idiomaticidade profunda','Argumentação complexa','Edição e precisão','Mediação e paráfrase','Velocidade, sotaques e ruído','Cultura, humor e pragmática','Domínio profissional','Projeto C2: domínio total']
 };
-let mode='module',phase='idle',topic='',history=[],turn=0,errorStreak=0,busy=false,liveExtra='',liveVisual='sphere';
+let mode='module',phase='idle',topic='',history=[],turn=0,errorStreak=0,busy=false,liveExtra='';
 const LIVE_VOICE_KEY='meuIngles.liveVoice.v1';
 function st(){try{return JSON.parse(localStorage.getItem(KEY)||'{}')||{}}catch{return {}}}
 function norm(s){return String(s||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().replace(/[^a-z0-9 ]/g,' ').replace(/\s+/g,' ').trim()}
@@ -251,7 +251,6 @@ function render(){
    <div class="homeChatHint">Responda falando ou escrevendo. O professor começa fácil e aumenta a dificuldade aos poucos.</div>
    <div class="homeChatControls"><button id="homeChatMic" class="homeChatMic" onclick="v26Mic()" aria-label="Falar">${micIcon()}</button><input id="homeChatInput" class="homeChatInput" maxlength="500" placeholder="Digite sua resposta..."><button class="homeChatSend" onclick="v26Send()">➤</button></div>
  </div>`;
- c.classList.toggle('robot-live-view',phase!=='idle'&&liveVisual==='robot');
  if(phase!=='idle'){c.classList.add('chat-open');setFocus(true)}else{c.classList.remove('chat-open','robot-live-view');setFocus(false)}
  setTopicPill();
  const inp=document.querySelector('#homeChatInput');inp?.addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();window.v26Send()}});
@@ -260,14 +259,12 @@ function render(){
 window.chooseV26Mode=m=>{if(phase!=='idle')return;mode=m==='free'?'free':'module';document.querySelectorAll('[data-v26mode]').forEach(b=>b.classList.toggle('active',b.dataset.v26mode===mode))};
 window.startV26FromCard=async m=>{
  if(phase!=='idle')return;
- liveVisual='sphere';
  mode=m==='free'?'free':'module';
  document.querySelectorAll('[data-v26mode]').forEach(b=>b.classList.toggle('active',b.dataset.v26mode===mode));
  await window.startV26Conversation();
 };
 window.startV26RobotLive=async()=>{
  if(phase!=='idle')return;
- liveVisual='robot';
  mode='free';
  document.querySelectorAll('[data-v26mode]').forEach(b=>b.classList.remove('active'));
  await window.startV26Conversation();
