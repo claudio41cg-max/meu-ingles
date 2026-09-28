@@ -83,6 +83,15 @@ function parseEvent(raw){
     const text=String(event?.turn?.transcript||'').trim();
     if(text&&(role==='user'||role==='assistant')){
       try{state.onTranscript?.({role,text,final:true})}catch{}
+      try{
+        window.dispatchEvent(new CustomEvent(
+          role==='user'?'meu-ingles-live-user-turn':'meu-ingles-live-output-turn',
+          {detail:{text,role}}
+        ));
+      }catch{}
+    }
+    if(role==='assistant'){
+      try{window.dispatchEvent(new CustomEvent('meu-ingles-live-turn-complete',{detail:{text}}))}catch{}
     }
     emit(role==='assistant'?'assistant-done':'user-stopped');
     return;
