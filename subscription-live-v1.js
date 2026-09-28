@@ -28,7 +28,8 @@ const state={
   muted:false,
   voice:'cove',
   onTranscript:null,
-  onState:null
+  onState:null,
+  pendingSpeak:null
 };
 
 function emit(name,detail){
@@ -53,6 +54,8 @@ async function stop(){
   const pc=state.pc,stream=state.stream,channel=state.channel,audio=state.audio;
   state.pc=null;state.stream=null;state.channel=null;state.audio=null;
   state.running=false;state.starting=false;state.muted=false;
+  try{state.pendingSpeak?.resolve?.(false)}catch{}
+  state.pendingSpeak=null;
   try{channel?.close()}catch{}
   try{pc?.close()}catch{}
   try{stream?.getTracks().forEach(t=>t.stop())}catch{}
@@ -101,7 +104,24 @@ function parseEvent(raw){
     if(text)try{state.onTranscript?.({role:type.startsWith('input')?'user':'assistant',text,final:false})}catch{}
     return;
   }
+  if(type==='response.done'){
+    const pending=state.pendingSpeak;
+    state.pendingSpeak=null;
+    try{pending?.resolve?.(true)}catch{}
+    emit('response-done',event);
+    return;
+  }
+  if(type==='response.cancelled'||type==='response.failed'){
+    const pending=state.pendingSpeak;
+    state.pendingSpeak=null;
+    try{pending?.resolve?.(false)}catch{}
+    emit('response-done',event);
+    return;
+  }
   if(type==='error'){
+    const pending=state.pendingSpeak;
+    state.pendingSpeak=null;
+    try{pending?.resolve?.(false)}catch{}
     emit('error',String(event?.error?.message||event?.message||'Erro no GPT Live.'));
   }
 }
@@ -193,6 +213,58 @@ async function start(options={}){
   }
 }
 
+
+function waitChannelOpen(timeout=7000){
+  const channel=state.channel;
+  if(!channel)return Promise.reject(new Error('Canal GPT Live indisponível.'));
+  if(channel.readyState==='open')return Promise.resolve();
+  return new Promise((resolve,reject)=>{
+    const timer=setTimeout(()=>{
+      cleanup();
+      reject(new Error('O canal GPT Live demorou para abrir.'));
+    },timeout);
+    const onOpen=()=>{cleanup();resolve()};
+    const onClose=()=>{cleanup();reject(new Error('A sessão GPT Live foi encerrada.'))};
+    function cleanup(){
+      clearTimeout(timer);
+      try{channel.removeEventListener('open',onOpen)}catch{}
+      try{channel.removeEventListener('close',onClose)}catch{}
+    }
+    channel.addEventListener('open',onOpen,{once:true});
+    channel.addEventListener('close',onClose,{once:true});
+  });
+}
+
+async function speakExact(text){
+  text=String(text||'').trim();
+  if(!text)return false;
+  if(!state.running&&!state.starting)throw new Error('GPT Live não está conectado.');
+  await waitChannelOpen();
+  try{state.pendingSpeak?.resolve?.(false)}catch{}
+  const done=new Promise(resolve=>{state.pendingSpeak={resolve}});
+  const event={
+    type:'response.create',
+    response:{
+      input:[],
+      output_modalities:['audio','text'],
+      instructions:'Fale exatamente o texto a seguir, sem acrescentar, remover, resumir ou responder nada antes ou depois. Use português brasileiro natural e claro:\n\n'+text
+    }
+  };
+  state.channel.send(JSON.stringify(event));
+  return await done;
+}
+
+function cancelSpeech(){
+  try{
+    if(state.channel?.readyState==='open'){
+      state.channel.send(JSON.stringify({type:'response.cancel'}));
+      state.channel.send(JSON.stringify({type:'output_audio_buffer.clear'}));
+    }
+  }catch{}
+  try{state.pendingSpeak?.resolve?.(false)}catch{}
+  state.pendingSpeak=null;
+}
+
 function setMuted(value){
   const muted=!!value;
   state.muted=muted;
@@ -209,6 +281,8 @@ window.MeuInglesSubscriptionLive={
   stop,
   setMuted,
   toggleMute,
+  speakExact,
+  cancelSpeech,
   voiceFor(value){return VOICE_MAP[String(value||'')]||'cove'}
 };
 })();
