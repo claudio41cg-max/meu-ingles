@@ -308,6 +308,23 @@ async function startV26SubscriptionLive(extra=''){
       onTranscript:event=>{
         if(!event?.final||!event?.text)return;
         addMsg(event.text,event.role==='user'?'user':'bot');
+        if(event.role==='user'&&phase==='choose_module'){
+          const spoken=String(event.text||'').trim();
+          const m=matchModule(spoken);
+          if(m){
+            topic=m;
+            phase='learning';
+            document.querySelector('#homeModulePicker')?.classList.remove('open');
+            setTopicPill();
+            setTimeout(async()=>{
+              const active=subscriptionLive();
+              try{await active?.stop?.()}catch{}
+              await startV26SubscriptionLive(
+                'Treino guiado do módulo '+m+'. Comece agora pelo exercício oral mais fácil desse módulo. Faça uma pergunta curta em inglês e ajude em português quando necessário.'
+              );
+            },80);
+          }
+        }
       },
       onState:(name,detail)=>{
         if(name==='live'){
@@ -385,6 +402,13 @@ window.startV26Conversation=async()=>{
  setTopicPill();
  if(mode==='module'){
    document.querySelector('#homeModulePicker')?.classList.add('open');
+   const modules=(LEVEL_MODULES[currentLevel()]||[]).map((m,i)=>(i+1)+'. '+m).join(' | ');
+   await startV26SubscriptionLive(
+     'Modo Inglês com AI. O aluno está escolhendo um módulo do nível '+currentLevel()+'. '+
+     'Pergunte qual módulo ele quer praticar e aceite nome ou número. Módulos disponíveis: '+modules+'. '+
+     'Enquanto ele escolhe, não comece outra matéria.'
+   );
+   phase='choose_module';
  }else{
    await startV26SubscriptionLive('Modo bate-papo livre. Quando o aluno falar pela primeira vez, cumprimente-o e pergunte qual assunto ele quer praticar. Depois mantenha a conversa natural.');
  }
@@ -401,9 +425,18 @@ window.startV26LiveContext=async context=>{
  render();
  const pill=document.querySelector('#homeTopicPill');
  if(pill&&topic)pill.textContent=`💬 Tema: ${topic}`;
- await startV26SubscriptionLive(topic
-   ?`Tema escolhido: ${topic}. Comece a prática desse tema assim que o aluno falar.`
-   :'Modo conversa livre. Deixe o aluno escolher o assunto pela fala.');
+ const details=[
+   topic?`Tema: ${topic}.`:'',
+   context?.lesson?`Posição atual: ${context.lesson}.`:'',
+   context?.lessonTitle?`Aula: ${context.lessonTitle}.`:'',
+   context?.completedCount!=null?`Aulas concluídas: ${context.completedCount}.`:'',
+   context?.nextLesson!=null?`Próxima aula: ${context.nextLesson}.`:'',
+   context?.recentTitles?`Aulas recentes: ${context.recentTitles}.`:'',
+   context?.lessonMap?`Mapa das aulas: ${context.lessonMap}.`:'',
+   context?.instruction?String(context.instruction):'',
+   'Você está no modo Explorar temas do Meu Inglês. Use GPT Live por assinatura e conduza a prática por voz.'
+ ].filter(Boolean).join('\n');
+ await startV26SubscriptionLive(details);
 };
 window.changeV26Topic=()=>{
  if(phase==='idle'||busy)return;
@@ -423,10 +456,17 @@ window.changeV26Topic=()=>{
    phase='choose_free';topic='';history=[];turn=0;errorStreak=0;setTopicPill();const input=document.querySelector('#homeChatInput');if(input){input.placeholder='Digite o novo assunto...';input.focus()}
  }
 };
-window.pickV26Module=i=>{
+window.pickV26Module=async i=>{
  if(busy)return;
  const modules=LEVEL_MODULES[currentLevel()]||[];const m=modules[Number(i)];if(!m)return;
- document.querySelector('#homeModulePicker')?.classList.remove('open');handleUser(String(Number(i)+1));
+ topic=m;phase='learning';
+ document.querySelector('#homeModulePicker')?.classList.remove('open');
+ setTopicPill();
+ const live=subscriptionLive();
+ try{await live?.stop?.()}catch{}
+ await startV26SubscriptionLive(
+   'Treino guiado do módulo '+m+'. Comece agora pelo exercício oral mais fácil desse módulo. Faça uma pergunta curta em inglês e ajude em português quando necessário.'
+ );
 };
 function matchModule(text){
  const modules=LEVEL_MODULES[currentLevel()]||[];const n=norm(text);
