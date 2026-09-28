@@ -64,12 +64,27 @@ function parseEvent(raw){
   let event;
   try{event=JSON.parse(String(raw||''))}catch{return}
   const type=String(event?.type||'');
+  if(type==='input_audio_buffer.speech_started'){
+    emit('user-speaking');
+    return;
+  }
+  if(type==='input_audio_buffer.speech_stopped'){
+    emit('user-stopped');
+    return;
+  }
+  if(type==='response.output_audio.delta'||type==='response.audio.delta'){
+    emit('assistant-speaking');
+  }
+  if(type==='response.output_audio.done'||type==='response.audio.done'){
+    emit('assistant-done');
+  }
   if(type==='turn.done'){
     const role=event?.turn?.role;
     const text=String(event?.turn?.transcript||'').trim();
     if(text&&(role==='user'||role==='assistant')){
       try{state.onTranscript?.({role,text,final:true})}catch{}
     }
+    emit(role==='assistant'?'assistant-done':'user-stopped');
     return;
   }
   if(type==='input_transcript.added'||type==='output_transcript.added'){
