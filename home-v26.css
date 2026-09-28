@@ -89,3 +89,51 @@
  .homeLiveVoiceLabel{font-size:11px}
  .homeLiveVoice{font-size:12px;padding:5px 6px}
 }
+
+/* Tutorial GPT Live: voz independente + foco visual forte no card narrado */
+.homeRobotVoiceRow{
+  display:flex;
+  justify-content:center;
+  margin:-2px 0 14px;
+  position:relative;
+  z-index:5;
+}
+.homeRobotVoiceRow label{
+  display:inline-flex;
+  align-items:center;
+  gap:8px;
+  padding:7px 10px 7px 13px;
+  border:1px solid #28536f;
+  border-radius:999px;
+  background:#0a2335;
+  color:#a9d4ea;
+  font-size:12px;
+  font-weight:850;
+}
+.homeRobotVoiceSelect{
+  border:0;
+  outline:0;
+  border-radius:999px;
+  padding:6px 8px;
+  background:#143b55;
+  color:#f3fbff;
+  font-size:13px;
+  font-weight:900;
+}
+#home .homeConversationChoices.guide-running .homeConversationChoice{
+  opacity:.42;
+  filter:saturate(.72) brightness(.82);
+  transform:scale(.975);
+  transition:opacity .22s ease,filter .22s ease,transform .22s ease,box-shadow .22s ease;
+}
+#home .homeConversationChoices.guide-running .homeConversationChoice.guide-highlight{
+  opacity:1!important;
+  filter:none!important;
+  transform:scale(1.035)!important;
+  box-shadow:0 0 0 3px rgba(255,255,255,.2),0 0 26px rgba(71,220,255,.5),0 16px 32px rgba(0,0,0,.26)!important;
+  z-index:4;
+  position:relative;
+}
+#home .homeConversationChoices.guide-running .homeConversationChoice.guide-highlight .choiceCopy b{
+  text-shadow:0 0 12px rgba(255,255,255,.3);
+}
