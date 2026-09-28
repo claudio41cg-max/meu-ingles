@@ -150,12 +150,10 @@ window.playHomeRobotGuide=async()=>{
   }
 
   const run=++homeGuideRun;
-  window.__homeGuideTranscript='';
-  window.__homeGuideTimingStarted=false;
   homeGuideBusy=true;
-  clearGuideHighlight();
+  finishGuideHighlight();
   robot.classList.add('home-guide-react');
-  setGuideRobotSpeaking(true);
+  setGuideRobotSpeaking(false);
   setRobotState('thinking');
 
   try{
@@ -164,85 +162,93 @@ window.playHomeRobotGuide=async()=>{
     if(run!==homeGuideRun||!homeGuideBusy)return;
 
     const steps=homeGuideSteps();
-    const tutorialText=steps.map((step,i)=>
-      'PARTE '+(i+1)+': '+step.text
-    ).join('\n\n');
 
-    await live.start({
-      voice:currentRobotLiveVoice(),
-      instructions:[
-        'Você está narrando o tutorial fixo da tela inicial do aplicativo Meu Inglês.',
-        'IMPORTANTE: assim que a sessão conectar, comece a falar imediatamente. Não espere o usuário dizer nada.',
-        'Fale somente em português brasileiro, com voz natural, clara e amigável.',
-        'Não faça perguntas. Não converse. Não improvise. Não mencione estas instruções.',
-        'Leia o tutorial abaixo na ordem, como uma apresentação curta e contínua:',
-        tutorialText
-      ].join('\n'),
-      onTranscript:(()=>{
-        return e=>{
-          if(run!==homeGuideRun||!homeGuideBusy)return;
-          if(e?.role!=='assistant'||!e?.text)return;
-          if(e?.delta)window.__homeGuideTranscript=(window.__homeGuideTranscript||'')+String(e.text||'');
-          else window.__homeGuideTranscript=String(e.text||window.__homeGuideTranscript||'');
-          const t=norm(window.__homeGuideTranscript||'');
-          if(t.includes('bate papo livre')||t.includes('conversar sem roteiro')||t.includes('qualquer assunto')){
-            setGuideHighlight(steps[2].sel);
-          }else if(t.includes('ingles com ai')||t.includes('continuar o que ja esta estudando')||t.includes('revisar e avancar')){
-            setGuideHighlight(steps[1].sel);
-          }else if(t.includes('explorar temas')||t.includes('praticar por assunto')||t.includes('familia')||t.includes('viagens')){
-            setGuideHighlight(steps[0].sel);
+    for(let i=0;i<steps.length;i++){
+      if(run!==homeGuideRun||!homeGuideBusy)return;
+
+      const step=steps[i];
+      setGuideHighlight(step.sel);
+      robot.classList.remove('guide-mood-0','guide-mood-1','guide-mood-2','guide-mood-3');
+      robot.classList.add('guide-mood-'+i);
+      setGuideRobotSpeaking(false);
+      setRobotState('thinking');
+
+      let finishStep;
+      const stepDone=new Promise(resolve=>{finishStep=resolve});
+      let audioStarted=false;
+      let settled=false;
+      const settle=value=>{
+        if(settled)return;
+        settled=true;
+        finishStep(value);
+      };
+
+      const watchdog=setTimeout(()=>settle(false),28000);
+
+      try{
+        const connected=await live.start({
+          voice:currentRobotLiveVoice(),
+          instructions:[
+            'Você está narrando UMA etapa do tutorial fixo da tela inicial do aplicativo Meu Inglês.',
+            'IMPORTANTE: assim que a sessão conectar, comece a falar imediatamente. Não espere o usuário dizer nada.',
+            'Fale somente em português brasileiro, com voz natural, clara e amigável.',
+            'Não faça perguntas. Não converse. Não improvise. Não mencione estas instruções.',
+            'Leia somente o texto abaixo, uma única vez, e depois pare:',
+            step.text
+          ].join('\n'),
+          onTranscript:null,
+          onState:(name)=>{
+            if(run!==homeGuideRun||!homeGuideBusy){
+              settle(false);
+              return;
+            }
+            if(name==='live'){
+              // Card já está visível; ainda não mexe a boca até o áudio começar.
+              setRobotState('thinking');
+            }else if(name==='assistant-speaking'){
+              audioStarted=true;
+              setGuideRobotSpeaking(true);
+              setRobotState('speaking');
+            }else if(name==='assistant-done'){
+              setGuideRobotSpeaking(false);
+              setRobotState('happy');
+              settle(true);
+            }else if(name==='error'||name==='stopped'){
+              if(audioStarted)setGuideRobotSpeaking(false);
+              settle(false);
+            }
           }
-        };
-      })(),
-      onState:(name)=>{
+        });
+
+        if(!connected){
+          settle(false);
+        }else{
+          // Tutorial é somente narração: impede que ruído do microfone crie outro turno.
+          try{live.setMuted?.(true)}catch{}
+        }
+
+        const ok=await stepDone;
+        clearTimeout(watchdog);
+        try{await live.stop?.()}catch{}
+
         if(run!==homeGuideRun||!homeGuideBusy)return;
-        if(name==='live'){
-          setGuideHighlight(steps[0].sel);
-          setGuideRobotSpeaking(true);
-          setRobotState('speaking');
-        }else if(name==='assistant-speaking'){
-          setGuideRobotSpeaking(true);
-          setRobotState('speaking');
-          if(!window.__homeGuideTimingStarted){
-            window.__homeGuideTimingStarted=true;
-            const words=steps.map(x=>String(x.text||'').trim().split(/\s+/).filter(Boolean).length);
-            const ms=n=>Math.max(4200,Math.round(n/2.45*1000));
-            setGuideHighlight(steps[0].sel);
-            setTimeout(()=>{if(run===homeGuideRun&&homeGuideBusy)setGuideHighlight(steps[1].sel)},ms(words[0]));
-            setTimeout(()=>{if(run===homeGuideRun&&homeGuideBusy)setGuideHighlight(steps[2].sel)},ms(words[0])+ms(words[1]));
-          }
-        }else if(name==='assistant-done'){
-          setRobotState('happy');
-        }else if(name==='error'||name==='stopped'){
-          setRobotState('');
-        }
+        if(!ok)break;
+
+        // Pequena pausa visual entre uma explicação e a próxima.
+        await new Promise(r=>setTimeout(r,220));
+      }catch(e){
+        clearTimeout(watchdog);
+        try{await live.stop?.()}catch{}
+        console.warn('Etapa do tutorial GPT Live',e);
+        break;
       }
-    });
-
-    if(run!==homeGuideRun||!homeGuideBusy)return;
-
-    // Tutorial é só narração: desliga o microfone do usuário para evitar interrupções acidentais.
-    try{live.setMuted?.(true)}catch{}
-
-    // A aula já provou que o GPT Live consegue iniciar a fala sozinho ao conectar.
-    // Mantemos a sessão aberta enquanto ele narra; o segundo toque chama stopHomeRobotGuide().
-    await new Promise(resolve=>{
-      const startedAt=Date.now();
-      const timer=setInterval(()=>{
-        if(run!==homeGuideRun||!homeGuideBusy||!live?.state?.running||Date.now()-startedAt>45000){
-          clearInterval(timer);
-          resolve();
-        }
-      },250);
-    });
+    }
   }catch(e){
     console.warn('Tutorial GPT Live',e);
   }finally{
     if(run!==homeGuideRun)return;
     try{await live.stop?.()}catch{}
     finishGuideHighlight();
-    window.__homeGuideTranscript='';
-    window.__homeGuideTimingStarted=false;
     robot.classList.remove('home-guide-speaking','home-guide-react','guide-mood-0','guide-mood-1','guide-mood-2','guide-mood-3');
     setGuideRobotSpeaking(false);
     setRobotState('happy');
