@@ -10,6 +10,7 @@ let resizeObserver=null;
 let mountObserver=null;
 let stopped=false;
 let animating=false;
+let animationGeneration=0;
 
 function getCard(){
   return document.querySelector('#home .professorPanel.homeTalkCard');
@@ -42,6 +43,8 @@ function start(){
   }
 
   if(renderer){
+    animationGeneration++;
+    animating=false;
     try{resizeObserver?.disconnect()}catch{}
     try{renderer.dispose()}catch{}
     renderer=null;
@@ -1518,9 +1521,11 @@ function start(){
 
   let elapsed=0;
 
+  const generation=++animationGeneration;
+
   function animate(){
 
-    if(stopped)return;
+    if(stopped||generation!==animationGeneration)return;
 
     requestAnimationFrame(
       animate
@@ -1981,10 +1986,8 @@ function start(){
   resizeObserver.observe(mount);
   resize();
 
-  if(!animating){
-    animating=true;
-    animate();
-  }
+  animating=true;
+  animate();
 
   return true;
 }
@@ -2009,6 +2012,8 @@ function boot(){
 
 window.addEventListener('pagehide',()=>{
   stopped=true;
+  animationGeneration++;
+  animating=false;
   try{mountObserver?.disconnect()}catch{}
   try{resizeObserver?.disconnect()}catch{}
   try{renderer?.dispose()}catch{}
