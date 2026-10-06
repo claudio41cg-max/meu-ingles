@@ -139,6 +139,7 @@ async function subscriptionSpeak(text){
   status('🎙️ Conectando voz GPT…');
   await live.start({
    voice:subscriptionVoice(),
+   outputOnly:true,
    instructions:'Você é a voz de pronúncia do curso Meu Inglês. Leia somente o texto solicitado, exatamente como foi enviado, com pronúncia natural e clara. Não acrescente explicações.'
   });
   try{live.setMuted?.(true)}catch{}
