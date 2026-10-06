@@ -152,11 +152,18 @@ async function start(options={}){
     state.onTranscript=typeof options.onTranscript==='function'?options.onTranscript:null;
     state.onState=typeof options.onState==='function'?options.onState:null;
 
-    const stream=await navigator.mediaDevices.getUserMedia({
-      audio:{echoCancellation:true,noiseSuppression:true,autoGainControl:true},
-      video:false
-    });
+    const outputOnly=!!options.outputOnly;
+    let stream=null;
     const pc=new RTCPeerConnection();
+    if(outputOnly){
+      pc.addTransceiver('audio',{direction:'recvonly'});
+    }else{
+      stream=await navigator.mediaDevices.getUserMedia({
+        audio:{echoCancellation:true,noiseSuppression:true,autoGainControl:true},
+        video:false
+      });
+      for(const track of stream.getAudioTracks())pc.addTrack(track,stream);
+    }
     const channel=pc.createDataChannel('oai-events');
     const audio=document.createElement('audio');
     audio.autoplay=true;
@@ -168,8 +175,6 @@ async function start(options={}){
     state.pc=pc;
     state.channel=channel;
     state.audio=audio;
-
-    for(const track of stream.getAudioTracks())pc.addTrack(track,stream);
 
     pc.ontrack=e=>{
       const media=e.streams?.[0]||new MediaStream([e.track]);
