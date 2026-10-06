@@ -21,7 +21,83 @@ const RAW=[
 ['👋|hello|olá|Olá de novo','🙂|my name is|meu nome é|Meu nome é...','💧|water, please.|água, por favor.|Água, por favor','🛒|where is the market?|onde fica o mercado?|Onde fica o mercado?','💲|how much?|quanto custa?|Quanto custa?','⬅️|turn left.|vire à esquerda.|Vire à esquerda','🙏|thank you|obrigado|Obrigado','👋|goodbye|adeus|Até logo']
 ];
 const MT=['Primeiros contatos','Números e apresentação','Família e pessoas','Rotina diária','Perguntas e hábitos','Casa e cidade','Comida e restaurante','Compras e preços','Direções e transporte','Tempo livre e habilidades','Ontem e fim de semana','Projeto A1'];
-const START=['Suas 3 primeiras palavras','Pedindo uma bebida','Eu quero...'];
+const START=['Hello / Hi','Bom dia, boa tarde e boa noite','How are you?','Como responder','Thank you / And you?','Goodbye!','Desafio Hello!','Minha primeira conversa'];
+
+function firstContactLesson(n){
+ const L=[
+  {title:'Hello / Hi',steps:[
+   {t:'phrase',x:{e:'👋',en:'Hello!',pt:'Olá! · Ouça e repita em voz alta.'}},
+   {t:'phrase',x:{e:'🙂',en:'Hi!',pt:'Oi! · Forma curta e informal.'}},
+   {t:'choice',q:'“Hello!” significa:',ans:'Olá!',op:['Olá!','Obrigado.','Até logo.'],audio:'Hello!'},
+   {t:'choice',q:'Qual figura combina com uma saudação?',ans:'👋 Olá!',op:['👋 Olá!','☕ Café','🚗 Carro']},
+   {t:'choice',q:'Qual expressão você ouviu?',ans:'Hello!',op:['Hello!','Goodbye!','Thank you.'],audio:'Hello!'},
+   {t:'guided',q:'Uma pessoa disse “Hello!”. O que combina como resposta?',ans:'Hi!',op:['Hi!','Goodbye!','No, thank you.']},
+   {t:'review',items:[{e:'👋',en:'Hello!',pt:'Olá!'},{e:'🙂',en:'Hi!',pt:'Oi!'}]}
+  ]},
+  {title:'Bom dia, boa tarde e boa noite',steps:[
+   {t:'phrase',x:{e:'🌅',en:'Good morning!',pt:'Bom dia! · Ouça e repita.'}},
+   {t:'phrase',x:{e:'☀️',en:'Good afternoon!',pt:'Boa tarde! · Ouça e repita.'}},
+   {t:'phrase',x:{e:'🌙',en:'Good evening!',pt:'Boa noite! · Ouça e repita.'}},
+   {t:'choice',q:'08:00 ☀️ — qual cumprimento combina?',ans:'Good morning!',op:['Good morning!','Good afternoon!','Good evening!'],audio:'Good morning!'},
+   {t:'choice',q:'19:30 🌙 — qual cumprimento combina?',ans:'Good evening!',op:['Good morning!','Good afternoon!','Good evening!'],audio:'Good evening!'},
+   {t:'choice',q:'Qual figura representa “Good morning”?',ans:'🌅 Manhã',op:['🌅 Manhã','🌙 Noite','🍽️ Comida']},
+   {t:'review',items:[{e:'🌅',en:'Good morning!',pt:'Bom dia!'},{e:'☀️',en:'Good afternoon!',pt:'Boa tarde!'},{e:'🌙',en:'Good evening!',pt:'Boa noite!'}]}
+  ]},
+  {title:'How are you?',steps:[
+   {t:'phrase',x:{e:'💬',en:'How are you?',pt:'Como você está? · Ouça e repita.'}},
+   {t:'choice',q:'“How are you?” significa:',ans:'Como você está?',op:['Como você está?','Qual é seu nome?','Onde fica?'],audio:'How are you?'},
+   {t:'choice',q:'Qual cena combina com essa pergunta?',ans:'🙂 Perguntando como alguém está',op:['🙂 Perguntando como alguém está','🚗 Pedindo um carro','🍞 Pedindo pão']},
+   {t:'choice',q:'Qual pergunta você ouviu?',ans:'How are you?',op:['How are you?','What’s your name?','Goodbye!'],audio:'How are you?'},
+   {t:'build',q:'Monte a pergunta em inglês:',pt:'Como você está?',target:'How are you?',tokens:['How','are','you?']},
+   {t:'review',items:[{e:'💬',en:'How are you?',pt:'Como você está?'}]}
+  ]},
+  {title:'Como responder',steps:[
+   {t:'phrase',x:{e:'🙂',en:"I'm good.",pt:'Estou bem. · Ouça e repita.'}},
+   {t:'phrase',x:{e:'😊',en:"I'm fine.",pt:'Estou bem. · Outra resposta comum.'}},
+   {t:'phrase',x:{e:'👌',en:"I'm okay.",pt:'Estou bem / estou legal.'}},
+   {t:'guided',q:'How are you?',ans:"I'm good.",op:["I'm good.",'Goodbye!','My name is…']},
+   {t:'choice',q:'Qual figura combina com “I’m good”?',ans:'🙂 Estou bem',op:['🙂 Estou bem','😴 Estou dormindo','🍽️ Estou comendo']},
+   {t:'choice',q:'Qual resposta você ouviu?',ans:"I'm fine.",op:["I'm fine.","I'm okay.",'Goodbye!'],audio:"I'm fine."},
+   {t:'review',items:[{e:'🙂',en:"I'm good.",pt:'Estou bem.'},{e:'😊',en:"I'm fine.",pt:'Estou bem.'},{e:'👌',en:"I'm okay.",pt:'Estou legal.'}]}
+  ]},
+  {title:'Thank you / And you?',steps:[
+   {t:'phrase',x:{e:'🙏',en:'Thank you.',pt:'Obrigado. · Ouça e repita.'}},
+   {t:'phrase',x:{e:'👉',en:'And you?',pt:'E você? · Use para devolver a pergunta.'}},
+   {t:'phrase',x:{e:'🙂',en:"I'm fine, thank you. And you?",pt:'Estou bem, obrigado. E você?'}},
+   {t:'choice',q:'“And you?” significa:',ans:'E você?',op:['E você?','Qual é seu nome?','Até logo.'],audio:'And you?'},
+   {t:'choice',q:'Qual figura combina com “Thank you”?',ans:'🙏 Agradecimento',op:['🙏 Agradecimento','🚗 Transporte','🏠 Casa']},
+   {t:'build',q:'Monte a frase:',pt:'Obrigado. E você?',target:'Thank you. And you?',tokens:['Thank','you.','And','you?']},
+   {t:'review',items:[{e:'🙏',en:'Thank you.',pt:'Obrigado.'},{e:'👉',en:'And you?',pt:'E você?'}]}
+  ]},
+  {title:'Goodbye!',steps:[
+   {t:'phrase',x:{e:'👋',en:'Goodbye!',pt:'Adeus / até logo!'}},
+   {t:'phrase',x:{e:'🙋',en:'Bye!',pt:'Tchau!'}},
+   {t:'phrase',x:{e:'✨',en:'See you!',pt:'Até mais!'}},
+   {t:'choice',q:'Você está indo embora. Qual expressão combina?',ans:'See you!',op:['Hello!','See you!','Good morning!'],audio:'See you!'},
+   {t:'choice',q:'Qual figura representa uma despedida?',ans:'👋 Tchau',op:['👋 Tchau','☕ Café','🏠 Casa']},
+   {t:'guided',q:'A outra pessoa disse “Goodbye!”. Responda:',ans:'See you!',op:['See you!','How are you?','Thank you.']},
+   {t:'review',items:[{e:'👋',en:'Goodbye!',pt:'Até logo!'},{e:'🙋',en:'Bye!',pt:'Tchau!'},{e:'✨',en:'See you!',pt:'Até mais!'}]}
+  ]},
+  {title:'Desafio Hello!',steps:[
+   {t:'choice',q:'Escute e escolha.',ans:'Good evening!',op:['Good morning!','Good evening!','Goodbye!'],audio:'Good evening!'},
+   {t:'choice',q:'How are you?',ans:'Como você está?',op:['Como você está?','Qual é seu nome?','Onde fica?']},
+   {t:'guided',q:'How are you?',ans:"I'm fine.",op:["I'm fine.",'Goodbye!','Thank you.']},
+   {t:'choice',q:'Qual figura combina com “Thank you”?',ans:'🙏 Obrigado',op:['🙏 Obrigado','🌙 Boa noite','🚗 Carro']},
+   {t:'build',q:'Monte a resposta:',pt:'Estou bem, obrigado.',target:"I'm fine, thank you.",tokens:["I'm",'fine,','thank','you.']},
+   {t:'review',items:[{e:'👋',en:'Hello!',pt:'Olá!'},{e:'💬',en:'How are you?',pt:'Como você está?'},{e:'🙏',en:'Thank you.',pt:'Obrigado.'},{e:'👋',en:'Goodbye!',pt:'Até logo!'}]}
+  ]},
+  {title:'Minha primeira conversa',steps:[
+   {t:'phrase',x:{e:'✨',en:'Hello!',pt:'Missão final: cumprimente, diga como está e se despeça.'}},
+   {t:'guided',q:'Hello!',ans:'Hi!',op:['Hi!','Goodbye!','No.']},
+   {t:'guided',q:'How are you?',ans:"I'm good.",op:["I'm good.",'Hello!','Goodbye!']},
+   {t:'guided',q:"I'm fine, thank you. And you?",ans:"I'm good.",op:["I'm good.",'Goodbye!','Good morning!']},
+   {t:'guided',q:'Goodbye!',ans:'See you!',op:['See you!','How are you?','Thank you.']},
+   {t:'choice',q:'Qual sequência representa uma conversa completa?',ans:'👋 Olá → 🙂 Estou bem → 👋 Até mais',op:['👋 Olá → 🙂 Estou bem → 👋 Até mais','🍽️ Comida → 🚗 Carro → 🏠 Casa','🔢 Um → 💲 Preço → 🌙 Noite']},
+   {t:'review',items:[{e:'👋',en:'Hello!',pt:'Olá!'},{e:'💬',en:'How are you?',pt:'Como você está?'},{e:'🙂',en:"I'm good.",pt:'Estou bem.'},{e:'👋',en:'See you!',pt:'Até mais!'}]}
+  ]}
+ ];
+ return L[n]||L[0];
+}
 const BASE=[['☕','coffee','café'],['💧','water','água'],['🥛','milk','leite'],['🙏','please','por favor'],['👉','I want','eu quero']];
 
 const $=s=>document.querySelector(s);
@@ -97,7 +173,7 @@ function numberLesson(){
  ]};
 }
 
-function lesson(m,n){if(m===1&&n===1)return numberLesson();const cur=item(m,n),k=known(m,n),op=options(cur,m,n),prev=k.filter(x=>x.en.toLowerCase()!==cur.en.toLowerCase()).slice(-1)[0]||{e:'☕',en:'coffee',pt:'café'};const words=cur.en.trim().split(/\s+/),review=(m===1?[cur,...(M2_DISTRACTORS[n]||[]).map(x=>({e:'🔁',en:x.en,pt:x.pt}))]:[cur,prev,...k.slice(-4).reverse()]).filter((x,i,a)=>a.findIndex(y=>y.en.toLowerCase()===x.en.toLowerCase())===i).slice(0,3);const steps=[
+function lesson(m,n){if(m===0)return firstContactLesson(n);if(m===1&&n===1)return numberLesson();const cur=item(m,n),k=known(m,n),op=options(cur,m,n),prev=k.filter(x=>x.en.toLowerCase()!==cur.en.toLowerCase()).slice(-1)[0]||{e:'☕',en:'coffee',pt:'café'};const words=cur.en.trim().split(/\s+/),review=(m===1?[cur,...(M2_DISTRACTORS[n]||[]).map(x=>({e:'🔁',en:x.en,pt:x.pt}))]:[cur,prev,...k.slice(-4).reverse()]).filter((x,i,a)=>a.findIndex(y=>y.en.toLowerCase()===x.en.toLowerCase())===i).slice(0,3);const steps=[
  {t:words.length>1?'phrase':'learn',x:cur},
  {t:'choice',q:`${cur.en} significa:`,ans:cur.pt,op:sh(op.map(x=>x.pt)),audio:cur.en},
  {t:'choice',q:'Qual você ouviu?',ans:cur.en,op:sh(op.map(x=>x.en)),audio:cur.en},
@@ -143,7 +219,7 @@ window.a15Check=()=>{const s=run.lesson.steps[run.i],v=run.built.join(' ');run.c
 function start(m,n){if(m===1&&!unlocked(m,n))return;const l=lesson(m,n),pct=progress(m,n),i=done(m,n)?0:Math.min(l.steps.length-1,Math.floor(pct/100*l.steps.length));run={m,n,i,lesson:l,built:[],used:[],checked:false,ok:false};render()}
 function finish(){const s=state();s.done=s.done&&typeof s.done==='object'?s.done:{};s.progress=s.progress&&typeof s.progress==='object'?s.progress:{};const k=`A1-${run.m}-${run.n}`;s.progress[k]=100;if(!s.done[k]){s.done[k]=true;s.xp=(Number(s.xp)||0)+30}s.level='A1';save(s);sessionStorage.setItem('a15back',String(run.m));location.reload()}
 window.a15Finish=finish;
-function title(m,n){if(m===0&&n<3)return START[n];return item(m,n)?.title||`Lição ${n+1}`}
+function title(m,n){if(m===0&&START[n])return START[n];return item(m,n)?.title||`Lição ${n+1}`}
 function done(m,n){return !!state().done?.[`A1-${m}-${n}`]}
 function unlocked(m,n){return n===0||done(m,n-1)||progress(m,n)>0}
 const FIRST_CONTACTS_ART=['☕','🥤','👉','👋','🙏','✅','🙅','👋'];
@@ -224,6 +300,6 @@ function moduleView(m){
  window.scrollTo(0,0);
 }
 window.openStableModule=(l,m)=>l==='A1'?moduleView(m):oldModule?.(l,m);
-window.openStableLesson=(l,m,n)=>{m=Number(m);n=Number(n);if(l==='A1'&&!(m===0&&n<=2))return start(m,n);return oldOpen?.(l,m,n)};
+window.openStableLesson=(l,m,n)=>{m=Number(m);n=Number(n);if(l==='A1')return start(m,n);return oldOpen?.(l,m,n)};
 const back=sessionStorage.getItem('a15back');if(back!==null){sessionStorage.removeItem('a15back');setTimeout(()=>{window.stableShow?.('course');moduleView(Number(back)||0)},250)}
 })();
