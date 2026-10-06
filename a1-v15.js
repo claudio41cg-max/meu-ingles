@@ -131,7 +131,43 @@ function style(){const m=state().teacher||'media';return m==='pesada'?'Voz brasi
 function status(t=''){const e=$('#a15Voice');if(e)e.textContent=t}
 function bytes(b){const x=atob(b),u=new Uint8Array(x.length);for(let i=0;i<x.length;i++)u[i]=x.charCodeAt(i);return u}
 async function pcm(b,rate=24000){const u=bytes(b),a=new Float32Array(u.length/2),v=new DataView(u.buffer,u.byteOffset,u.byteLength);for(let i=0;i<a.length;i++)a[i]=Math.max(-1,Math.min(1,v.getInt16(i*2,true)/32768));ctx=ctx||new(window.AudioContext||window.webkitAudioContext)();if(ctx.state==='suspended')await ctx.resume();if(src)try{src.stop()}catch{}const bf=ctx.createBuffer(1,a.length,rate);bf.copyToChannel(a,0);src=ctx.createBufferSource();src.buffer=bf;src.connect(ctx.destination);await new Promise(r=>{src.onended=()=>{src=null;r()};src.start()})}
-async function speak(text,lang='en-US',isTeacher=false){status('');if(run?.m===1&&window.geminiSpeak){try{return await window.geminiSpeak(text,lang,state().voice||'Aoede')}catch{}}const [,tv]=teacher();try{const r=await fetch(TTS,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({text,lang,voice:isTeacher?tv:'Achird',style:isTeacher?style():'Natural American English for a complete beginner. Clear, warm, human pronunciation. Say it once at a comfortable pace.'})});const d=await r.json();if(!r.ok||!d.audio)throw 0;await pcm(d.audio,d.sample_rate||24000);return true}catch{status('⚠️ A voz Gemini não carregou. Toque em ouvir para tentar de novo.');return false}}
+function subscriptionVoice(){const m=state().teacher||'media';return m==='pesada'?'ember':m==='media'?'juniper':'cove'}
+async function subscriptionSpeak(text){
+ const live=window.MeuInglesSubscriptionLive;
+ if(!live?.start||!live?.speakExact)throw new Error('GPT Live indisponível.');
+ if(!live.state?.running){
+  status('🎙️ Conectando voz GPT…');
+  await live.start({
+   voice:subscriptionVoice(),
+   instructions:'Você é a voz de pronúncia do curso Meu Inglês. Leia somente o texto solicitado, exatamente como foi enviado, com pronúncia natural e clara. Não acrescente explicações.'
+  });
+  try{live.setMuted?.(true)}catch{}
+ }
+ status('🔊 Voz GPT ativa');
+ const ok=await live.speakExact(String(text||''));
+ if(!ok)throw new Error('A voz GPT não respondeu.');
+ status('');
+ return true;
+}
+async function speak(text,lang='en-US',isTeacher=false){
+ status('');
+ if(run?.m===0){
+  try{return await subscriptionSpeak(text)}
+  catch(e){status('⚠️ Voz GPT indisponível. Toque em Ouvir para tentar novamente.');return false}
+ }
+ if(run?.m===1&&window.geminiSpeak){try{return await window.geminiSpeak(text,lang,state().voice||'Aoede')}catch{}}
+ const [,tv]=teacher();
+ try{
+  const r=await fetch(TTS,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({text,lang,voice:isTeacher?tv:'Achird',style:isTeacher?style():'Natural American English for a complete beginner. Clear, warm, human pronunciation. Say it once at a comfortable pace.'})});
+  const d=await r.json();
+  if(!r.ok||!d.audio)throw 0;
+  await pcm(d.audio,d.sample_rate||24000);
+  return true
+ }catch{
+  status('⚠️ A voz Gemini não carregou. Toque em ouvir para tentar de novo.');
+  return false
+ }
+}
 function quickReaction(ok){
  const mode=state().teacher||'media';
  const lines={
