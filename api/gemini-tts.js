@@ -176,20 +176,45 @@ export default async function handler(req, res) {
     const out = await generate(text, voice, lang, style, model);
     return res.status(200).json({ ok: true, ...out });
   } catch (error) {
+    const retryErrors = [String(error?.message || error)];
+
+    // Se o modelo principal estiver sem quota, tenta o outro modelo TTS permitido
+    // antes de devolver 429 ao aplicativo.
     if (Number(error?.statusCode) === 429) {
-      const retryAfter = Number(error?.retryAfter) || 15;
-      res.setHeader('Retry-After', String(retryAfter));
-      return res.status(429).json({
-        error: 'gemini_rate_limited',
-        retry_after_seconds: retryAfter,
-        message: `Limite temporário do Gemini TTS. Tente novamente em ${retryAfter} segundos.`
-      });
+      const alternateModel = model === 'gemini-2.5-flash-preview-tts'
+        ? 'gemini-3.8-flash-lite-tts'
+        : 'gemini-2.5-flash-preview-tts';
+      try {
+        await sleep(250);
+        const out = await generate(text, voice, lang, style, alternateModel);
+        return res.status(200).json({
+          ok: true,
+          ...out,
+          recovered: true,
+          fallback_model: alternateModel,
+          requested_model: model
+        });
+      } catch (alternateError) {
+        retryErrors.push(String(alternateError?.message || alternateError));
+        if (Number(alternateError?.statusCode) === 429) {
+          const retryAfter = Math.max(
+            Number(error?.retryAfter) || 0,
+            Number(alternateError?.retryAfter) || 0,
+            15
+          );
+          res.setHeader('Retry-After', String(retryAfter));
+          return res.status(429).json({
+            error: 'gemini_rate_limited',
+            retry_after_seconds: retryAfter,
+            message: `Os modelos Gemini TTS disponíveis atingiram o limite temporário. Tente novamente em ${retryAfter} segundos.`,
+            details: retryErrors.slice(-2).join(' | ').slice(0, 1200)
+          });
+        }
+      }
     }
 
-    // Falhas 5xx/transitórias do Gemini: tenta novamente com instrução curta
-    // e vozes conhecidas antes de devolver erro ao aluno.
+    // Falhas 5xx/transitórias: tenta de novo com vozes conhecidas.
     const fallbackVoices = [...new Set([voice, 'Aoede', 'Puck'])];
-    const retryErrors = [String(error?.message || error)];
     for (const fallbackVoice of fallbackVoices) {
       try {
         await sleep(450);
@@ -209,15 +234,6 @@ export default async function handler(req, res) {
           requested_voice: voice
         });
       } catch (retryError) {
-        if (Number(retryError?.statusCode) === 429) {
-          const retryAfter = Number(retryError?.retryAfter) || 15;
-          res.setHeader('Retry-After', String(retryAfter));
-          return res.status(429).json({
-            error: 'gemini_rate_limited',
-            retry_after_seconds: retryAfter,
-            message: `Limite temporário do Gemini TTS. Tente novamente em ${retryAfter} segundos.`
-          });
-        }
         retryErrors.push(String(retryError?.message || retryError));
       }
     }
