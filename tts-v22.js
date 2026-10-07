@@ -2,6 +2,7 @@
 'use strict';
 
 const TTS='https://meu-ingles-livid.vercel.app/api/gemini-tts';
+const TTS_FALLBACK='https://meu-ingles-claudio.netlify.app/api/gemini-tts';
 window.MEU_INGLES_TTS_URL=TTS;
 const KEY='meuInglesStableV2';
 const MIN_API_GAP=150;
@@ -188,11 +189,8 @@ async function fetchWithTimeout(url,init,ms){
     clearTimeout(timer);
   }
 }
-async function requestVoice(payload){
-  const since=Date.now()-lastApiAt;
-  if(since<MIN_API_GAP)await wait(MIN_API_GAP-since);
-  lastApiAt=Date.now();
-  const r=await fetchWithTimeout(TTS,{
+async function requestVoiceFrom(url,payload){
+  const r=await fetchWithTimeout(url,{
     method:'POST',
     headers:{'Content-Type':'application/json'},
     body:JSON.stringify(payload)
@@ -201,10 +199,34 @@ async function requestVoice(payload){
   let d=null;
   try{d=JSON.parse(raw)}catch{}
   if(!r.ok){
-    const msg=d?.message||d?.error||raw.slice(0,120);
-    throw new Error('HTTP '+r.status+' '+msg);
+    const msg=d?.message||d?.error||raw.slice(0,160);
+    const e=new Error('HTTP '+r.status+' '+msg);
+    e.status=r.status;
+    e.retryAfter=Number(d?.retry_after_seconds)||0;
+    throw e;
   }
   if(!d?.audio)throw new Error('Gemini não devolveu áudio');
+  return d;
+}
+async function requestVoice(payload){
+  const since=Date.now()-lastApiAt;
+  if(since<MIN_API_GAP)await wait(MIN_API_GAP-since);
+  lastApiAt=Date.now();
+  let d;
+  try{
+    d=await requestVoiceFrom(TTS,payload);
+  }catch(primaryError){
+    const status=Number(primaryError?.status)||0;
+    if(status!==429&&status<500)throw primaryError;
+    try{
+      d=await requestVoiceFrom(TTS_FALLBACK,payload);
+      d={...d,recovered:true,fallback_endpoint:'netlify'};
+    }catch(fallbackError){
+      const e=new Error(String(fallbackError?.message||primaryError?.message||'Gemini TTS indisponível'));
+      e.status=Number(fallbackError?.status)||status;
+      throw e;
+    }
+  }
   try{window.MeuInglesAiCost?.recordTTS?.(d,payload)}catch{}
   return d;
 }
@@ -311,6 +333,7 @@ window.MeuInglesTTS={
   preload:preloadGeminiTTS,
   stop:stopGeminiTTS,
   endpoint:TTS,
+  fallbackEndpoint:TTS_FALLBACK,
   cache:'indexeddb'
 };
 
