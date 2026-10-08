@@ -3,7 +3,7 @@ const ALLOWED_ORIGINS = new Set([
   "https://meu-ingles-claudio.netlify.app"
 ]);
 
-const PRIMARY_MODEL = "gemini-3.1-flash-tts-preview";
+const PRIMARY_MODEL = "gemini-3.8-flash-lite-tts";
 const FALLBACK_MODEL = "gemini-2.5-flash-preview-tts";
 
 const SUPPORTED_VOICES = new Set([
@@ -53,7 +53,7 @@ function extractInteractionAudio(data: any) {
   return { audio, mime, sample_rate: sampleRate };
 }
 
-async function callInteractions(model: string, apiKey: string, instruction: string, voice: string) {
+async function callInteractions(model: string, apiKey: string, textInput: string, voice: string, style = "natural") {
   const r = await fetch("https://generativelanguage.googleapis.com/v1beta/interactions", {
     method: "POST",
     headers: {
@@ -62,8 +62,22 @@ async function callInteractions(model: string, apiKey: string, instruction: stri
     },
     body: JSON.stringify({
       model,
-      input: instruction,
-      response_format: { type: "audio" },
+      input: [{
+        type: "user_input",
+        content: [{
+          type: "text",
+          text: textInput,
+          annotations: [{
+            type: "speech_metadata",
+            style: String(style || "natural").trim()
+          }]
+        }]
+      }],
+      response_format: {
+        type: "audio",
+        mime_type: "audio/l16",
+        sample_rate: 24000
+      },
       generation_config: {
         speech_config: [{ voice }]
       }
@@ -71,7 +85,7 @@ async function callInteractions(model: string, apiKey: string, instruction: stri
   });
 
   const text = await r.text();
-  if (!r.ok) throw new Error(`${model}_interactions_${r.status}:${text.slice(0,180)}`);
+  if (!r.ok) throw new Error(`${model}_interactions_${r.status}:${text.slice(0,300)}`);
 
   let data: any;
   try {
@@ -129,7 +143,7 @@ async function callGenerateContent25(apiKey: string, instruction: string, voice:
   };
 }
 
-async function generateTts(apiKey: string, instruction: string, voice: string, lang: string) {
+async function generateTts(apiKey: string, instruction: string, voice: string, lang: string, style = "natural", literalText = "") {
   const errors: string[] = [];
 
   // Este foi o caminho que já passou no diagnóstico real do app.
@@ -143,13 +157,13 @@ async function generateTts(apiKey: string, instruction: string, voice: string, l
 
   // Mantém a API de Interactions apenas como contingência.
   try {
-    return await callInteractions(FALLBACK_MODEL, apiKey, instruction, voice);
+    return await callInteractions(FALLBACK_MODEL, apiKey, instruction, voice, style);
   } catch (e) {
     errors.push(String(e));
   }
 
   try {
-    return await callInteractions(PRIMARY_MODEL, apiKey, instruction, voice);
+    return await callInteractions(PRIMARY_MODEL, apiKey, literalText || instruction, voice, style);
   } catch (e) {
     errors.push(String(e));
   }
@@ -196,7 +210,7 @@ export default async (req: Request) => {
     const instruction = "Speak only this sentence in natural American English: Hello, this is a Gemini voice test.";
 
     try {
-      const out = await generateTts(apiKey, instruction, "Puck", "en-US");
+      const out = await generateTts(apiKey, instruction, "Puck", "en-US", "natural and conversational", "Hello, this is a Gemini voice test.");
       return new Response(JSON.stringify({
         ok: true,
         diagnostic: true,
@@ -255,7 +269,7 @@ export default async (req: Request) => {
     : `Speak only in natural American English for a complete beginner. Use clear pronunciation, warm human rhythm and small natural pauses. Do not sound like an announcer, screen reader or robot. ${style}\n\nSay only this: ${text}`;
 
   try {
-    const out = await generateTts(apiKey, instruction, voice, lang);
+    const out = await generateTts(apiKey, instruction, voice, lang, style, text);
     return new Response(JSON.stringify({
       ok: true,
       ...out,
