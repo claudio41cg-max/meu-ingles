@@ -16,7 +16,7 @@ export default async function handler(req, res) {
   const apiKey = String(process.env.GEMINI_API_KEY || '').trim();
   if (!apiKey) return res.status(503).json({ error: 'gemini_not_configured' });
 
-  const DEFAULT_MODEL = 'gemini-2.5-flash-preview-tts';
+  const DEFAULT_MODEL = 'gemini-3.8-flash-lite-tts';
   const supportedModels = new Set(['gemini-2.5-flash-preview-tts','gemini-3.8-flash-lite-tts']);
   const supportedVoices = new Set([
     'Zephyr','Puck','Charon','Kore','Fenrir','Leda','Orus','Aoede','Callirrhoe','Autonoe',
@@ -132,11 +132,27 @@ export default async function handler(req, res) {
 
     let data;
     try { data = JSON.parse(raw); } catch { throw new Error('invalid_gemini_38_json'); }
+
+    // REST Interactions retorna o áudio em steps[].content[].data.
+    // Mantemos também as propriedades de conveniência para compatibilidade.
+    const stepAudio = Array.isArray(data?.steps)
+      ? data.steps
+          .filter(step => step?.type === 'model_output')
+          .flatMap(step => Array.isArray(step?.content) ? step.content : [])
+          .filter(item => item?.type === 'audio' && item?.data)
+          .pop()
+      : null;
     const out = data?.output_audio || data?.outputAudio || data?.interaction?.output_audio || data?.interaction?.outputAudio;
-    const audio = out?.data || out?.audio?.data || '';
+    const audio = stepAudio?.data || out?.data || out?.audio?.data || '';
     if (!audio) throw new Error('gemini_38_no_audio');
-    const mime = out?.mime_type || out?.mimeType || out?.audio?.mime_type || out?.audio?.mimeType || 'audio/L16;codec=pcm;rate=24000';
-    const sampleRate = Number(out?.sample_rate || out?.sampleRate || out?.audio?.sample_rate || out?.audio?.sampleRate) || sampleRateFromMime(mime);
+
+    const mime = stepAudio?.mime_type || stepAudio?.mimeType ||
+      out?.mime_type || out?.mimeType || out?.audio?.mime_type || out?.audio?.mimeType ||
+      'audio/L16;codec=pcm;rate=24000';
+    const sampleRate = Number(
+      stepAudio?.sample_rate || stepAudio?.sampleRate ||
+      out?.sample_rate || out?.sampleRate || out?.audio?.sample_rate || out?.audio?.sampleRate
+    ) || sampleRateFromMime(mime) || 24000;
 
     return {
       audio,
@@ -146,7 +162,7 @@ export default async function handler(req, res) {
       protocol: 'interactions',
       provider: 'Gemini',
       voice,
-      usageMetadata: data?.usageMetadata || data?.usage_metadata || null
+      usageMetadata: data?.usageMetadata || data?.usage_metadata || data?.usage || null
     };
   }
 
@@ -224,9 +240,9 @@ export default async function handler(req, res) {
     // Se o modelo principal estiver sem quota, tenta o outro modelo TTS permitido
     // antes de devolver 429 ao aplicativo.
     if (Number(error?.statusCode) === 429) {
-      const alternateModel = model === 'gemini-2.5-flash-preview-tts'
-        ? 'gemini-3.8-flash-lite-tts'
-        : 'gemini-2.5-flash-preview-tts';
+      const alternateModel = model === 'gemini-3.8-flash-lite-tts'
+        ? 'gemini-2.5-flash-preview-tts'
+        : 'gemini-3.8-flash-lite-tts';
       try {
         await sleep(250);
         const out = await generate(text, voice, lang, style, alternateModel);
