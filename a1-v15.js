@@ -20,7 +20,7 @@ const RAW=[
 ['🗓️|yesterday|ontem|Ontem','💼|worked|trabalhei|Trabalhei','🍽️|ate|comi|Comi','🥤|drank|bebi|Bebi','📺|watched|assisti|Assisti','🚶|went|fui|Fui','🏠|stayed|fiquei|Fiquei','🎉|weekend|fim de semana|Fim de semana'],
 ['👋|hello|olá|Olá de novo','🙂|my name is|meu nome é|Meu nome é...','💧|water, please.|água, por favor.|Água, por favor','🛒|where is the market?|onde fica o mercado?|Onde fica o mercado?','💲|how much?|quanto custa?|Quanto custa?','⬅️|turn left.|vire à esquerda.|Vire à esquerda','🙏|thank you|obrigado|Obrigado','👋|goodbye|adeus|Até logo']
 ];
-const MT=['Primeiros contatos','Números e apresentação','Família e pessoas','Rotina diária','Perguntas e hábitos','Casa e cidade','Comida e restaurante','Compras e preços','Direções e transporte','Tempo livre e habilidades','Ontem e fim de semana','Projeto A1'];
+const MT=['Hello!','Números e apresentação','Família e pessoas','Rotina diária','Perguntas e hábitos','Casa e cidade','Comida e restaurante','Compras e preços','Direções e transporte','Tempo livre e habilidades','Ontem e fim de semana','Projeto A1'];
 const START=['Hello / Hi','Bom dia, boa tarde e boa noite','How are you?','Como responder','Thank you / And you?','Goodbye!','Desafio Hello!','Minha primeira conversa'];
 
 function firstContactLesson(n){
@@ -219,7 +219,7 @@ function shell(inner){
    const screenTitle=document.querySelector('#course > .top h2');
    if(screenTitle)screenTitle.textContent='Tela inicial';
  }
- return `<div class="beginner14 ${run.m===0?'firstContactsLessonScreen':''} ${run.m===1?'moduleTwoLessonScreen':''}"><div class="b14Top"><button class="b14Back" onclick="openStableModule('A1',${run.m})">‹</button><div class="b14Progress"><span style="width:${p}%"></span></div></div>${run.m===0?'':top()}<div class="b14Card"><div class="b14Eyebrow">A1 · ${run.i+1} de ${run.lesson.steps.length}</div>${inner}<div id="a15Voice" class="b14VoiceWarn"></div></div><div class="lessonStepNav" aria-label="Navegação entre etapas"><button type="button" onclick="a15Jump(-1)" aria-label="Voltar uma etapa" ${run.i<=0?'disabled':''}>‹</button><button type="button" onclick="a15Jump(1)" aria-label="Avançar uma etapa" ${run.i>=run.lesson.steps.length-1?'disabled':''}>›</button></div></div>`;
+ return `<div class="beginner14 ${run.m===0?'firstContactsLessonScreen':''} ${run.m===1?'moduleTwoLessonScreen':''}"><div class="b14Top"><button class="b14Back" onclick="openStableModule('A1',${run.m})">‹</button><div class="b14Progress"><span style="width:${p}%"></span></div></div>${run.m===0?'':top()}<div class="b14Card"><div class="b14Eyebrow">${run.m===0?'PRÉ-A1':'A1'} · ${run.i+1} de ${run.lesson.steps.length}</div>${inner}<div id="a15Voice" class="b14VoiceWarn"></div></div><div class="lessonStepNav" aria-label="Navegação entre etapas"><button type="button" onclick="a15Jump(-1)" aria-label="Voltar uma etapa" ${run.i<=0?'disabled':''}>‹</button><button type="button" onclick="a15Jump(1)" aria-label="Avançar uma etapa" ${run.i>=run.lesson.steps.length-1?'disabled':''}>›</button></div></div>`;
 }
 const prevButton=()=>'';
 const next=()=>`<div class="b14Footer"><button class="b14Next" onclick="a15Next()">Continuar</button>${prevButton()}</div>`;
@@ -245,7 +245,7 @@ window.a15Finish=finish;
 function title(m,n){if(m===0&&START[n])return START[n];return item(m,n)?.title||`Lição ${n+1}`}
 function done(m,n){return !!state().done?.[`A1-${m}-${n}`]}
 function unlocked(m,n){return n===0||done(m,n-1)||progress(m,n)>0}
-const FIRST_CONTACTS_ART=['☕','🥤','👉','👋','🙏','✅','🙅','👋'];
+const FIRST_CONTACTS_ART=['👋','🌅','💬','🙂','🙏','👋','🎮','✨'];
 function firstContactsCards(){
  return Array.from({length:8},(_,n)=>{
   const isDone=done(0,n);
@@ -294,8 +294,9 @@ function moduleView(m){
      <div class="firstContactsHead">
        <button class="back firstContactsBack" onclick="renderStableCourse()">‹</button>
        <div>
-         <div class="firstContactsEyebrow">A1 · MÓDULO 1</div>
-         <h2>Primeiros contatos</h2>
+         <div class="firstContactsEyebrow">PRÉ-A1 · MÓDULO 1</div>
+         <h2>Hello!</h2>
+         <p>Sua primeira conversa em inglês · 8 aulas progressivas</p>
        </div>
      </div>
      <div class="firstContactsLessons">${firstContactsCards()}</div>
