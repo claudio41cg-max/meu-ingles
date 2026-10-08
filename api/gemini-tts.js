@@ -40,31 +40,20 @@ export default async function handler(req, res) {
     return Number.isFinite(n) && n > 0 ? Math.ceil(n) : 15;
   };
 
-  async function generate(text, voice, lang, style, model = DEFAULT_MODEL) {
-    const is38 = model.startsWith('gemini-3.8-');
+  async function generate25(text, voice, lang, style) {
     const instruction = lang === 'pt-BR'
       ? `Fale apenas em português brasileiro. Soe como uma pessoa conversando cara a cara, com ritmo natural, pequenas pausas e entonação espontânea. Não use voz de locutor, assistente virtual ou robô. ${style}\n\nDiga somente isto: ${text}`
       : `Speak only in natural American English for a complete beginner. Use clear pronunciation, warm human rhythm and small natural pauses. Do not sound like an announcer, screen reader or robot. ${style}\n\nSay only this: ${text}`;
 
-    const requestPart = is38
-      ? { text, speech_metadata: { style: String(style || 'natural').trim() } }
-      : { text: instruction };
-
-    const generationConfig = is38
-      ? {
-          responseModalities: ['AUDIO'],
-          responseFormat: {
-            audio: {
-              mimeType: 'AUDIO_L16',
-              sampleRate: 24000
-            }
-          },
-          speechConfig: {
-            languageCode: lang,
-            voiceConfig: { voice }
-          }
-        }
-      : {
+    const response = await fetch('https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-tts:generateContent', {
+      method: 'POST',
+      headers: {
+        'x-goog-api-key': apiKey,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        contents: [{ role: 'user', parts: [{ text: instruction }] }],
+        generationConfig: {
           responseModalities: ['AUDIO'],
           speechConfig: {
             languageCode: lang,
@@ -72,23 +61,13 @@ export default async function handler(req, res) {
               prebuiltVoiceConfig: { voiceName: voice }
             }
           }
-        };
-
-    const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent`, {
-      method: 'POST',
-      headers: {
-        'x-goog-api-key': apiKey,
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({
-        contents: [{ role: 'user', parts: [requestPart] }],
-        generationConfig
+        }
       })
     });
 
     const raw = await response.text();
     if (!response.ok) {
-      const err = new Error(`${model}_${response.status}:${raw.slice(0, 500)}`);
+      const err = new Error(`gemini-2.5-flash-preview-tts_${response.status}:${raw.slice(0, 500)}`);
       err.statusCode = response.status;
       if (response.status === 429) err.retryAfter = retrySecondsFrom(raw);
       throw err;
@@ -104,12 +83,76 @@ export default async function handler(req, res) {
       audio: part.inlineData.data,
       mime,
       sample_rate: sampleRateFromMime(mime),
-      model,
+      model: 'gemini-2.5-flash-preview-tts',
       protocol: 'generateContent',
       provider: 'Gemini',
       voice,
       usageMetadata: data?.usageMetadata || null
     };
+  }
+
+  async function generate38(text, voice, style) {
+    const response = await fetch('https://generativelanguage.googleapis.com/v1beta/interactions', {
+      method: 'POST',
+      headers: {
+        'x-goog-api-key': apiKey,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        model: 'gemini-3.8-flash-lite-tts',
+        input: [{
+          type: 'user_input',
+          content: [{
+            type: 'text',
+            text,
+            annotations: [{
+              type: 'speech_metadata',
+              style: String(style || 'natural').trim()
+            }]
+          }]
+        }],
+        response_format: {
+          type: 'audio',
+          mime_type: 'audio/l16',
+          sample_rate: 24000
+        },
+        generation_config: {
+          speech_config: [{ voice }]
+        }
+      })
+    });
+
+    const raw = await response.text();
+    if (!response.ok) {
+      const err = new Error(`gemini-3.8-flash-lite-tts_${response.status}:${raw.slice(0, 500)}`);
+      err.statusCode = response.status;
+      if (response.status === 429) err.retryAfter = retrySecondsFrom(raw);
+      throw err;
+    }
+
+    let data;
+    try { data = JSON.parse(raw); } catch { throw new Error('invalid_gemini_38_json'); }
+    const out = data?.output_audio || data?.outputAudio || data?.interaction?.output_audio || data?.interaction?.outputAudio;
+    const audio = out?.data || out?.audio?.data || '';
+    if (!audio) throw new Error('gemini_38_no_audio');
+    const mime = out?.mime_type || out?.mimeType || out?.audio?.mime_type || out?.audio?.mimeType || 'audio/L16;codec=pcm;rate=24000';
+    const sampleRate = Number(out?.sample_rate || out?.sampleRate || out?.audio?.sample_rate || out?.audio?.sampleRate) || sampleRateFromMime(mime);
+
+    return {
+      audio,
+      mime,
+      sample_rate: sampleRate,
+      model: 'gemini-3.8-flash-lite-tts',
+      protocol: 'interactions',
+      provider: 'Gemini',
+      voice,
+      usageMetadata: data?.usageMetadata || data?.usage_metadata || null
+    };
+  }
+
+  async function generate(text, voice, lang, style, model = DEFAULT_MODEL) {
+    if (model === 'gemini-3.8-flash-lite-tts') return generate38(text, voice, style);
+    return generate25(text, voice, lang, style);
   }
 
   if (req.method === 'GET') {
