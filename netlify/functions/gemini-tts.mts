@@ -45,10 +45,22 @@ function sampleRateFromMime(mime: string) {
 }
 
 function extractInteractionAudio(data: any) {
+  const stepAudio = Array.isArray(data?.steps)
+    ? data.steps
+        .filter((step: any) => step?.type === "model_output")
+        .flatMap((step: any) => Array.isArray(step?.content) ? step.content : [])
+        .filter((item: any) => item?.type === "audio" && item?.data)
+        .pop()
+    : null;
   const out = data?.output_audio || data?.outputAudio || data?.interaction?.output_audio || data?.interaction?.outputAudio;
-  const audio = out?.data || out?.audio?.data || "";
-  const mime = out?.mime_type || out?.mimeType || out?.audio?.mime_type || out?.audio?.mimeType || "audio/L16;codec=pcm;rate=24000";
-  const sampleRate = Number(out?.sample_rate || out?.sampleRate || out?.audio?.sample_rate || out?.audio?.sampleRate) || sampleRateFromMime(mime);
+  const audio = stepAudio?.data || out?.data || out?.audio?.data || "";
+  const mime = stepAudio?.mime_type || stepAudio?.mimeType ||
+    out?.mime_type || out?.mimeType || out?.audio?.mime_type || out?.audio?.mimeType ||
+    "audio/L16;codec=pcm;rate=24000";
+  const sampleRate = Number(
+    stepAudio?.sample_rate || stepAudio?.sampleRate ||
+    out?.sample_rate || out?.sampleRate || out?.audio?.sample_rate || out?.audio?.sampleRate
+  ) || sampleRateFromMime(mime) || 24000;
   if (!audio) throw new Error("interaction_no_audio");
   return { audio, mime, sample_rate: sampleRate };
 }
@@ -146,29 +158,21 @@ async function callGenerateContent25(apiKey: string, instruction: string, voice:
 async function generateTts(apiKey: string, instruction: string, voice: string, lang: string, style = "natural", literalText = "") {
   const errors: string[] = [];
 
-  // Este foi o caminho que já passou no diagnóstico real do app.
-  // Usamos primeiro o Gemini 2.5 Flash TTS via generateContent para não gastar
-  // uma tentativa no 3.1 preview, que está retornando 429 neste projeto.
-  try {
-    return await callGenerateContent25(apiKey, instruction, voice, lang);
-  } catch (e) {
-    errors.push(String(e));
-  }
-
-  // Mantém a API de Interactions apenas como contingência.
-  try {
-    return await callInteractions(FALLBACK_MODEL, apiKey, instruction, voice, style);
-  } catch (e) {
-    errors.push(String(e));
-  }
-
+  // 3.8 Flash-Lite é o caminho principal para falas fixas.
   try {
     return await callInteractions(PRIMARY_MODEL, apiKey, literalText || instruction, voice, style);
   } catch (e) {
     errors.push(String(e));
   }
 
-  throw new Error(JSON.stringify(errors.slice(-3)));
+  // 2.5 continua disponível como fallback de compatibilidade.
+  try {
+    return await callGenerateContent25(apiKey, instruction, voice, lang);
+  } catch (e) {
+    errors.push(String(e));
+  }
+
+  throw new Error(JSON.stringify(errors.slice(-2)));
 }
 
 export default async (req: Request) => {
