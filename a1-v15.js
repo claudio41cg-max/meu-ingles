@@ -265,13 +265,14 @@ function quickReaction(ok){
 }
 function react(ok,heard,target){
  const txt=quickReaction(ok);
- const b=$('#a15Feedback');if(b){b.className='b14Feedback '+(ok?'good':'bad');b.innerHTML='<b>'+esc(txt)+'</b>'}
- /* No Módulo 2, texto e voz usam exatamente a mesma frase local/cacheada, sem chamada extra de IA. */
+ const b=$('#a15Feedback');
+ if(b){
+   b.className='b14Feedback '+(ok?'good':'bad');
+   b.innerHTML='<b>'+esc(txt)+'</b>';
+ }
+ /* Aulas fixas: uma única reação. O texto mostrado é exatamente o texto falado.
+    Não chama IA extra para não sobrescrever a mensagem nem gastar tokens sem necessidade. */
  speak(txt,'pt-BR',true);
- if(run?.m===1)return;
- const s=state(),mode=s.teacher||'media';
- fetch(CHAT,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({mode:'lesson_feedback',message:heard,heard,target,score:ok?100:0,passed:ok,lesson:'A1 iniciante com repetição',level:'A1',personality:mode,scenario:'Poucas palavras, repetição e frases essenciais',error_streak:ok?0:1})})
-  .then(r=>r.ok?r.json():null).then(d=>{if(d?.reply_pt&&b)b.innerHTML='<b>'+esc(d.reply_pt)+'</b>'}).catch(()=>{});
 }
 
 function numberLesson(){
