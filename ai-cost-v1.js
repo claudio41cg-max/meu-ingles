@@ -74,7 +74,7 @@ function shortText(s,n=58){s=String(s||'').replace(/\s+/g,' ').trim();return s.l
 function auditModal(){
  let m=document.getElementById('miTtsAuditModal');if(m)return m;
  m=document.createElement('div');m.id='miTtsAuditModal';m.innerHTML=`<div class="mi-cost-card mi-audit-card">
-  <div class="mi-cost-head"><div><h2>🔊 Áudios Gemini 2.5</h2><p>Gerados pela IA x reutilizados do cache deste aparelho</p></div><button class="mi-audit-close" aria-label="Fechar">×</button></div>
+  <div class="mi-cost-head"><div><h2>🔊 Áudios Gemini 2.5</h2><p>Gerados pela IA x reutilizados do cache local ou central</p></div><button class="mi-audit-close" aria-label="Fechar">×</button></div>
   <div class="mi-cost-grid">
    <div class="mi-cost-box"><small>Gerados pela IA</small><b id="miAuditPaidCount">0</b><em id="miAuditPaidTokens">0 tokens cobrados</em></div>
    <div class="mi-cost-box"><small>Repetidos do cache</small><b id="miAuditCacheCount">0</b><em id="miAuditSavedTokens">0 tokens evitados</em></div>
@@ -86,7 +86,7 @@ function auditModal(){
    <div class="mi-cost-row"><span>Taxa de reutilização</span><span id="miAuditRate">0%</span></div>
    <div class="mi-cost-row"><span>Voz gerada pela IA</span><span id="miAuditPaidMin">0,0 min</span></div>
    <div class="mi-cost-row"><span>Voz reaproveitada</span><span id="miAuditSavedMin">0,0 min</span></div>
-   <p class="mi-cost-sub">Cache local: a primeira geração pode usar o Gemini 2.5; depois, a mesma frase + voz + idioma é reproduzida do áudio salvo no celular sem nova geração.</p>
+   <p class="mi-cost-sub">Cache inteligente: a primeira geração de uma frase pode usar o Gemini TTS; depois, a mesma frase + voz + idioma pode ser reutilizada do cache local ou central sem nova cobrança de geração.</p>
   </div>
   <div class="mi-cost-section"><h3>Áudios recentes</h3><div id="miAuditRecent" class="mi-audit-list"></div></div>
   <p class="mi-cost-sub">Valores são medidos/estimados no próprio app. O Google Cloud continua sendo a fonte final da cobrança.</p>
@@ -183,7 +183,7 @@ function render(){
 }
 window.addEventListener('meu-ingles-tts-source',e=>{
  const d=e?.detail||{};
- if(d.source!=='cache')return;
+ if(d.source!=='cache'&&d.source!=='server-cache')return;
  add('tts-cache',{usd:0,tokens:0,savedUsd:Number(d.usd)||0,savedTokens:Number(d.tokens)||0,seconds:Number(d.seconds)||0,text:String(d.text||''),voice:String(d.voice||''),lang:String(d.lang||''),model:MODEL_TTS});
 });
 window.MeuInglesAiCost={recordTTS,recordLiveAudioIn,recordLiveAudioOut,recordLiveUsage,liveTurn,open(){modal().classList.add('open');render()},openTtsAudit(){auditModal().classList.add('open');renderAudit()},render};

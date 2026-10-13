@@ -1,3 +1,41 @@
+import { createHash } from 'node:crypto';
+import { get, put } from '@vercel/blob';
+
+const CENTRAL_CACHE_VERSION='tts-v1';
+function centralCachePath({text,lang,voice,style,model}){
+  const raw=JSON.stringify([CENTRAL_CACHE_VERSION,model,voice,lang,style,text]);
+  const hash=createHash('sha256').update(raw).digest('hex');
+  return `tts-cache/${hash}.json`;
+}
+async function readCentralCache(pathname){
+  try{
+    const hit=await get(pathname,{access:'public'});
+    if(!hit||hit.statusCode!==200||!hit.stream)return null;
+    const raw=await new Response(hit.stream).text();
+    const data=JSON.parse(raw);
+    if(!data?.audio)return null;
+    return {...data,cache_source:'server'};
+  }catch(error){
+    console.warn('tts central cache read failed',String(error?.message||error));
+    return null;
+  }
+}
+async function writeCentralCache(pathname,data){
+  try{
+    await put(pathname,JSON.stringify({...data,cached_at:new Date().toISOString()}),{
+      access:'public',
+      addRandomSuffix:false,
+      allowOverwrite:true,
+      contentType:'application/json',
+      cacheControlMaxAge:31536000
+    });
+    return true;
+  }catch(error){
+    console.warn('tts central cache write failed',String(error?.message||error));
+    return false;
+  }
+}
+
 export default async function handler(req, res) {
   const allowedOrigins = new Set([
     'https://claudio41cg-max.github.io',
@@ -230,10 +268,19 @@ export default async function handler(req, res) {
   const style = String(body.style || 'natural').slice(0, 320);
   const requestedModel = String(body.model || DEFAULT_MODEL).trim();
   const model = supportedModels.has(requestedModel) ? requestedModel : DEFAULT_MODEL;
+  const cachePath = centralCachePath({ text, lang, voice, style, model });
+
+  const cached = await readCentralCache(cachePath);
+  if (cached) {
+    res.setHeader('X-Meu-Ingles-TTS-Cache', 'HIT');
+    return res.status(200).json({ ok: true, ...cached, cache_source: 'server' });
+  }
 
   try {
     const out = await generate(text, voice, lang, style, model);
-    return res.status(200).json({ ok: true, ...out });
+    await writeCentralCache(cachePath, out);
+    res.setHeader('X-Meu-Ingles-TTS-Cache', 'MISS');
+    return res.status(200).json({ ok: true, ...out, cache_source: 'generated' });
   } catch (error) {
     const retryErrors = [String(error?.message || error)];
 
@@ -246,9 +293,12 @@ export default async function handler(req, res) {
       try {
         await sleep(250);
         const out = await generate(text, voice, lang, style, alternateModel);
+        await writeCentralCache(cachePath, out);
+        res.setHeader('X-Meu-Ingles-TTS-Cache', 'MISS');
         return res.status(200).json({
           ok: true,
           ...out,
+          cache_source: 'generated',
           recovered: true,
           fallback_model: alternateModel,
           requested_model: model
@@ -286,9 +336,12 @@ export default async function handler(req, res) {
             : 'Português brasileiro natural e claro. Diga somente o texto solicitado.',
           model
         );
+        await writeCentralCache(cachePath, out);
+        res.setHeader('X-Meu-Ingles-TTS-Cache', 'MISS');
         return res.status(200).json({
           ok: true,
           ...out,
+          cache_source: 'generated',
           recovered: true,
           requested_voice: voice
         });

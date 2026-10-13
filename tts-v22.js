@@ -227,7 +227,14 @@ async function requestVoice(payload){
       throw e;
     }
   }
-  try{window.MeuInglesAiCost?.recordTTS?.(d,payload)}catch{}
+  try{
+    if(d?.cache_source==='server'){
+      const est=ttsEstimate(d,payload?.text||'');
+      window.dispatchEvent(new CustomEvent('meu-ingles-tts-source',{detail:{source:'server-cache',text:payload?.text||'',lang:payload?.lang||'',voice:payload?.voice||'',...est}}));
+    }else{
+      window.MeuInglesAiCost?.recordTTS?.(d,payload);
+    }
+  }catch{}
   return d;
 }
 async function geminiSpeak(text,lang='pt-BR',voice=currentVoice()){
@@ -334,7 +341,7 @@ window.MeuInglesTTS={
   stop:stopGeminiTTS,
   endpoint:TTS,
   fallbackEndpoint:TTS_FALLBACK,
-  cache:'indexeddb'
+  cache:'indexeddb+vercel-blob'
 };
 
 
