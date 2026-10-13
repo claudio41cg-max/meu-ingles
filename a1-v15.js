@@ -4,7 +4,7 @@ const KEY='meuInglesStableV2';
 const API=location.hostname.endsWith('github.io')?'https://meu-ingles-claudio.netlify.app':'';
 const CHAT=API+'/api/groq-chat',TTS=API+'/api/gemini-tts';
 const oldOpen=window.openStableLesson,oldModule=window.openStableModule;
-let run=null,menu=false,ctx=null,src=null,autoSpeakTimer=null;
+let run=null,menu=false,ctx=null,src=null,autoSpeakTimer=null,wordSpeakChain=Promise.resolve();
 
 const RAW=[
 ['','','','👋|hello|olá|Olá!','🙏|thank you|obrigado|Obrigado','✅|yes, please|sim, por favor|Sim, por favor','🙅|no, thank you|não, obrigado|Não, obrigado','👋|goodbye|adeus|Até logo'],
@@ -257,6 +257,11 @@ async function speak(text,lang='en-US',isTeacher=false){
   return false
  }
 }
+function speakBuildToken(text){
+ const word=String(text||'').trim();
+ if(!word)return;
+ wordSpeakChain=wordSpeakChain.catch(()=>{}).then(()=>speak(word,'en-US',false));
+}
 function quickReaction(ok){
  const mode=state().teacher||'media';
  const lines={
@@ -349,9 +354,25 @@ else{h=`<h2>Você já conhece isso</h2><div class="b14Review">${s.items.map(x=>`
 $('#courseBody').innerHTML=shell(h);if(keepY===null)window.scrollTo(0,0);else requestAnimationFrame(()=>requestAnimationFrame(()=>window.scrollTo(0,keepY)));if(autoSpeakTimer){clearTimeout(autoSpeakTimer);autoSpeakTimer=null}if((s.t==='learn'||s.t==='phrase')&&s.x)autoSpeakTimer=setTimeout(()=>{autoSpeakTimer=null;speak(s.x.en)},250);if(s.t==='choice'&&s.audio)autoSpeakTimer=setTimeout(()=>{autoSpeakTimer=null;speak(s.audio)},250);if(s.t==='guided'){const ga=guidedAudioText(s.q);if(ga)autoSpeakTimer=setTimeout(()=>{autoSpeakTimer=null;speak(ga)},250)}}
 window.a15Answer=e=>{const s=run.lesson.steps[run.i],v=decodeURIComponent(e),ok=v===s.ans;document.querySelectorAll('[data-a15]').forEach(b=>{const x=decodeURIComponent(b.dataset.a15);if(x===v)b.classList.add(ok?'correct':'wrong');if(!ok&&x===s.ans)b.classList.add('correct');b.disabled=true});const f=$('#a15Feedback');if(f)f.insertAdjacentHTML('afterend',ok?next():`<div class="b14Footer"><button class="b14Next blue" onclick="a15Retry()">Tentar de novo</button>${prevButton()}</div>`);react(ok,v,s.ans)};
 window.a15Retry=()=>render(true);
-window.a15Pick=i=>{if(run.checked)return;run.used=run.used||[];if(run.used.includes(i))return;run.used.push(i);run.built.push(run.lesson.steps[run.i].tokens[i]);render(true)};
+window.a15Pick=i=>{if(run.checked)return;run.used=run.used||[];if(run.used.includes(i))return;const token=run.lesson.steps[run.i].tokens[i];run.used.push(i);run.built.push(token);render(true);speakBuildToken(token)};
 window.a15Clear=()=>{run.built=[];run.used=[];run.checked=false;run.ok=false;render(true)};
-window.a15Check=()=>{const s=run.lesson.steps[run.i],v=run.built.join(' ');run.checked=true;run.ok=v===s.target;render(true);react(run.ok,v,s.target)};
+window.a15Check=async()=>{
+ const s=run.lesson.steps[run.i],v=run.built.join(' ');
+ run.checked=true;
+ run.ok=v===s.target;
+ render(true);
+ if(run.ok){
+   const txt=quickReaction(true);
+   const b=$('#a15Feedback');
+   if(b){
+     b.className='b14Feedback good';
+     b.innerHTML='<b>'+esc(txt)+'</b><br><span>🔊 '+esc(s.target)+'</span>';
+   }
+   await speak(s.target,'en-US',false);
+ }else{
+   react(false,v,s.target);
+ }
+};
 
 function start(m,n){if(m===1&&!unlocked(m,n))return;const l=lesson(m,n),pct=progress(m,n),i=done(m,n)?0:Math.min(l.steps.length-1,Math.floor(pct/100*l.steps.length));run={m,n,i,lesson:l,built:[],used:[],checked:false,ok:false};render()}
 function finish(){const s=state();s.done=s.done&&typeof s.done==='object'?s.done:{};s.progress=s.progress&&typeof s.progress==='object'?s.progress:{};const k=`A1-${run.m}-${run.n}`;s.progress[k]=100;if(!s.done[k]){s.done[k]=true;s.xp=(Number(s.xp)||0)+30}s.level='A1';save(s);sessionStorage.setItem('a15back',String(run.m));location.reload()}
