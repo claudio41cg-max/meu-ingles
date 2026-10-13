@@ -883,7 +883,7 @@ function ensureTutorCacheBadgeV109(){
    el.innerHTML=
      '<b>PROTÓTIPO · Tranquilo</b>'+
      '<span data-cache-status>monitorando</span>'+
-     '<small><i data-bank-played>Banco tocado 0</i><i data-cache-count>Cache real 0</i><i data-live-count>Live falas 0</i><i data-live-words>Live palavras 0</i><i data-bank-count>Banco detectado 0</i><i data-api-count>API 2.5 0</i></small>'+
+     '<small><i data-bank-played>Banco tocado 0</i><i data-cache-count>Cache real 0</i><i data-live-count>Live falas 0</i><i data-live-words>Live palavras 0</i><i data-bank-count>Banco detectado 0</i><i data-api-count>API TTS 0</i></small>'+
      '<button type="button" data-cache-test>Testar CACHE</button>';
    document.body.appendChild(el);
    el.querySelector('[data-cache-test]').onclick=async e=>{
@@ -900,7 +900,7 @@ function ensureTutorCacheBadgeV109(){
  el.querySelector('[data-live-count]').textContent='Live falas '+lv;
  el.querySelector('[data-live-words]').textContent='Live palavras '+lw;
  el.querySelector('[data-bank-count]').textContent='Banco detectado '+bh;
- el.querySelector('[data-api-count]').textContent='API 2.5 '+ap;
+ el.querySelector('[data-api-count]').textContent='API TTS '+ap;
  el.style.display='block';
  return el;
 }
@@ -930,17 +930,7 @@ async function playTutorCacheLineV109(group){
  }catch{return false}
 }
 
-function preloadTutorCachePilotV109(){
- if(!isCalmTutorV109()||typeof window.preloadGeminiTTS!=='function')return;
- const picks=[
-   CALM_TUTOR_LINES_V109.opening[0],
-   CALM_TUTOR_LINES_V109.closing[0],
-   CALM_TUTOR_LINES_V109.encouragement[0],
-   CALM_TUTOR_LINES_V109.transition[0],
-   CALM_TUTOR_LINES_V109.retry[0]
- ].filter(Boolean);
- picks.forEach((text,i)=>setTimeout(()=>window.preloadGeminiTTS(text,'pt-BR').catch(()=>{}),180+i*250));
-}
+function preloadTutorCachePilotV109(){ return; }
 
 window.MeuInglesCacheToolV113=async function(fc){
  if(!session||!isCalmTutorV109()||String(fc?.name||'')!=='play_cached_teacher_phrase'){
@@ -1324,7 +1314,7 @@ function wrap(){
      flashTutorSourceV109('⚡ CACHE','is-cache');
    }else if(e?.detail?.source==='api'){
      session.apiTts=(session.apiTts||0)+1;
-     flashTutorSourceV109('☁ API 2.5','is-api');
+     flashTutorSourceV109('☁ API TTS','is-api');
    }
    saveSession();
    ensureTutorCacheBadgeV109();

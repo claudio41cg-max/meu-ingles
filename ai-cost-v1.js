@@ -1,7 +1,7 @@
 (()=>{
 'use strict';
 const KEY='meuInglesAiCostV1';
-const MODEL_TTS='gemini-2.5-flash-preview-tts';
+const MODEL_TTS='gemini-3.8-flash-lite-tts';
 const MODEL_LIVE='gemini-3.1-flash-live-preview';
 const GOOGLE_BALANCE_BRL=157.86;
 const GOOGLE_BALANCE_SNAPSHOT='21/09/2026 14:06';
@@ -74,11 +74,11 @@ function shortText(s,n=58){s=String(s||'').replace(/\s+/g,' ').trim();return s.l
 function auditModal(){
  let m=document.getElementById('miTtsAuditModal');if(m)return m;
  m=document.createElement('div');m.id='miTtsAuditModal';m.innerHTML=`<div class="mi-cost-card mi-audit-card">
-  <div class="mi-cost-head"><div><h2>🔊 Áudios Gemini 2.5</h2><p>Gerados pela IA x reutilizados do cache local ou central</p></div><button class="mi-audit-close" aria-label="Fechar">×</button></div>
+  <div class="mi-cost-head"><div><h2>🔊 Áudios Gemini TTS</h2><p>Gerados pela IA x reutilizados do cache local ou central</p></div><button class="mi-audit-close" aria-label="Fechar">×</button></div>
   <div class="mi-cost-grid">
    <div class="mi-cost-box"><small>Gerados pela IA</small><b id="miAuditPaidCount">0</b><em id="miAuditPaidTokens">0 tokens cobrados</em></div>
    <div class="mi-cost-box"><small>Repetidos do cache</small><b id="miAuditCacheCount">0</b><em id="miAuditSavedTokens">0 tokens evitados</em></div>
-   <div class="mi-cost-box"><small>Gasto TTS medido</small><b id="miAuditPaidUsd">US$ 0,0000</b><em>Chamadas reais ao Gemini 2.5</em></div>
+   <div class="mi-cost-box"><small>Gasto TTS medido</small><b id="miAuditPaidUsd">US$ 0,0000</b><em>Chamadas reais ao Gemini TTS</em></div>
    <div class="mi-cost-box"><small>Economia estimada</small><b id="miAuditSavedUsd">US$ 0,0000</b><em>O que custaria regerar o cache</em></div>
   </div>
   <div class="mi-cost-section"><h3>Resumo de hoje</h3>
@@ -126,7 +126,7 @@ function modal(){
   <div class="mi-cost-box"><small>Mês atual</small><b id="miMonth">US$ 0,0000</b><em id="miMonthMeta">projeção: US$ 0,00/mês</em></div>
  </div>
  <div class="mi-cost-section"><h3>Consumo de hoje</h3>
-  <div class="mi-cost-row"><span>Gemini 2.5 TTS</span><span id="miTts">US$ 0,0000</span></div>
+  <div class="mi-cost-row"><span>Gemini TTS</span><span id="miTts">US$ 0,0000</span></div>
   <div class="mi-cost-row"><span>Gemini 3.1 Live</span><span id="miLive">US$ 0,0000</span></div>
   <div class="mi-cost-row"><span>Áudio enviado ao Live</span><span id="miIn">0,0 min</span></div>
   <div class="mi-cost-row"><span>Áudio recebido do Live</span><span id="miOut">0,0 min</span></div>
@@ -157,7 +157,7 @@ function install(){
  if(!document.getElementById('miAiCostBtn')){const h=document.querySelector('header');if(h){const b=document.createElement('button');b.id='miAiCostBtn';b.type='button';b.title='Créditos IA';b.textContent='💳';b.onclick=()=>{modal().classList.add('open');render()};const av=h.querySelector('.avatar');h.insertBefore(b,av||null)}}
  if(!document.getElementById('miTtsAuditBtn')){
    const h=document.querySelector('header'),credit=document.getElementById('miAiCostBtn');
-   if(h){const b=document.createElement('button');b.id='miTtsAuditBtn';b.type='button';b.title='Uso de áudios Gemini 2.5';b.textContent='🔊';b.onclick=()=>{auditModal().classList.add('open');renderAudit()};const av=h.querySelector('.avatar');h.insertBefore(b,av||null)}
+   if(h){const b=document.createElement('button');b.id='miTtsAuditBtn';b.type='button';b.title='Uso de áudios Gemini TTS';b.textContent='🔊';b.onclick=()=>{auditModal().classList.add('open');renderAudit()};const av=h.querySelector('.avatar');h.insertBefore(b,av||null)}
   }
  modal();auditModal();render();renderAudit();
 }
@@ -184,7 +184,7 @@ function render(){
 window.addEventListener('meu-ingles-tts-source',e=>{
  const d=e?.detail||{};
  if(d.source!=='cache'&&d.source!=='server-cache')return;
- add('tts-cache',{usd:0,tokens:0,savedUsd:Number(d.usd)||0,savedTokens:Number(d.tokens)||0,seconds:Number(d.seconds)||0,text:String(d.text||''),voice:String(d.voice||''),lang:String(d.lang||''),model:MODEL_TTS});
+ add('tts-cache',{usd:0,tokens:0,savedUsd:Number(d.usd)||0,savedTokens:Number(d.tokens)||0,seconds:Number(d.seconds)||0,text:String(d.text||''),voice:String(d.voice||''),lang:String(d.lang||''),model:String(d.model||MODEL_TTS)});
 });
 window.MeuInglesAiCost={recordTTS,recordLiveAudioIn,recordLiveAudioOut,recordLiveUsage,liveTurn,open(){modal().classList.add('open');render()},openTtsAudit(){auditModal().classList.add('open');renderAudit()},render};
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',install);else install();

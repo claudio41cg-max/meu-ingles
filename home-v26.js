@@ -142,10 +142,8 @@ window.playHomeRobotGuide=async()=>{
 
   const robot=document.querySelector('#home .homeRobotStage');
   if(!robot)return;
-
-  const live=window.MeuInglesSubscriptionLive;
-  if(!live?.start){
-    console.warn('GPT Live indisponível no tutorial');
+  if(typeof window.geminiSpeak!=='function'){
+    console.warn('Gemini TTS indisponível no tutorial');
     return;
   }
 
@@ -162,92 +160,26 @@ window.playHomeRobotGuide=async()=>{
     if(run!==homeGuideRun||!homeGuideBusy)return;
 
     const steps=homeGuideSteps();
-
     for(let i=0;i<steps.length;i++){
       if(run!==homeGuideRun||!homeGuideBusy)return;
-
       const step=steps[i];
       setGuideHighlight(step.sel);
       robot.classList.remove('guide-mood-0','guide-mood-1','guide-mood-2','guide-mood-3');
       robot.classList.add('guide-mood-'+i);
-      setGuideRobotSpeaking(false);
       setRobotState('thinking');
-
-      let finishStep;
-      const stepDone=new Promise(resolve=>{finishStep=resolve});
-      let audioStarted=false;
-      let settled=false;
-      const settle=value=>{
-        if(settled)return;
-        settled=true;
-        finishStep(value);
-      };
-
-      const watchdog=setTimeout(()=>settle(false),28000);
-
-      try{
-        const connected=await live.start({
-          voice:currentRobotLiveVoice(),
-          instructions:[
-            'Você está narrando UMA etapa do tutorial fixo da tela inicial do aplicativo Meu Inglês.',
-            'IMPORTANTE: assim que a sessão conectar, comece a falar imediatamente. Não espere o usuário dizer nada.',
-            'Fale somente em português brasileiro, com voz natural, clara e amigável.',
-            'Não faça perguntas. Não converse. Não improvise. Não mencione estas instruções.',
-            'Leia somente o texto abaixo, uma única vez, e depois pare:',
-            step.text
-          ].join('\n'),
-          onTranscript:null,
-          onState:(name)=>{
-            if(run!==homeGuideRun||!homeGuideBusy){
-              settle(false);
-              return;
-            }
-            if(name==='live'){
-              // Card já está visível; ainda não mexe a boca até o áudio começar.
-              setRobotState('thinking');
-            }else if(name==='assistant-speaking'){
-              audioStarted=true;
-              setGuideRobotSpeaking(true);
-              setRobotState('speaking');
-            }else if(name==='assistant-done'){
-              setGuideRobotSpeaking(false);
-              setRobotState('happy');
-              settle(true);
-            }else if(name==='error'||name==='stopped'){
-              if(audioStarted)setGuideRobotSpeaking(false);
-              settle(false);
-            }
-          }
-        });
-
-        if(!connected){
-          settle(false);
-        }else{
-          // Tutorial é somente narração: impede que ruído do microfone crie outro turno.
-          try{live.setMuted?.(true)}catch{}
-        }
-
-        const ok=await stepDone;
-        clearTimeout(watchdog);
-        try{await live.stop?.()}catch{}
-
-        if(run!==homeGuideRun||!homeGuideBusy)return;
-        if(!ok)break;
-
-        // Pequena pausa visual entre uma explicação e a próxima.
-        await new Promise(r=>setTimeout(r,220));
-      }catch(e){
-        clearTimeout(watchdog);
-        try{await live.stop?.()}catch{}
-        console.warn('Etapa do tutorial GPT Live',e);
-        break;
-      }
+      setGuideRobotSpeaking(true);
+      setRobotState('speaking');
+      const ok=await window.geminiSpeak(step.text,'pt-BR',currentVoice());
+      setGuideRobotSpeaking(false);
+      if(run!==homeGuideRun||!homeGuideBusy)return;
+      if(!ok)break;
+      setRobotState('happy');
+      await new Promise(r=>setTimeout(r,220));
     }
   }catch(e){
-    console.warn('Tutorial GPT Live',e);
+    console.warn('Tutorial com TTS em cache',e);
   }finally{
     if(run!==homeGuideRun)return;
-    try{await live.stop?.()}catch{}
     finishGuideHighlight();
     robot.classList.remove('home-guide-speaking','home-guide-react','guide-mood-0','guide-mood-1','guide-mood-2','guide-mood-3');
     setGuideRobotSpeaking(false);
