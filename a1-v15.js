@@ -98,69 +98,99 @@ function firstContactLesson(n){
  ];
  return L[n]||L[0];
 }
+const MODULE_TWO_TITLES=[
+ 'Meu nome é…',
+ 'Qual é o seu nome?',
+ 'Prazer em conhecer você',
+ 'I am / I’m',
+ 'De onde você é?',
+ 'Como se soletra seu nome?',
+ 'Desafio: apresentação',
+ 'Minha apresentação completa'
+];
+
 function secondContactLesson(n){
  const L=[
-  {title:'Meu nome é…',steps:[
-   {t:'phrase',x:{e:'🙂',en:'My name is Cláudio.',pt:'Meu nome é Cláudio. · Ouça e repita.'}},
-   {t:'phrase',x:{e:'👋',en:"I'm Cláudio.",pt:'Eu sou Cláudio. · Forma curta e natural.'}},
-   {t:'choice',q:'“My name is…” significa:',ans:'Meu nome é…',op:['Meu nome é…','Como você está?','Até logo.'],audio:'My name is Cláudio.'},
-   {t:'build',q:'Monte a frase:',pt:'Meu nome é Cláudio.',target:'My name is Cláudio.',tokens:['My','name','is','Cláudio.']},
-   {t:'guided',q:'Hello! My name is Anna. E você?',ans:'My name is Cláudio.',op:['My name is Cláudio.','Goodbye!','I am fine.']},
-   {t:'review',items:[{e:'🙂',en:'My name is Cláudio.',pt:'Meu nome é Cláudio.'},{e:'👋',en:"I'm Cláudio.",pt:'Eu sou Cláudio.'}]}
+  {title:MODULE_TWO_TITLES[0],steps:[
+   {t:'choice',q:'Revisão rápida: alguém disse “Hello!”. Qual resposta combina?',ans:'Hi!',op:['Hi!','Goodbye!','Thank you.'],audio:'Hello!'},
+   {t:'phrase',x:{e:'🙂',en:'My name is Alex.',pt:'Meu nome é Alex. · Ouça e repita.'}},
+   {t:'phrase',x:{e:'👋',en:"I'm Alex.",pt:'Eu sou Alex. · Forma curta e natural.'}},
+   {t:'choice',q:'“My name is…” significa:',ans:'Meu nome é…',op:['Meu nome é…','Como você está?','Até logo.'],audio:'My name is Alex.'},
+   {t:'build',q:'Monte a frase:',pt:'Meu nome é Alex.',target:'My name is Alex.',tokens:['My','name','is','Alex.']},
+   {t:'guided',q:'Hello! My name is Anna. E você?',ans:'My name is Alex.',op:['My name is Alex.','Goodbye!','I am fine.']},
+   {t:'guided',q:'How are you?',ans:"I'm good.",op:["I'm good.",'My name is Alex.','See you!']},
+   {t:'review',items:[{e:'👋',en:'Hello!',pt:'Olá!'},{e:'🙂',en:'My name is Alex.',pt:'Meu nome é Alex.'},{e:'💬',en:'How are you?',pt:'Como você está?'}]}
   ]},
-  {title:'Qual é o seu nome?',steps:[
+  {title:MODULE_TWO_TITLES[1],steps:[
+   {t:'choice',q:'Revisando: “My name is Alex.” significa:',ans:'Meu nome é Alex.',op:['Meu nome é Alex.','Estou bem.','Até logo.'],audio:'My name is Alex.'},
    {t:'phrase',x:{e:'❓',en:"What's your name?",pt:'Qual é o seu nome?'}},
    {t:'choice',q:'Qual pergunta você ouviu?',ans:"What's your name?",op:["What's your name?",'How are you?','Where are you?'],audio:"What's your name?"},
    {t:'choice',q:'“What’s your name?” significa:',ans:'Qual é o seu nome?',op:['Qual é o seu nome?','Como você está?','De onde você é?']},
    {t:'build',q:'Monte a pergunta:',pt:'Qual é o seu nome?',target:"What's your name?",tokens:["What's",'your','name?']},
-   {t:'guided',q:"What's your name?",ans:'My name is Cláudio.',op:['My name is Cláudio.','Good morning!','See you!']},
-   {t:'review',items:[{e:'❓',en:"What's your name?",pt:'Qual é o seu nome?'},{e:'🙂',en:'My name is Cláudio.',pt:'Meu nome é Cláudio.'}]}
+   {t:'guided',q:"What's your name?",ans:'My name is Alex.',op:['My name is Alex.','Good morning!','See you!']},
+   {t:'guided',q:'Hello! What’s your name?',ans:'My name is Alex.',op:['My name is Alex.',"I'm fine.",'Goodbye!']},
+   {t:'review',items:[{e:'❓',en:"What's your name?",pt:'Qual é o seu nome?'},{e:'🙂',en:'My name is Alex.',pt:'Meu nome é Alex.'},{e:'👋',en:'Hello!',pt:'Olá!'}]}
   ]},
-  {title:'Prazer em conhecer você',steps:[
+  {title:MODULE_TWO_TITLES[2],steps:[
+   {t:'guided',q:"What's your name?",ans:'My name is Alex.',op:['My name is Alex.',"I'm okay.",'Goodbye!']},
    {t:'phrase',x:{e:'🤝',en:'Nice to meet you.',pt:'Prazer em conhecer você.'}},
    {t:'phrase',x:{e:'😊',en:'Nice to meet you too.',pt:'Prazer em conhecer você também.'}},
    {t:'choice',q:'Qual resposta combina com “Nice to meet you”?',ans:'Nice to meet you too.',op:['Nice to meet you too.','Goodbye!','My name is…'],audio:'Nice to meet you.'},
-   {t:'choice',q:'Qual figura combina com essa expressão?',ans:'🤝 Duas pessoas se conhecendo',op:['🤝 Duas pessoas se conhecendo','🚗 Um carro','🍽️ Uma refeição']},
-   {t:'guided',q:'My name is Anna. Nice to meet you.',ans:'Nice to meet you too.',op:['Nice to meet you too.','How are you?','Good evening!']},
-   {t:'review',items:[{e:'🤝',en:'Nice to meet you.',pt:'Prazer em conhecer você.'},{e:'😊',en:'Nice to meet you too.',pt:'Prazer em conhecer você também.'}]}
+   {t:'guided',q:'Hello! My name is Anna. Nice to meet you.',ans:'Nice to meet you too.',op:['Nice to meet you too.','How are you?','Good evening!']},
+   {t:'choice',q:'Revisão antiga: “And you?” significa:',ans:'E você?',op:['E você?','Qual é seu nome?','Até logo.'],audio:'And you?'},
+   {t:'build',q:'Monte a frase:',pt:'Prazer em conhecer você.',target:'Nice to meet you.',tokens:['Nice','to','meet','you.']},
+   {t:'review',items:[{e:'🤝',en:'Nice to meet you.',pt:'Prazer em conhecer você.'},{e:'❓',en:"What's your name?",pt:'Qual é o seu nome?'},{e:'👉',en:'And you?',pt:'E você?'}]}
   ]},
-  {title:'I am / I’m',steps:[
-   {t:'phrase',x:{e:'🗣️',en:'I am Cláudio.',pt:'Eu sou Cláudio.'}},
-   {t:'phrase',x:{e:'⚡',en:"I'm Cláudio.",pt:'Eu sou Cláudio. · Forma contraída.'}},
+  {title:MODULE_TWO_TITLES[3],steps:[
+   {t:'guided',q:'Nice to meet you.',ans:'Nice to meet you too.',op:['Nice to meet you too.','See you!','Thank you.']},
+   {t:'phrase',x:{e:'🗣️',en:'I am Alex.',pt:'Eu sou Alex.'}},
+   {t:'phrase',x:{e:'⚡',en:"I'm Alex.",pt:'Eu sou Alex. · Forma contraída.'}},
    {t:'choice',q:'Qual forma curta significa “I am”?',ans:"I'm",op:["I'm",'My','You']},
-   {t:'choice',q:'Qual frase você ouviu?',ans:"I'm Cláudio.",op:["I'm Cláudio.",'My name Anna.','You are Cláudio.'],audio:"I'm Cláudio."},
-   {t:'build',q:'Monte a forma curta:',pt:'Eu sou Cláudio.',target:"I'm Cláudio.",tokens:["I'm",'Cláudio.']},
-   {t:'review',items:[{e:'🗣️',en:'I am Cláudio.',pt:'Eu sou Cláudio.'},{e:'⚡',en:"I'm Cláudio.",pt:'Eu sou Cláudio.'}]}
+   {t:'choice',q:'Qual frase você ouviu?',ans:"I'm Alex.",op:["I'm Alex.",'My name Anna.','You are Alex.'],audio:"I'm Alex."},
+   {t:'build',q:'Monte a forma curta:',pt:'Eu sou Alex.',target:"I'm Alex.",tokens:["I'm",'Alex.']},
+   {t:'choice',q:'Lembra da aula anterior? Qual frase significa “Meu nome é Alex”?',ans:'My name is Alex.',op:['My name is Alex.',"I'm fine.",'Nice to meet you.']},
+   {t:'review',items:[{e:'🗣️',en:'I am Alex.',pt:'Eu sou Alex.'},{e:'⚡',en:"I'm Alex.",pt:'Eu sou Alex.'},{e:'🙂',en:'My name is Alex.',pt:'Meu nome é Alex.'}]}
   ]},
-  {title:'De onde você é?',steps:[
+  {title:MODULE_TWO_TITLES[4],steps:[
+   {t:'choice',q:'Revisão: qual pergunta pede o nome?',ans:"What's your name?",op:["What's your name?",'How are you?','Where are you from?'],audio:"What's your name?"},
    {t:'phrase',x:{e:'🌎',en:'Where are you from?',pt:'De onde você é?'}},
    {t:'phrase',x:{e:'🇧🇷',en:"I'm from Brazil.",pt:'Eu sou do Brasil.'}},
    {t:'choice',q:'“Where are you from?” significa:',ans:'De onde você é?',op:['De onde você é?','Qual é seu nome?','Como você está?'],audio:'Where are you from?'},
    {t:'guided',q:'Where are you from?',ans:"I'm from Brazil.",op:["I'm from Brazil.",'My name is Brazil.','Goodbye!']},
    {t:'build',q:'Monte a resposta:',pt:'Eu sou do Brasil.',target:"I'm from Brazil.",tokens:["I'm",'from','Brazil.']},
-   {t:'review',items:[{e:'🌎',en:'Where are you from?',pt:'De onde você é?'},{e:'🇧🇷',en:"I'm from Brazil.",pt:'Eu sou do Brasil.'}]}
+   {t:'guided',q:'Hello! What’s your name?',ans:'My name is Alex.',op:['My name is Alex.',"I'm from Brazil.",'See you!']},
+   {t:'review',items:[{e:'🌎',en:'Where are you from?',pt:'De onde você é?'},{e:'🇧🇷',en:"I'm from Brazil.",pt:'Eu sou do Brasil.'},{e:'👋',en:'Hello!',pt:'Olá!'}]}
   ]},
-  {title:'Como se soletra seu nome?',steps:[
+  {title:MODULE_TWO_TITLES[5],steps:[
+   {t:'guided',q:'Where are you from?',ans:"I'm from Brazil.",op:["I'm from Brazil.",'Nice to meet you.','Goodbye!']},
    {t:'phrase',x:{e:'🔤',en:'How do you spell your name?',pt:'Como se soletra seu nome?'}},
-   {t:'phrase',x:{e:'🔡',en:'C-L-A-U-D-I-O.',pt:'C-L-A-U-D-I-O.'}},
+   {t:'phrase',x:{e:'🔡',en:'A-L-E-X.',pt:'A-L-E-X.'}},
    {t:'choice',q:'Qual pergunta pede para soletrar?',ans:'How do you spell your name?',op:['How do you spell your name?',"What's your name?",'How are you?'],audio:'How do you spell your name?'},
-   {t:'guided',q:'How do you spell your name?',ans:'C-L-A-U-D-I-O.',op:['C-L-A-U-D-I-O.','Brazil.','Nice to meet you.']},
-   {t:'review',items:[{e:'🔤',en:'How do you spell your name?',pt:'Como se soletra seu nome?'},{e:'🔡',en:'C-L-A-U-D-I-O.',pt:'C-L-A-U-D-I-O.'}]}
+   {t:'guided',q:'How do you spell your name?',ans:'A-L-E-X.',op:['A-L-E-X.','Brazil.','Nice to meet you.']},
+   {t:'choice',q:'Revisão do primeiro módulo: qual expressão encerra uma conversa?',ans:'See you!',op:['See you!','How are you?','Hello!'],audio:'See you!'},
+   {t:'build',q:'Monte a pergunta:',pt:'Como se soletra seu nome?',target:'How do you spell your name?',tokens:['How','do','you','spell','your','name?']},
+   {t:'review',items:[{e:'🔤',en:'How do you spell your name?',pt:'Como se soletra seu nome?'},{e:'❓',en:"What's your name?",pt:'Qual é o seu nome?'},{e:'✨',en:'See you!',pt:'Até mais!'}]}
   ]},
-  {title:'Desafio: apresentação',steps:[
-   {t:'choice',q:'Escute e escolha a pergunta.',ans:"What's your name?",op:["What's your name?",'Where are you from?','How are you?'],audio:"What's your name?"},
-   {t:'guided',q:"What's your name?",ans:'My name is Cláudio.',op:['My name is Cláudio.',"I'm from Brazil.",'See you!']},
+  {title:MODULE_TWO_TITLES[6],steps:[
+   {t:'choice',q:'Começando pelo que você já sabe: escolha a saudação correta.',ans:'Hello!',op:['Hello!','Goodbye!','Thank you.'],audio:'Hello!'},
+   {t:'guided',q:"What's your name?",ans:'My name is Alex.',op:['My name is Alex.',"I'm from Brazil.",'See you!']},
    {t:'guided',q:'Where are you from?',ans:"I'm from Brazil.",op:["I'm from Brazil.",'Nice to meet you.','Good morning!']},
+   {t:'guided',q:'Nice to meet you.',ans:'Nice to meet you too.',op:['Nice to meet you too.',"I'm fine.",'Goodbye!']},
+   {t:'choice',q:'How are you?',ans:"I'm fine.",op:["I'm fine.",'My name is Alex.',"I'm from Brazil."],audio:'How are you?'},
    {t:'build',q:'Monte a frase:',pt:'Prazer em conhecer você.',target:'Nice to meet you.',tokens:['Nice','to','meet','you.']},
-   {t:'review',items:[{e:'❓',en:"What's your name?",pt:'Qual é o seu nome?'},{e:'🇧🇷',en:"I'm from Brazil.",pt:'Eu sou do Brasil.'},{e:'🤝',en:'Nice to meet you.',pt:'Prazer em conhecer você.'}]}
+   {t:'choice',q:'Você está indo embora. O que diz?',ans:'See you!',op:['See you!','What’s your name?','Nice to meet you.']},
+   {t:'review',items:[{e:'👋',en:'Hello!',pt:'Olá!'},{e:'🙂',en:'My name is Alex.',pt:'Meu nome é Alex.'},{e:'🇧🇷',en:"I'm from Brazil.",pt:'Eu sou do Brasil.'},{e:'👋',en:'See you!',pt:'Até mais!'}]}
   ]},
-  {title:'Minha apresentação completa',steps:[
-   {t:'phrase',x:{e:'✨',en:'Hello! My name is Cláudio.',pt:'Olá! Meu nome é Cláudio.'}},
-   {t:'guided',q:"What's your name?",ans:'My name is Cláudio.',op:['My name is Cláudio.',"I'm from Brazil.",'Goodbye!']},
-   {t:'guided',q:'Where are you from?',ans:"I'm from Brazil.",op:["I'm from Brazil.",'My name is Brazil.','Thank you.']},
+  {title:MODULE_TWO_TITLES[7],steps:[
+   {t:'phrase',x:{e:'✨',en:'Hello! My name is Alex.',pt:'Olá! Meu nome é Alex. · Missão final do módulo.'}},
+   {t:'guided',q:'Hello! How are you?',ans:"I'm good.",op:["I'm good.",'My name is Alex.','Goodbye!']},
+   {t:'guided',q:"What's your name?",ans:'My name is Alex.',op:['My name is Alex.',"I'm from Brazil.",'Thank you.']},
+   {t:'guided',q:'Where are you from?',ans:"I'm from Brazil.",op:["I'm from Brazil.",'My name is Brazil.','Goodbye!']},
    {t:'guided',q:'Nice to meet you.',ans:'Nice to meet you too.',op:['Nice to meet you too.','Goodbye!','How are you?']},
-   {t:'build',q:'Monte sua apresentação:',pt:'Olá! Meu nome é Cláudio.',target:'Hello! My name is Cláudio.',tokens:['Hello!','My','name','is','Cláudio.']},
-   {t:'review',items:[{e:'👋',en:'Hello!',pt:'Olá!'},{e:'🙂',en:'My name is Cláudio.',pt:'Meu nome é Cláudio.'},{e:'🇧🇷',en:"I'm from Brazil.",pt:'Eu sou do Brasil.'},{e:'🤝',en:'Nice to meet you.',pt:'Prazer em conhecer você.'}]}
+   {t:'guided',q:'How do you spell your name?',ans:'A-L-E-X.',op:['A-L-E-X.','Brazil.','See you!']},
+   {t:'build',q:'Monte sua apresentação:',pt:'Olá! Meu nome é Alex.',target:'Hello! My name is Alex.',tokens:['Hello!','My','name','is','Alex.']},
+   {t:'guided',q:'Goodbye!',ans:'See you!',op:['See you!','How are you?','Thank you.']},
+   {t:'review',items:[{e:'👋',en:'Hello!',pt:'Olá!'},{e:'💬',en:'How are you?',pt:'Como você está?'},{e:'🙂',en:'My name is Alex.',pt:'Meu nome é Alex.'},{e:'🇧🇷',en:"I'm from Brazil.",pt:'Eu sou do Brasil.'},{e:'🤝',en:'Nice to meet you.',pt:'Prazer em conhecer você.'},{e:'👋',en:'See you!',pt:'Até mais!'}]}
   ]}
  ];
  return L[n]||L[0];
@@ -310,7 +340,7 @@ window.a15Check=()=>{const s=run.lesson.steps[run.i],v=run.built.join(' ');run.c
 function start(m,n){if(m===1&&!unlocked(m,n))return;const l=lesson(m,n),pct=progress(m,n),i=done(m,n)?0:Math.min(l.steps.length-1,Math.floor(pct/100*l.steps.length));run={m,n,i,lesson:l,built:[],used:[],checked:false,ok:false};render()}
 function finish(){const s=state();s.done=s.done&&typeof s.done==='object'?s.done:{};s.progress=s.progress&&typeof s.progress==='object'?s.progress:{};const k=`A1-${run.m}-${run.n}`;s.progress[k]=100;if(!s.done[k]){s.done[k]=true;s.xp=(Number(s.xp)||0)+30}s.level='A1';save(s);sessionStorage.setItem('a15back',String(run.m));location.reload()}
 window.a15Finish=finish;
-function title(m,n){if(m===0&&START[n])return START[n];return item(m,n)?.title||`Lição ${n+1}`}
+function title(m,n){if(m===0&&START[n])return START[n];if(m===1&&MODULE_TWO_TITLES[n])return MODULE_TWO_TITLES[n];return item(m,n)?.title||`Lição ${n+1}`}
 function done(m,n){return !!state().done?.[`A1-${m}-${n}`]}
 function unlocked(m,n){return n===0||done(m,n-1)||progress(m,n)>0}
 const FIRST_CONTACTS_ART=['👋','🌅','💬','🙂','🙏','👋','🎮','✨'];
