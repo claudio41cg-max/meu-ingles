@@ -29,7 +29,7 @@ function firstContactLesson(n){
    {t:'phrase',x:{e:'👋',en:'Hello!',pt:'Olá! · Ouça e repita em voz alta.'}},
    {t:'phrase',x:{e:'🙂',en:'Hi!',pt:'Oi! · Forma curta e informal.'}},
    {t:'choice',q:'“Hello!” significa:',ans:'Olá!',op:['Olá!','Obrigado.','Até logo.'],audio:'Hello!'},
-   {t:'choice',q:'Qual figura combina com uma saudação?',ans:'👋 Olá!',op:['👋 Olá!','☕ Café','🚗 Carro']},
+   {t:'choice',q:'Qual figura combina com uma saudação?',ans:'👋 Hello!',op:['👋 Hello!','☕ Coffee','🚗 Car']},
    {t:'choice',q:'Qual expressão você ouviu?',ans:'Hello!',op:['Hello!','Goodbye!','Thank you.'],audio:'Hello!'},
    {t:'guided',q:'Uma pessoa disse “Hello!”. O que combina como resposta?',ans:'Hi!',op:['Hi!','Goodbye!','No, thank you.']},
    {t:'review',items:[{e:'👋',en:'Hello!',pt:'Olá!'},{e:'🙂',en:'Hi!',pt:'Oi!'}]}
@@ -40,13 +40,13 @@ function firstContactLesson(n){
    {t:'phrase',x:{e:'🌙',en:'Good evening!',pt:'Boa noite! · Ouça e repita.'}},
    {t:'choice',q:'08:00 ☀️ — qual cumprimento combina?',ans:'Good morning!',op:['Good morning!','Good afternoon!','Good evening!'],audio:'Good morning!'},
    {t:'choice',q:'19:30 🌙 — qual cumprimento combina?',ans:'Good evening!',op:['Good morning!','Good afternoon!','Good evening!'],audio:'Good evening!'},
-   {t:'choice',q:'Qual figura representa “Good morning”?',ans:'🌅 Manhã',op:['🌅 Manhã','🌙 Noite','🍽️ Comida']},
+   {t:'choice',q:'Qual figura representa “Good morning”?',ans:'🌅 Good morning!',op:['🌅 Good morning!','🌙 Good evening!','🍽️ Food']},
    {t:'review',items:[{e:'🌅',en:'Good morning!',pt:'Bom dia!'},{e:'☀️',en:'Good afternoon!',pt:'Boa tarde!'},{e:'🌙',en:'Good evening!',pt:'Boa noite!'}]}
   ]},
   {title:'How are you?',steps:[
    {t:'phrase',x:{e:'💬',en:'How are you?',pt:'Como você está? · Ouça e repita.'}},
    {t:'choice',q:'“How are you?” significa:',ans:'Como você está?',op:['Como você está?','Qual é seu nome?','Onde fica?'],audio:'How are you?'},
-   {t:'choice',q:'Qual cena combina com essa pergunta?',ans:'🙂 Perguntando como alguém está',op:['🙂 Perguntando como alguém está','🚗 Pedindo um carro','🍞 Pedindo pão']},
+   {t:'choice',q:'Qual resposta combina com “How are you?”?',ans:"🙂 I'm good.",op:["🙂 I'm good.",'👋 Goodbye!','🙏 Thank you.']},
    {t:'choice',q:'Qual pergunta você ouviu?',ans:'How are you?',op:['How are you?','What’s your name?','Goodbye!'],audio:'How are you?'},
    {t:'build',q:'Monte a pergunta em inglês:',pt:'Como você está?',target:'How are you?',tokens:['How','are','you?']},
    {t:'review',items:[{e:'💬',en:'How are you?',pt:'Como você está?'}]}
@@ -56,7 +56,7 @@ function firstContactLesson(n){
    {t:'phrase',x:{e:'😊',en:"I'm fine.",pt:'Estou bem. · Outra resposta comum.'}},
    {t:'phrase',x:{e:'👌',en:"I'm okay.",pt:'Estou bem / estou legal.'}},
    {t:'guided',q:'How are you?',ans:"I'm good.",op:["I'm good.",'Goodbye!','My name is…']},
-   {t:'choice',q:'Qual figura combina com “I’m good”?',ans:'🙂 Estou bem',op:['🙂 Estou bem','😴 Estou dormindo','🍽️ Estou comendo']},
+   {t:'choice',q:'Qual frase em inglês significa “Estou bem”?',ans:"🙂 I'm good.",op:["🙂 I'm good.",'👋 Goodbye!','🌅 Good morning!']},
    {t:'choice',q:'Qual resposta você ouviu?',ans:"I'm fine.",op:["I'm fine.","I'm okay.",'Goodbye!'],audio:"I'm fine."},
    {t:'review',items:[{e:'🙂',en:"I'm good.",pt:'Estou bem.'},{e:'😊',en:"I'm fine.",pt:'Estou bem.'},{e:'👌',en:"I'm okay.",pt:'Estou legal.'}]}
   ]},
@@ -65,7 +65,7 @@ function firstContactLesson(n){
    {t:'phrase',x:{e:'👉',en:'And you?',pt:'E você? · Use para devolver a pergunta.'}},
    {t:'phrase',x:{e:'🙂',en:"I'm fine, thank you. And you?",pt:'Estou bem, obrigado. E você?'}},
    {t:'choice',q:'“And you?” significa:',ans:'E você?',op:['E você?','Qual é seu nome?','Até logo.'],audio:'And you?'},
-   {t:'choice',q:'Qual figura combina com “Thank you”?',ans:'🙏 Agradecimento',op:['🙏 Agradecimento','🚗 Transporte','🏠 Casa']},
+   {t:'choice',q:'Qual expressão em inglês combina com um agradecimento?',ans:'🙏 Thank you.',op:['🙏 Thank you.','🚗 Car','🏠 House']},
    {t:'build',q:'Monte a frase:',pt:'Obrigado. E você?',target:'Thank you. And you?',tokens:['Thank','you.','And','you?']},
    {t:'review',items:[{e:'🙏',en:'Thank you.',pt:'Obrigado.'},{e:'👉',en:'And you?',pt:'E você?'}]}
   ]},
@@ -74,7 +74,7 @@ function firstContactLesson(n){
    {t:'phrase',x:{e:'🙋',en:'Bye!',pt:'Tchau!'}},
    {t:'phrase',x:{e:'✨',en:'See you!',pt:'Até mais!'}},
    {t:'choice',q:'Você está indo embora. Qual expressão combina?',ans:'See you!',op:['Hello!','See you!','Good morning!'],audio:'See you!'},
-   {t:'choice',q:'Qual figura representa uma despedida?',ans:'👋 Tchau',op:['👋 Tchau','☕ Café','🏠 Casa']},
+   {t:'choice',q:'Qual expressão em inglês representa uma despedida?',ans:'👋 Goodbye!',op:['👋 Goodbye!','☕ Coffee','🏠 House']},
    {t:'guided',q:'A outra pessoa disse “Goodbye!”. Responda:',ans:'See you!',op:['See you!','How are you?','Thank you.']},
    {t:'review',items:[{e:'👋',en:'Goodbye!',pt:'Até logo!'},{e:'🙋',en:'Bye!',pt:'Tchau!'},{e:'✨',en:'See you!',pt:'Até mais!'}]}
   ]},
@@ -82,7 +82,7 @@ function firstContactLesson(n){
    {t:'choice',q:'Escute e escolha.',ans:'Good evening!',op:['Good morning!','Good evening!','Goodbye!'],audio:'Good evening!'},
    {t:'choice',q:'How are you?',ans:'Como você está?',op:['Como você está?','Qual é seu nome?','Onde fica?']},
    {t:'guided',q:'How are you?',ans:"I'm fine.",op:["I'm fine.",'Goodbye!','Thank you.']},
-   {t:'choice',q:'Qual figura combina com “Thank you”?',ans:'🙏 Obrigado',op:['🙏 Obrigado','🌙 Boa noite','🚗 Carro']},
+   {t:'choice',q:'Qual expressão em inglês significa “Obrigado”?',ans:'🙏 Thank you.',op:['🙏 Thank you.','🌙 Good evening!','🚗 Car']},
    {t:'build',q:'Monte a resposta:',pt:'Estou bem, obrigado.',target:"I'm fine, thank you.",tokens:["I'm",'fine,','thank','you.']},
    {t:'review',items:[{e:'👋',en:'Hello!',pt:'Olá!'},{e:'💬',en:'How are you?',pt:'Como você está?'},{e:'🙏',en:'Thank you.',pt:'Obrigado.'},{e:'👋',en:'Goodbye!',pt:'Até logo!'}]}
   ]},
@@ -92,7 +92,7 @@ function firstContactLesson(n){
    {t:'guided',q:'How are you?',ans:"I'm good.",op:["I'm good.",'Hello!','Goodbye!']},
    {t:'guided',q:"I'm fine, thank you. And you?",ans:"I'm good.",op:["I'm good.",'Goodbye!','Good morning!']},
    {t:'guided',q:'Goodbye!',ans:'See you!',op:['See you!','How are you?','Thank you.']},
-   {t:'choice',q:'Qual sequência representa uma conversa completa?',ans:'👋 Olá → 🙂 Estou bem → 👋 Até mais',op:['👋 Olá → 🙂 Estou bem → 👋 Até mais','🍽️ Comida → 🚗 Carro → 🏠 Casa','🔢 Um → 💲 Preço → 🌙 Noite']},
+   {t:'choice',q:'Qual sequência representa uma conversa completa?',ans:"👋 Hello! → 🙂 I'm good. → 👋 See you!",op:["👋 Hello! → 🙂 I'm good. → 👋 See you!",'🍽️ Food → 🚗 Car → 🏠 House','🌅 Good morning! → 🙏 Thank you. → 👋 Hello!']},
    {t:'review',items:[{e:'👋',en:'Hello!',pt:'Olá!'},{e:'💬',en:'How are you?',pt:'Como você está?'},{e:'🙂',en:"I'm good.",pt:'Estou bem.'},{e:'👋',en:'See you!',pt:'Até mais!'}]}
   ]}
  ];
@@ -334,6 +334,29 @@ const next=()=>`<div class="b14Footer"><button class="b14Next" onclick="a15Next(
 window.a15Next=()=>{if(++run.i>=run.lesson.steps.length)return finish();saveProgress(run.m,run.n,Math.round(run.i/run.lesson.steps.length*100));run.built=[];run.checked=false;run.used=[];render()};
 window.a15Prev=()=>{if(!run||run.i<=0)return;window.a15Jump(-1)};
 window.a15Jump=delta=>{if(!run)return;const d=Number(delta)||0,ni=Math.max(0,Math.min(run.lesson.steps.length-1,run.i+d));if(ni===run.i)return;run.i=ni;if(d>0)saveProgress(run.m,run.n,Math.round(run.i/run.lesson.steps.length*100));run.built=[];run.checked=false;run.ok=false;run.used=[];render(false)};
+function looksPortugueseText(text){
+ const t=String(text||'').toLowerCase();
+ if(/[áàâãéêíóôõúç]/.test(t))return true;
+ return /\b(ola|olá|obrigado|obrigada|estou|meu|minha|voce|você|como|onde|ate|até|sim|nao|não|prazer|bom dia|boa tarde|boa noite|tchau|casa|carro|cafe|café|comida|transporte|agradecimento)\b/.test(t);
+}
+function cleanOptionAudio(text){
+ return String(text||'')
+   .replace(/[\u{1F300}-\u{1FAFF}\u2600-\u27BF]/gu,' ')
+   .replace(/^[\s→•·-]+|[\s→•·-]+$/g,'')
+   .replace(/\s+/g,' ')
+   .trim();
+}
+function optionShouldSpeak(step,value){
+ if(step?.t==='guided')return true;
+ if(step?.t!=='choice')return false;
+ return !looksPortugueseText(step?.ans||'') && !looksPortugueseText(value);
+}
+async function speakChosenOption(step,value){
+ if(!optionShouldSpeak(step,value))return;
+ const txt=cleanOptionAudio(value);
+ if(txt)await speak(txt,'en-US',false);
+}
+
 function guidedAudioText(q){
  const text=String(q||'').trim();
  if(!text)return'';
@@ -352,7 +375,19 @@ else if(s.t==='guided'){const ga=guidedAudioText(s.q);h=`<h2>${esc(s.q)}</h2>${g
 else if(s.t==='build'){const exp=s.target.split(/\s+/),ans=run.built.map((x,i)=>`<span class="b14Token ${run.checked?(x===exp[i]?'correct':'wrong'):''}">${esc(x)}</span>`).join('');h=`<h2>${esc(s.q)}</h2><div class="b14Translation" style="font-size:28px;color:#fff;font-weight:850">${esc(s.pt)}</div><div class="b14Answer">${ans||'<span style="color:#8198aa">Toque nas palavras</span>'}</div><div class="b14Bank">${s.tokens.map((x,i)=>`<button onclick="a15Pick(${i})" ${run.used?.includes(i)?'disabled class="used"':''}>${esc(x)}</button>`).join('')}</div><div class="b14Actions"><button class="b14Clear" onclick="a15Clear()">Limpar</button><button class="b14Check" onclick="a15Check()">Verificar</button></div>${run.checked&&!run.ok?`<div class="b14CorrectOrder">Correto: ${esc(s.target)}</div>`:''}<div id="a15Feedback"></div>${run.checked&&run.ok?next():run.checked&&!run.ok?`<div class="b14Footer"><button class="b14Next blue" onclick="a15Clear()">Tentar de novo</button>${prevButton()}</div>`:''}`}
 else{h=`<h2>Você já conhece isso</h2><div class="b14Review">${s.items.map(x=>`<button class="b14Mini" onclick="a15Speak('${enc(x.en)}')"><span>${x.e||'🔁'}</span><b>${esc(x.en)}</b><small>${esc(x.pt)}</small></button>`).join('')}</div><div class="b14Footer"><button class="b14Next" onclick="a15Finish()">Concluir aula · +30 XP</button></div>`}
 $('#courseBody').innerHTML=shell(h);if(keepY===null)window.scrollTo(0,0);else requestAnimationFrame(()=>requestAnimationFrame(()=>window.scrollTo(0,keepY)));if(autoSpeakTimer){clearTimeout(autoSpeakTimer);autoSpeakTimer=null}if((s.t==='learn'||s.t==='phrase')&&s.x)autoSpeakTimer=setTimeout(()=>{autoSpeakTimer=null;speak(s.x.en)},250);if(s.t==='choice'&&s.audio)autoSpeakTimer=setTimeout(()=>{autoSpeakTimer=null;speak(s.audio)},250);if(s.t==='guided'){const ga=guidedAudioText(s.q);if(ga)autoSpeakTimer=setTimeout(()=>{autoSpeakTimer=null;speak(ga)},250)}}
-window.a15Answer=e=>{const s=run.lesson.steps[run.i],v=decodeURIComponent(e),ok=v===s.ans;document.querySelectorAll('[data-a15]').forEach(b=>{const x=decodeURIComponent(b.dataset.a15);if(x===v)b.classList.add(ok?'correct':'wrong');if(!ok&&x===s.ans)b.classList.add('correct');b.disabled=true});const f=$('#a15Feedback');if(f)f.insertAdjacentHTML('afterend',ok?next():`<div class="b14Footer"><button class="b14Next blue" onclick="a15Retry()">Tentar de novo</button>${prevButton()}</div>`);react(ok,v,s.ans)};
+window.a15Answer=async e=>{
+ const s=run.lesson.steps[run.i],v=decodeURIComponent(e),ok=v===s.ans;
+ document.querySelectorAll('[data-a15]').forEach(b=>{
+   const x=decodeURIComponent(b.dataset.a15);
+   if(x===v)b.classList.add(ok?'correct':'wrong');
+   if(!ok&&x===s.ans)b.classList.add('correct');
+   b.disabled=true;
+ });
+ const f=$('#a15Feedback');
+ if(f)f.insertAdjacentHTML('afterend',ok?next():`<div class="b14Footer"><button class="b14Next blue" onclick="a15Retry()">Tentar de novo</button>${prevButton()}</div>`);
+ await speakChosenOption(s,v);
+ react(ok,v,s.ans);
+};
 window.a15Retry=()=>render(true);
 window.a15Pick=i=>{if(run.checked)return;run.used=run.used||[];if(run.used.includes(i))return;const token=run.lesson.steps[run.i].tokens[i];run.used.push(i);run.built.push(token);render(true);speakBuildToken(token)};
 window.a15Clear=()=>{run.built=[];run.used=[];run.checked=false;run.ok=false;render(true)};
