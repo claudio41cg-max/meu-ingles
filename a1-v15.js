@@ -98,6 +98,74 @@ function firstContactLesson(n){
  ];
  return L[n]||L[0];
 }
+function secondContactLesson(n){
+ const L=[
+  {title:'Meu nome é…',steps:[
+   {t:'phrase',x:{e:'🙂',en:'My name is Cláudio.',pt:'Meu nome é Cláudio. · Ouça e repita.'}},
+   {t:'phrase',x:{e:'👋',en:"I'm Cláudio.",pt:'Eu sou Cláudio. · Forma curta e natural.'}},
+   {t:'choice',q:'“My name is…” significa:',ans:'Meu nome é…',op:['Meu nome é…','Como você está?','Até logo.'],audio:'My name is Cláudio.'},
+   {t:'build',q:'Monte a frase:',pt:'Meu nome é Cláudio.',target:'My name is Cláudio.',tokens:['My','name','is','Cláudio.']},
+   {t:'guided',q:'Hello! My name is Anna. E você?',ans:'My name is Cláudio.',op:['My name is Cláudio.','Goodbye!','I am fine.']},
+   {t:'review',items:[{e:'🙂',en:'My name is Cláudio.',pt:'Meu nome é Cláudio.'},{e:'👋',en:"I'm Cláudio.",pt:'Eu sou Cláudio.'}]}
+  ]},
+  {title:'Qual é o seu nome?',steps:[
+   {t:'phrase',x:{e:'❓',en:"What's your name?",pt:'Qual é o seu nome?'}},
+   {t:'choice',q:'Qual pergunta você ouviu?',ans:"What's your name?",op:["What's your name?",'How are you?','Where are you?'],audio:"What's your name?"},
+   {t:'choice',q:'“What’s your name?” significa:',ans:'Qual é o seu nome?',op:['Qual é o seu nome?','Como você está?','De onde você é?']},
+   {t:'build',q:'Monte a pergunta:',pt:'Qual é o seu nome?',target:"What's your name?",tokens:["What's",'your','name?']},
+   {t:'guided',q:"What's your name?",ans:'My name is Cláudio.',op:['My name is Cláudio.','Good morning!','See you!']},
+   {t:'review',items:[{e:'❓',en:"What's your name?",pt:'Qual é o seu nome?'},{e:'🙂',en:'My name is Cláudio.',pt:'Meu nome é Cláudio.'}]}
+  ]},
+  {title:'Prazer em conhecer você',steps:[
+   {t:'phrase',x:{e:'🤝',en:'Nice to meet you.',pt:'Prazer em conhecer você.'}},
+   {t:'phrase',x:{e:'😊',en:'Nice to meet you too.',pt:'Prazer em conhecer você também.'}},
+   {t:'choice',q:'Qual resposta combina com “Nice to meet you”?',ans:'Nice to meet you too.',op:['Nice to meet you too.','Goodbye!','My name is…'],audio:'Nice to meet you.'},
+   {t:'choice',q:'Qual figura combina com essa expressão?',ans:'🤝 Duas pessoas se conhecendo',op:['🤝 Duas pessoas se conhecendo','🚗 Um carro','🍽️ Uma refeição']},
+   {t:'guided',q:'My name is Anna. Nice to meet you.',ans:'Nice to meet you too.',op:['Nice to meet you too.','How are you?','Good evening!']},
+   {t:'review',items:[{e:'🤝',en:'Nice to meet you.',pt:'Prazer em conhecer você.'},{e:'😊',en:'Nice to meet you too.',pt:'Prazer em conhecer você também.'}]}
+  ]},
+  {title:'I am / I’m',steps:[
+   {t:'phrase',x:{e:'🗣️',en:'I am Cláudio.',pt:'Eu sou Cláudio.'}},
+   {t:'phrase',x:{e:'⚡',en:"I'm Cláudio.",pt:'Eu sou Cláudio. · Forma contraída.'}},
+   {t:'choice',q:'Qual forma curta significa “I am”?',ans:"I'm",op:["I'm",'My','You']},
+   {t:'choice',q:'Qual frase você ouviu?',ans:"I'm Cláudio.",op:["I'm Cláudio.",'My name Anna.','You are Cláudio.'],audio:"I'm Cláudio."},
+   {t:'build',q:'Monte a forma curta:',pt:'Eu sou Cláudio.',target:"I'm Cláudio.",tokens:["I'm",'Cláudio.']},
+   {t:'review',items:[{e:'🗣️',en:'I am Cláudio.',pt:'Eu sou Cláudio.'},{e:'⚡',en:"I'm Cláudio.",pt:'Eu sou Cláudio.'}]}
+  ]},
+  {title:'De onde você é?',steps:[
+   {t:'phrase',x:{e:'🌎',en:'Where are you from?',pt:'De onde você é?'}},
+   {t:'phrase',x:{e:'🇧🇷',en:"I'm from Brazil.",pt:'Eu sou do Brasil.'}},
+   {t:'choice',q:'“Where are you from?” significa:',ans:'De onde você é?',op:['De onde você é?','Qual é seu nome?','Como você está?'],audio:'Where are you from?'},
+   {t:'guided',q:'Where are you from?',ans:"I'm from Brazil.",op:["I'm from Brazil.",'My name is Brazil.','Goodbye!']},
+   {t:'build',q:'Monte a resposta:',pt:'Eu sou do Brasil.',target:"I'm from Brazil.",tokens:["I'm",'from','Brazil.']},
+   {t:'review',items:[{e:'🌎',en:'Where are you from?',pt:'De onde você é?'},{e:'🇧🇷',en:"I'm from Brazil.",pt:'Eu sou do Brasil.'}]}
+  ]},
+  {title:'Como se soletra seu nome?',steps:[
+   {t:'phrase',x:{e:'🔤',en:'How do you spell your name?',pt:'Como se soletra seu nome?'}},
+   {t:'phrase',x:{e:'🔡',en:'C-L-A-U-D-I-O.',pt:'C-L-A-U-D-I-O.'}},
+   {t:'choice',q:'Qual pergunta pede para soletrar?',ans:'How do you spell your name?',op:['How do you spell your name?',"What's your name?",'How are you?'],audio:'How do you spell your name?'},
+   {t:'guided',q:'How do you spell your name?',ans:'C-L-A-U-D-I-O.',op:['C-L-A-U-D-I-O.','Brazil.','Nice to meet you.']},
+   {t:'review',items:[{e:'🔤',en:'How do you spell your name?',pt:'Como se soletra seu nome?'},{e:'🔡',en:'C-L-A-U-D-I-O.',pt:'C-L-A-U-D-I-O.'}]}
+  ]},
+  {title:'Desafio: apresentação',steps:[
+   {t:'choice',q:'Escute e escolha a pergunta.',ans:"What's your name?",op:["What's your name?",'Where are you from?','How are you?'],audio:"What's your name?"},
+   {t:'guided',q:"What's your name?",ans:'My name is Cláudio.',op:['My name is Cláudio.',"I'm from Brazil.",'See you!']},
+   {t:'guided',q:'Where are you from?',ans:"I'm from Brazil.",op:["I'm from Brazil.",'Nice to meet you.','Good morning!']},
+   {t:'build',q:'Monte a frase:',pt:'Prazer em conhecer você.',target:'Nice to meet you.',tokens:['Nice','to','meet','you.']},
+   {t:'review',items:[{e:'❓',en:"What's your name?",pt:'Qual é o seu nome?'},{e:'🇧🇷',en:"I'm from Brazil.",pt:'Eu sou do Brasil.'},{e:'🤝',en:'Nice to meet you.',pt:'Prazer em conhecer você.'}]}
+  ]},
+  {title:'Minha apresentação completa',steps:[
+   {t:'phrase',x:{e:'✨',en:'Hello! My name is Cláudio.',pt:'Olá! Meu nome é Cláudio.'}},
+   {t:'guided',q:"What's your name?",ans:'My name is Cláudio.',op:['My name is Cláudio.',"I'm from Brazil.",'Goodbye!']},
+   {t:'guided',q:'Where are you from?',ans:"I'm from Brazil.",op:["I'm from Brazil.",'My name is Brazil.','Thank you.']},
+   {t:'guided',q:'Nice to meet you.',ans:'Nice to meet you too.',op:['Nice to meet you too.','Goodbye!','How are you?']},
+   {t:'build',q:'Monte sua apresentação:',pt:'Olá! Meu nome é Cláudio.',target:'Hello! My name is Cláudio.',tokens:['Hello!','My','name','is','Cláudio.']},
+   {t:'review',items:[{e:'👋',en:'Hello!',pt:'Olá!'},{e:'🙂',en:'My name is Cláudio.',pt:'Meu nome é Cláudio.'},{e:'🇧🇷',en:"I'm from Brazil.",pt:'Eu sou do Brasil.'},{e:'🤝',en:'Nice to meet you.',pt:'Prazer em conhecer você.'}]}
+  ]}
+ ];
+ return L[n]||L[0];
+}
+
 const BASE=[['☕','coffee','café'],['💧','water','água'],['🥛','milk','leite'],['🙏','please','por favor'],['👉','I want','eu quero']];
 
 const $=s=>document.querySelector(s);
@@ -196,7 +264,7 @@ function numberLesson(){
  ]};
 }
 
-function lesson(m,n){if(m===0)return firstContactLesson(n);if(m===1&&n===1)return numberLesson();const cur=item(m,n),k=known(m,n),op=options(cur,m,n),prev=k.filter(x=>x.en.toLowerCase()!==cur.en.toLowerCase()).slice(-1)[0]||{e:'☕',en:'coffee',pt:'café'};const words=cur.en.trim().split(/\s+/),review=(m===1?[cur,...(M2_DISTRACTORS[n]||[]).map(x=>({e:'🔁',en:x.en,pt:x.pt}))]:[cur,prev,...k.slice(-4).reverse()]).filter((x,i,a)=>a.findIndex(y=>y.en.toLowerCase()===x.en.toLowerCase())===i).slice(0,3);const steps=[
+function lesson(m,n){if(m===0)return firstContactLesson(n);if(m===1)return secondContactLesson(n);const cur=item(m,n),k=known(m,n),op=options(cur,m,n),prev=k.filter(x=>x.en.toLowerCase()!==cur.en.toLowerCase()).slice(-1)[0]||{e:'☕',en:'coffee',pt:'café'};const words=cur.en.trim().split(/\s+/),review=(m===1?[cur,...(M2_DISTRACTORS[n]||[]).map(x=>({e:'🔁',en:x.en,pt:x.pt}))]:[cur,prev,...k.slice(-4).reverse()]).filter((x,i,a)=>a.findIndex(y=>y.en.toLowerCase()===x.en.toLowerCase())===i).slice(0,3);const steps=[
  {t:words.length>1?'phrase':'learn',x:cur},
  {t:'choice',q:`${cur.en} significa:`,ans:cur.pt,op:sh(op.map(x=>x.pt)),audio:cur.en},
  {t:'choice',q:'Qual você ouviu?',ans:cur.en,op:sh(op.map(x=>x.en)),audio:cur.en},
@@ -219,7 +287,7 @@ function shell(inner){
    const screenTitle=document.querySelector('#course > .top h2');
    if(screenTitle)screenTitle.textContent='Tela inicial';
  }
- return `<div class="beginner14 ${run.m===0?'firstContactsLessonScreen':''} ${run.m===1?'moduleTwoLessonScreen':''}"><div class="b14Top"><button class="b14Back" onclick="openStableModule('A1',${run.m})">‹</button><div class="b14Progress"><span style="width:${p}%"></span></div></div>${run.m===0?'':top()}<div class="b14Card"><div class="b14Eyebrow">${run.m===0?'PRÉ-A1':'A1'} · ${run.i+1} de ${run.lesson.steps.length}</div>${inner}<div id="a15Voice" class="b14VoiceWarn"></div></div><div class="lessonStepNav" aria-label="Navegação entre etapas"><button type="button" onclick="a15Jump(-1)" aria-label="Voltar uma etapa" ${run.i<=0?'disabled':''}>‹</button><button type="button" onclick="a15Jump(1)" aria-label="Avançar uma etapa" ${run.i>=run.lesson.steps.length-1?'disabled':''}>›</button></div></div>`;
+ return `<div class="beginner14 ${run.m===0?'firstContactsLessonScreen':''} ${run.m===1?'moduleTwoLessonScreen':''}"><div class="b14Top"><button class="b14Back" onclick="openStableModule('A1',${run.m})">‹</button><div class="b14Progress"><span style="width:${p}%"></span></div></div>${run.m===0?'':top()}<div class="b14Card"><div class="b14Eyebrow">${run.m<=1?'PRÉ-A1':'A1'} · ${run.i+1} de ${run.lesson.steps.length}</div>${inner}<div id="a15Voice" class="b14VoiceWarn"></div></div><div class="lessonStepNav" aria-label="Navegação entre etapas"><button type="button" onclick="a15Jump(-1)" aria-label="Voltar uma etapa" ${run.i<=0?'disabled':''}>‹</button><button type="button" onclick="a15Jump(1)" aria-label="Avançar uma etapa" ${run.i>=run.lesson.steps.length-1?'disabled':''}>›</button></div></div>`;
 }
 const prevButton=()=>'';
 const next=()=>`<div class="b14Footer"><button class="b14Next" onclick="a15Next()">Continuar</button>${prevButton()}</div>`;
@@ -266,7 +334,7 @@ function firstContactsCards(){
   </div>`;
  }).join('');
 }
-const MODULE_TWO_ART=['🙂','🔢','🔟','📱','🎂','🏠','🔤','🪪'];
+const MODULE_TWO_ART=['🙂','❓','🤝','🗣️','🌎','🔤','🎯','✨'];
 function moduleTwoCards(){
  return Array.from({length:8},(_,n)=>{
   const pct=progress(1,n),isDone=done(1,n),isUnlocked=unlocked(1,n);
@@ -309,9 +377,9 @@ function moduleView(m){
      <div class="moduleTwoHead">
        <button class="back moduleTwoBack" onclick="renderStableCourse()">‹</button>
        <div>
-         <div class="moduleTwoEyebrow">A1 · MÓDULO 2</div>
-         <h2>Alfabeto, números e dados pessoais</h2>
-         <p>8 aulas progressivas · ouvir, responder, montar frases e revisar</p>
+         <div class="moduleTwoEyebrow">PRÉ-A1 · MÓDULO 2</div>
+         <h2>Meu nome é…</h2>
+         <p>Apresente-se e conheça alguém · 8 aulas progressivas</p>
        </div>
      </div>
      <div class="moduleTwoLessons">${moduleTwoCards()}</div>
