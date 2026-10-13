@@ -1,13 +1,18 @@
 {
   "name": "Meu Inglês",
   "short_name": "Meu Inglês",
-  "description": "Curso de inglês com voz, missões e professor com personalidade.",
+  "description": "Curso de inglês com professor de IA, aulas, prática e conversa.",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",
+  "orientation": "portrait-primary",
   "background_color": "#07111d",
   "theme_color": "#07111d",
-  "orientation": "portrait-primary",
+  "lang": "pt-BR",
+  "categories": [
+    "education",
+    "productivity"
+  ],
   "icons": [
     {
       "src": "icon.svg",

@@ -4,10 +4,15 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#07111d">
-<meta http-equiv="Cache-Control" content="no-store, no-cache, must-revalidate">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Meu Inglês">
+<meta name="application-name" content="Meu Inglês">
+<meta name="description" content="Curso de inglês com professor de IA, aulas, prática e conversa.">
 <title>Meu Inglês</title>
 <link rel="icon" href="icon.svg" type="image/svg+xml">
-<script>(async()=>{try{if('serviceWorker'in navigator){const regs=await navigator.serviceWorker.getRegistrations();for(const r of regs)await r.unregister();}if('caches'in window){const ks=await caches.keys();for(const k of ks)await caches.delete(k);}}catch(e){}})();</script>
+<link rel="manifest" href="manifest.webmanifest">
 <link rel="stylesheet" href="stable.css?v=8">
 <link rel="stylesheet" href="course-a1-v53.css?v=4">
 <link rel="stylesheet" href="course-a2-v64.css?v=5">
@@ -139,5 +144,14 @@
 <script src="word-match-v84.js?v=5"></script>
 <script src="memoria-game/memoria.js?v=3"></script>
 <script src="mini-games-v88.js?v=2"></script>
+<script>
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('./sw.js', { scope: './' }).catch(err => {
+      console.warn('PWA service worker', err);
+    });
+  });
+}
+</script>
 </body>
 </html>
