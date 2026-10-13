@@ -4,7 +4,7 @@ const KEY='meuInglesStableV2';
 const API=location.hostname.endsWith('github.io')?'https://meu-ingles-claudio.netlify.app':'';
 const CHAT=API+'/api/groq-chat',TTS=API+'/api/gemini-tts';
 const oldOpen=window.openStableLesson,oldModule=window.openStableModule;
-let run=null,menu=false,ctx=null,src=null;
+let run=null,menu=false,ctx=null,src=null,autoSpeakTimer=null;
 
 const RAW=[
 ['','','','👋|hello|olá|Olá!','🙏|thank you|obrigado|Obrigado','✅|yes, please|sim, por favor|Sim, por favor','🙅|no, thank you|não, obrigado|Não, obrigado','👋|goodbye|adeus|Até logo'],
@@ -200,6 +200,7 @@ const BASE=[['☕','coffee','café'],['💧','water','água'],['🥛','milk','le
 
 const $=s=>document.querySelector(s);
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const enc=s=>encodeURIComponent(String(s??'')).replace(/'/g,'%27');
 const sh=a=>{a=[...a];for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a};
 const state=()=>{try{return JSON.parse(localStorage.getItem(KEY)||'{}')||{}}catch{return {}}};
 const save=s=>localStorage.setItem(KEY,JSON.stringify(s));
@@ -231,6 +232,9 @@ function bytes(b){const x=atob(b),u=new Uint8Array(x.length);for(let i=0;i<x.len
 async function pcm(b,rate=24000){const u=bytes(b),a=new Float32Array(u.length/2),v=new DataView(u.buffer,u.byteOffset,u.byteLength);for(let i=0;i<a.length;i++)a[i]=Math.max(-1,Math.min(1,v.getInt16(i*2,true)/32768));ctx=ctx||new(window.AudioContext||window.webkitAudioContext)();if(ctx.state==='suspended')await ctx.resume();if(src)try{src.stop()}catch{}const bf=ctx.createBuffer(1,a.length,rate);bf.copyToChannel(a,0);src=ctx.createBufferSource();src.buffer=bf;src.connect(ctx.destination);await new Promise(r=>{src.onended=()=>{src=null;r()};src.start()})}
 async function speak(text,lang='en-US',isTeacher=false){
  status('');
+ if(autoSpeakTimer){clearTimeout(autoSpeakTimer);autoSpeakTimer=null}
+ try{window.stopGeminiTTS?.()}catch{}
+ try{window.speechSynthesis?.cancel?.()}catch{}
  const [,teacherVoice]=teacher();
  const voice=isTeacher?teacherVoice:'Achird';
  if(window.geminiSpeak){
@@ -326,12 +330,12 @@ window.a15Next=()=>{if(++run.i>=run.lesson.steps.length)return finish();saveProg
 window.a15Prev=()=>{if(!run||run.i<=0)return;window.a15Jump(-1)};
 window.a15Jump=delta=>{if(!run)return;const d=Number(delta)||0,ni=Math.max(0,Math.min(run.lesson.steps.length-1,run.i+d));if(ni===run.i)return;run.i=ni;if(d>0)saveProgress(run.m,run.n,Math.round(run.i/run.lesson.steps.length*100));run.built=[];run.checked=false;run.ok=false;run.used=[];render(false)};
 window.a15Speak=e=>speak(decodeURIComponent(e));
-function render(preserveScroll=false){const keepY=preserveScroll?window.scrollY:null;const s=run.lesson.steps[run.i];let h='';if(s.t==='learn'||s.t==='phrase'){h=`<div class="b14Emoji">${s.x.e||'💬'}</div><div class="b14Word">${esc(s.x.en)}</div><div class="b14Translation">${esc(s.x.pt)}</div><button class="b14Listen" onclick="a15Speak('${encodeURIComponent(s.x.en)}')">🔊 Ouvir</button>${next()}`}
-else if(s.t==='choice'){h=`<h2>${esc(s.q)}</h2>${s.audio?`<button class="b14Listen" onclick="a15Speak('${encodeURIComponent(s.audio)}')">🔊 Ouvir</button>`:''}<div class="b14Choices">${s.op.map(o=>`<button class="b14Choice" data-a15="${encodeURIComponent(o)}" onclick="a15Answer('${encodeURIComponent(o)}')">${esc(o)}</button>`).join('')}</div><div id="a15Feedback"></div>`}
-else if(s.t==='guided'){h=`<h2>${esc(s.q)}</h2><div class="b14Conversation">${s.op.map(o=>`<button data-a15="${encodeURIComponent(o)}" onclick="a15Answer('${encodeURIComponent(o)}')">${esc(o)}</button>`).join('')}</div><div id="a15Feedback"></div>`}
+function render(preserveScroll=false){const keepY=preserveScroll?window.scrollY:null;const s=run.lesson.steps[run.i];let h='';if(s.t==='learn'||s.t==='phrase'){h=`<div class="b14Emoji">${s.x.e||'💬'}</div><div class="b14Word">${esc(s.x.en)}</div><div class="b14Translation">${esc(s.x.pt)}</div><button class="b14Listen" onclick="a15Speak('${enc(s.x.en)}')">🔊 Ouvir</button>${next()}`}
+else if(s.t==='choice'){h=`<h2>${esc(s.q)}</h2>${s.audio?`<button class="b14Listen" onclick="a15Speak('${enc(s.audio)}')">🔊 Ouvir</button>`:''}<div class="b14Choices">${s.op.map(o=>`<button class="b14Choice" data-a15="${enc(o)}" onclick="a15Answer('${enc(o)}')">${esc(o)}</button>`).join('')}</div><div id="a15Feedback"></div>`}
+else if(s.t==='guided'){h=`<h2>${esc(s.q)}</h2><div class="b14Conversation">${s.op.map(o=>`<button data-a15="${enc(o)}" onclick="a15Answer('${enc(o)}')">${esc(o)}</button>`).join('')}</div><div id="a15Feedback"></div>`}
 else if(s.t==='build'){const exp=s.target.split(/\s+/),ans=run.built.map((x,i)=>`<span class="b14Token ${run.checked?(x===exp[i]?'correct':'wrong'):''}">${esc(x)}</span>`).join('');h=`<h2>${esc(s.q)}</h2><div class="b14Translation" style="font-size:28px;color:#fff;font-weight:850">${esc(s.pt)}</div><div class="b14Answer">${ans||'<span style="color:#8198aa">Toque nas palavras</span>'}</div><div class="b14Bank">${s.tokens.map((x,i)=>`<button onclick="a15Pick(${i})" ${run.used?.includes(i)?'disabled class="used"':''}>${esc(x)}</button>`).join('')}</div><div class="b14Actions"><button class="b14Clear" onclick="a15Clear()">Limpar</button><button class="b14Check" onclick="a15Check()">Verificar</button></div>${run.checked&&!run.ok?`<div class="b14CorrectOrder">Correto: ${esc(s.target)}</div>`:''}<div id="a15Feedback"></div>${run.checked&&run.ok?next():run.checked&&!run.ok?`<div class="b14Footer"><button class="b14Next blue" onclick="a15Clear()">Tentar de novo</button>${prevButton()}</div>`:''}`}
-else{h=`<h2>Você já conhece isso</h2><div class="b14Review">${s.items.map(x=>`<button class="b14Mini" onclick="a15Speak('${encodeURIComponent(x.en)}')"><span>${x.e||'🔁'}</span><b>${esc(x.en)}</b><small>${esc(x.pt)}</small></button>`).join('')}</div><div class="b14Footer"><button class="b14Next" onclick="a15Finish()">Concluir aula · +30 XP</button></div>`}
-$('#courseBody').innerHTML=shell(h);if(keepY===null)window.scrollTo(0,0);else requestAnimationFrame(()=>requestAnimationFrame(()=>window.scrollTo(0,keepY)));if((s.t==='learn'||s.t==='phrase')&&s.x)setTimeout(()=>speak(s.x.en),250);if(s.t==='choice'&&s.audio)setTimeout(()=>speak(s.audio),250)}
+else{h=`<h2>Você já conhece isso</h2><div class="b14Review">${s.items.map(x=>`<button class="b14Mini" onclick="a15Speak('${enc(x.en)}')"><span>${x.e||'🔁'}</span><b>${esc(x.en)}</b><small>${esc(x.pt)}</small></button>`).join('')}</div><div class="b14Footer"><button class="b14Next" onclick="a15Finish()">Concluir aula · +30 XP</button></div>`}
+$('#courseBody').innerHTML=shell(h);if(keepY===null)window.scrollTo(0,0);else requestAnimationFrame(()=>requestAnimationFrame(()=>window.scrollTo(0,keepY)));if(autoSpeakTimer){clearTimeout(autoSpeakTimer);autoSpeakTimer=null}if((s.t==='learn'||s.t==='phrase')&&s.x)autoSpeakTimer=setTimeout(()=>{autoSpeakTimer=null;speak(s.x.en)},250);if(s.t==='choice'&&s.audio)autoSpeakTimer=setTimeout(()=>{autoSpeakTimer=null;speak(s.audio)},250)}
 window.a15Answer=e=>{const s=run.lesson.steps[run.i],v=decodeURIComponent(e),ok=v===s.ans;document.querySelectorAll('[data-a15]').forEach(b=>{const x=decodeURIComponent(b.dataset.a15);if(x===v)b.classList.add(ok?'correct':'wrong');if(!ok&&x===s.ans)b.classList.add('correct');b.disabled=true});const f=$('#a15Feedback');if(f)f.insertAdjacentHTML('afterend',ok?next():`<div class="b14Footer"><button class="b14Next blue" onclick="a15Retry()">Tentar de novo</button>${prevButton()}</div>`);react(ok,v,s.ans)};
 window.a15Retry=()=>render(true);
 window.a15Pick=i=>{if(run.checked)return;run.used=run.used||[];if(run.used.includes(i))return;run.used.push(i);run.built.push(run.lesson.steps[run.i].tokens[i]);render(true)};
