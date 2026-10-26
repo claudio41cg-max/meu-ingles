@@ -171,6 +171,32 @@ async function ask(payload,retry=true){
   }
   if(!r.ok||!d.ok)throw new Error(d.error||'GPT indisponível.');
   if(d.sessionId)localStorage.setItem(SESSION_KEY,d.sessionId);
+
+  // O Turbo responde "running" enquanto o Harness prepara a resposta.
+  // Não exibir o aviso de execução como se fosse a resposta do professor.
+  if(d.status==='running'){
+    if(!d.sessionId)throw new Error('Turbo iniciou a conversa sem identificador.');
+    const deadline=Date.now()+120000;
+    while(Date.now()<deadline){
+      await new Promise(resolve=>setTimeout(resolve,2000));
+      let statusResponse;
+      try{
+        statusResponse=await fetch(TURBO+'/__turbo/chat/status',{
+          method:'POST',
+          headers:{'content-type':'application/json','authorization':'Bearer '+auth},
+          body:JSON.stringify({sessionId:d.sessionId,projectKey:'meu-ingles'})
+        });
+      }catch(e){throw new Error(networkMessage(e));}
+      const status=await statusResponse.json().catch(()=>({}));
+      if(!statusResponse.ok||!status.ok)throw new Error(status.error||'Não foi possível acompanhar a conversa GPT.');
+      if(status.status==='done'){
+        if(!String(status.reply||'').trim())throw new Error('O GPT encerrou sem retornar uma resposta.');
+        return parseReply(status.reply);
+      }
+    }
+    throw new Error('O GPT demorou para responder. Tente novamente.');
+  }
+
   return parseReply(d.reply);
 }
 
