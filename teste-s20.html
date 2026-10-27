@@ -128,7 +128,7 @@
 /* Teste temporário S20 FE. Não altera a configuração do app principal. */
 window.MEU_INGLES_TURBO_BACKEND_URL='https://animation-but-sci-provinces.trycloudflare.com';
 </script>
-<script src="gpt-bridge-v1.js?v=2"></script>
+<script src="gpt-bridge-s20-test.js?v=1"></script>
 <script src="subscription-live-v1.js?v=9"></script>
 <script src="stable.js?v=16"></script>
 <script src="beginner-v14.js?v=8"></script>
@@ -149,7 +149,7 @@ window.MEU_INGLES_TURBO_BACKEND_URL='https://animation-but-sci-provinces.tryclou
 <script src="memoria-game/memoria.js?v=3"></script>
 <script src="mini-games-v88.js?v=2"></script>
 <script>
-if ('serviceWorker' in navigator) {
+if (false && 'serviceWorker' in navigator) {
   window.addEventListener('load', () => {
     navigator.serviceWorker.register('./sw.js', { scope: './' }).catch(err => {
       console.warn('PWA service worker', err);
