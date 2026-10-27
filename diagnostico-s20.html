@@ -1,0 +1,12 @@
+<!doctype html><html lang="pt-BR"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Diagnóstico S20 FE</title><style>body{font:16px system-ui;background:#07111d;color:#e7f3ff;margin:0;padding:24px}main{max-width:460px;margin:30px auto}button{padding:14px;border:0;border-radius:12px;background:#208bdb;color:white;font-weight:700;font-size:16px;width:100%}pre{white-space:pre-wrap;overflow-wrap:anywhere;background:#0e2137;padding:16px;border-radius:12px;line-height:1.6}</style></head><body><main><h2>Diagnóstico da ponte do Meu Inglês</h2><p>Não precisa digitar usuário nem senha. Este teste usa uma senha falsa e não altera sua conta.</p><button id="go">Verificar conexão e login</button><pre id="out">Pronto para testar.</pre></main><script>
+const base='https://animation-but-sci-provinces.trycloudflare.com';
+const output=document.getElementById('out');
+document.getElementById('go').onclick=async()=>{
+ const btn=document.getElementById('go');btn.disabled=true;output.textContent='Origem: '+location.origin+'\n';
+ async function check(name,fn){try{const r=await fn();output.textContent+=name+': HTTP '+r.status+'; CORS: '+(r.headers.get('access-control-allow-origin')||'ausente')+'\n';}catch(e){output.textContent+=name+': ERRO '+String(e?.message||e)+'\n';}}
+ await check('HTTPS /healthz',()=>fetch(base+'/healthz',{cache:'no-store'}));
+ await check('Preflight OPTIONS',()=>fetch(base+'/__turbo/panel-login',{method:'OPTIONS',headers:{'access-control-request-method':'POST','access-control-request-headers':'content-type'},cache:'no-store'}));
+ await check('Login com senha falsa',()=>fetch(base+'/__turbo/panel-login',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({username:'teste-diagnostico',password:'senha-falsa-nao-real'}),cache:'no-store'}));
+ btn.disabled=false;
+}
+</script></body></html>
