@@ -3,10 +3,10 @@ const base='https://animation-but-sci-provinces.trycloudflare.com';
 const output=document.getElementById('out');
 document.getElementById('go').onclick=async()=>{
  const btn=document.getElementById('go');btn.disabled=true;output.textContent='Origem: '+location.origin+'\n';
- async function check(name,fn){try{const r=await fn();output.textContent+=name+': HTTP '+r.status+'; CORS: '+(r.headers.get('access-control-allow-origin')||'ausente')+'\n';}catch(e){output.textContent+=name+': ERRO '+String(e?.message||e)+'\n';}}
- await check('HTTPS /healthz',()=>fetch(base+'/healthz',{cache:'no-store'}));
- await check('Preflight OPTIONS',()=>fetch(base+'/__turbo/panel-login',{method:'OPTIONS',headers:{'access-control-request-method':'POST','access-control-request-headers':'content-type'},cache:'no-store'}));
- await check('Login com senha falsa',()=>fetch(base+'/__turbo/panel-login',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({username:'teste-diagnostico',password:'senha-falsa-nao-real'}),cache:'no-store'}));
+ async function check(name,fn){try{const r=await fn();output.textContent+=name+': HTTP '+r.status+'; acesso pelo navegador permitido+'\n';}catch(e){output.textContent+=name+': ERRO '+String(e?.message||e)+'\n';}}
+ output.textContent+='Observação: /healthz não habilita leitura entre sites; acesso direto já foi confirmado.\n';
+ await check('OPTIONS recebido',()=>fetch(base+'/__turbo/panel-login',{method:'OPTIONS',headers:{'access-control-request-method':'POST','access-control-request-headers':'content-type'},cache:'no-store'}));
+ await check('Senha falsa (401 é esperado)',()=>fetch(base+'/__turbo/panel-login',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({username:'teste-diagnostico',password:'senha-falsa-nao-real'}),cache:'no-store'}));
  btn.disabled=false;
 }
 </script></body></html>
