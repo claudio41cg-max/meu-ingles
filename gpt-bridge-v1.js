@@ -1,7 +1,21 @@
 (()=>{
 'use strict';
 
-const TURBO='https://turbo-engine-production.up.railway.app';
+// A ponte HTTPS deve oferecer /__turbo/panel-login e /__turbo/chat.
+// Não conectar o GitHub Pages diretamente ao 127.0.0.1:3080: ele é o Harness,
+// não oferece essas rotas e o navegador bloquearia chamadas HTTP mistas.
+const DEFAULT_TURBO='https://turbo-engine-production.up.railway.app';
+const configured=String(window.MEU_INGLES_TURBO_BACKEND_URL||'').trim();
+const TURBO=(configured||DEFAULT_TURBO).replace(/\/$/,'');
+if(configured&&!/^https:\/\//i.test(configured)){
+  console.warn('Meu Inglês: a ponte do GPT precisa ter endereço HTTPS.');
+}
+function networkMessage(e){
+  if(e instanceof TypeError||/Failed to fetch|NetworkError|Load failed/i.test(String(e?.message||e))){
+    return 'Não foi possível conectar ao servidor GPT. O endereço antigo do Railway pode estar desligado. Configure uma ponte HTTPS ativa para o Harness do S20 FE.';
+  }
+  return e?.message||String(e);
+}
 const TOKEN_KEY='meuIngles.turboToken.v1';
 const SESSION_KEY='meuIngles.gptSession.v1';
 
@@ -77,7 +91,7 @@ function login(){
         cleanup();
         resolve(d.token);
       }catch(e){
-        error.textContent=e?.message||String(e);
+        error.textContent=networkMessage(e);
       }finally{
         enter.disabled=false;enter.textContent='Entrar';
       }
@@ -140,7 +154,8 @@ async function ask(payload,retry=true){
     'Mensagem do aluno: '+String(payload?.message||'')
   ].filter(Boolean).join('\n');
 
-  const r=await fetch(TURBO+'/__turbo/chat',{
+  let r;
+  try{r=await fetch(TURBO+'/__turbo/chat',{
     method:'POST',
     headers:{'content-type':'application/json','authorization':'Bearer '+auth},
     body:JSON.stringify({
@@ -148,7 +163,7 @@ async function ask(payload,retry=true){
       project:{key:'meu-ingles',name:'Meu Inglês',repo:'claudio41cg-max/meu-ingles'},
       message:prompt
     })
-  });
+  });}catch(e){throw new Error(networkMessage(e));}
   const d=await r.json().catch(()=>({}));
   if(r.status===401&&retry){
     localStorage.removeItem(TOKEN_KEY);
@@ -156,6 +171,32 @@ async function ask(payload,retry=true){
   }
   if(!r.ok||!d.ok)throw new Error(d.error||'GPT indisponível.');
   if(d.sessionId)localStorage.setItem(SESSION_KEY,d.sessionId);
+
+  // O Turbo responde "running" enquanto o Harness prepara a resposta.
+  // Não exibir o aviso de execução como se fosse a resposta do professor.
+  if(d.status==='running'){
+    if(!d.sessionId)throw new Error('Turbo iniciou a conversa sem identificador.');
+    const deadline=Date.now()+120000;
+    while(Date.now()<deadline){
+      await new Promise(resolve=>setTimeout(resolve,2000));
+      let statusResponse;
+      try{
+        statusResponse=await fetch(TURBO+'/__turbo/chat/status',{
+          method:'POST',
+          headers:{'content-type':'application/json','authorization':'Bearer '+auth},
+          body:JSON.stringify({sessionId:d.sessionId,projectKey:'meu-ingles'})
+        });
+      }catch(e){throw new Error(networkMessage(e));}
+      const status=await statusResponse.json().catch(()=>({}));
+      if(!statusResponse.ok||!status.ok)throw new Error(status.error||'Não foi possível acompanhar a conversa GPT.');
+      if(status.status==='done'){
+        if(!String(status.reply||'').trim())throw new Error('O GPT encerrou sem retornar uma resposta.');
+        return parseReply(status.reply);
+      }
+    }
+    throw new Error('O GPT demorou para responder. Tente novamente.');
+  }
+
   return parseReply(d.reply);
 }
 
