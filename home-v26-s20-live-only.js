@@ -334,6 +334,8 @@ async function startV26SubscriptionLive(extra=''){
   if(!live?.start)throw new Error('GPT Live por assinatura indisponível.');
   setBusy(true);
   addMsg('🎙️ Conectando ao GPT Live...','bot');
+   const statusPill=document.querySelector('#homeTopicPill');
+   if(statusPill)statusPill.textContent='🟡 Conectando GPT Live…';
   try{
     await live.start({
       voice:currentLiveVoice(),
@@ -363,6 +365,7 @@ async function startV26SubscriptionLive(extra=''){
         if(name==='live'){
           setBusy(false);
           addMsg('GPT Live conectado. Pode falar normalmente.','bot');
+           const status=document.querySelector('#homeTopicPill');if(status)status.textContent='🟢 GPT Live conectado';
           setLiveRobotImage(false);
           syncLiveUi();
         }else if(name==='user-speaking'){
@@ -387,6 +390,7 @@ async function startV26SubscriptionLive(extra=''){
           setBusy(false);
           setLiveRobotImage(false);
           addMsg('Não consegui abrir o GPT Live: '+String(detail||'erro desconhecido'),'bot');
+           const status=document.querySelector('#homeTopicPill');if(status)status.textContent='🔴 GPT Live não conectado — toque no microfone';
           setRobotState('oops');
         }else if(name==='stopped'){
           setBusy(false);
@@ -403,6 +407,7 @@ async function startV26SubscriptionLive(extra=''){
     setBusy(false);
     setRobotState('oops');
     addMsg('GPT LIVE NÃO CONECTADO: '+String(error?.message||error)+'. O microfone Android não substitui a voz Live.','bot');
+     const status=document.querySelector('#homeTopicPill');if(status)status.textContent='🔴 Live: '+String(error?.message||error).slice(0,85);
     return false;
   }
 }
