@@ -1,7 +1,7 @@
 (()=>{
 'use strict';
 
-const TURBO='https://turbo-engine-production.up.railway.app';
+const TURBO=String(window.MEU_INGLES_TURBO_BACKEND_URL||'https://turbo-engine-production.up.railway.app').replace(/\/$/,'');
 const TOKEN_KEY='meuIngles.turboToken.v1';
 const SESSION_KEY='meuIngles.gptSession.v1';
 
