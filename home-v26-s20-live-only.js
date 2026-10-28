@@ -376,16 +376,44 @@ async function startV26SubscriptionLive(extra=''){
            if(channel?.readyState==='open'){
              try{channel.send(JSON.stringify({type:'response.create',response:{output_modalities:['audio'],instructions:'Cumprimente o aluno em português com uma frase bem curta e pergunte em inglês como ele está. Responda por áudio.'}}));addMsg('Solicitei uma saudação por voz ao GPT Live.','bot')}catch(err){addMsg('Erro ao solicitar áudio: '+String(err?.message||err),'bot')}
            }
+           // Escutar mensagens e encerramento real do canal, somente nesta versão de teste.
+           if(channel&&!channel.__s20Debug){
+             channel.__s20Debug=true;
+             channel.addEventListener('message',event=>{
+               try{
+                 const data=JSON.parse(String(event.data||'{}'));
+                 const type=String(data.type||'');
+                 if(type==='error'||type==='response.failed'||type==='response.cancelled'){
+                   const reason=String(data.error?.message||data.response?.status_details?.error?.message||data.message||type).slice(0,160);
+                   const pill=document.querySelector('#homeTopicPill');
+                   if(pill)pill.textContent='🔴 Live: '+reason;
+                   addMsg('Diagnóstico Live: '+reason,'bot');
+                 }else if(type==='response.done'){
+                   const status=String(data.response?.status||'done');
+                   const reason=String(data.response?.status_details?.error?.message||'').slice(0,110);
+                   addMsg('Resposta Live: '+status+(reason?' — '+reason:''),'bot');
+                 }else if(type==='session.created'||type==='session.updated'){
+                   addMsg('Live: '+type,'bot');
+                 }
+               }catch{}
+             });
+             channel.addEventListener('close',()=>{
+               const pill=document.querySelector('#homeTopicPill');
+               if(pill)pill.textContent='🔴 Canal Live fechado';
+               addMsg('Canal de voz encerrado.','bot');
+               syncLiveUi();
+             });
+           }
            // Diagnóstico da captura do microfone, sem trocar para a voz do Android.
            setTimeout(async()=>{
              const active=subscriptionLive()?.state;
              const tr=active?.stream?.getAudioTracks?.()[0];
              const pc=active?.pc;
              if(!pc)return;
-             let packets='?';
-             try{const stats=await pc.getStats();stats.forEach(x=>{if(x.type==='outbound-rtp'&&x.kind==='audio')packets=String(x.packetsSent??'?')})}catch{}
+             let packets='?', received='?', bytes='?';
+             try{const stats=await pc.getStats();stats.forEach(x=>{if(x.type==='outbound-rtp'&&x.kind==='audio')packets=String(x.packetsSent??'?');if(x.type==='inbound-rtp'&&x.kind==='audio'){received=String(x.packetsReceived??'?');bytes=String(x.bytesReceived??'?')}})}catch{}
              const status=document.querySelector('#homeTopicPill');
-             if(status&&active?.channel?.readyState==='open')status.textContent='🎙️ Mic '+(tr?.readyState||'ausente')+' · pacotes '+packets+' · WebRTC '+pc.connectionState;
+             if(status&&active?.channel?.readyState==='open')status.textContent='🎙️ Mic '+(tr?.readyState||'ausente')+' · envio '+packets+' · recebe '+received+' · bytes '+bytes+' · '+pc.connectionState;
            },4500);
          }else if(name==='connection'){
            const status=document.querySelector('#homeTopicPill');
