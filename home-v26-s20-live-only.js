@@ -323,7 +323,7 @@ function liveInstructions(extra=''){
 function syncLiveUi(){
   const live=subscriptionLive();
   const mic=document.querySelector('#homeChatMic');
-  const running=!!live?.state?.running;
+  const running=!!live?.state?.running&&live?.state?.channel?.readyState==='open';
   mic?.classList.toggle('listening',running&&!live?.state?.muted);
   mic?.classList.toggle('muted',running&&!!live?.state?.muted);
   if(running){setRobotState(live.state.muted?'':'listening');setLiveRobotImage(false)}
