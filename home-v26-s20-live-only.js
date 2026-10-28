@@ -364,17 +364,25 @@ async function startV26SubscriptionLive(extra=''){
       onState:(name,detail)=>{
         if(name==='live'){
           setBusy(false);
-          addMsg('GPT Live conectado. Pode falar normalmente.','bot');
-           const status=document.querySelector('#homeTopicPill');if(status)status.textContent='🟢 GPT Live conectado';
+          addMsg('Sessão GPT Live criada. Aguardando canal de áudio...','bot');
+           const status=document.querySelector('#homeTopicPill');if(status)status.textContent='🟡 Live: aguardando áudio…';
           setLiveRobotImage(false);
           syncLiveUi();
-        }else if(name==='user-speaking'){
+        }else if(name==='channel-open'){
+           const status=document.querySelector('#homeTopicPill');if(status)status.textContent='🟢 Live: canal aberto — fale agora';
+           addMsg('Canal de voz aberto. Pode falar normalmente.','bot');
+         }else if(name==='connection'){
+           const status=document.querySelector('#homeTopicPill');
+           if(status&&detail!=='connected')status.textContent='🟡 Live WebRTC: '+String(detail);
+         }else if(name==='user-speaking'){
+           const status=document.querySelector('#homeTopicPill');if(status)status.textContent='🎙️ Live está ouvindo você';
           setLiveRobotImage(false);
           setRobotState('listening');
         }else if(name==='user-stopped'){
           setLiveRobotImage(false);
           setRobotState('thinking');
         }else if(name==='assistant-speaking'){
+           const status=document.querySelector('#homeTopicPill');if(status)status.textContent='🔊 Live está respondendo';
           setLiveRobotImage(true);
           setRobotState('speaking');
         }else if(name==='assistant-done'){
