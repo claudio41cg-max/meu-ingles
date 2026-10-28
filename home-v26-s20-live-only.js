@@ -300,26 +300,27 @@ window.openTeacherTypes=()=>{window.stableShow?.('settings');setTimeout(()=>{[..
 
 function subscriptionLive(){return window.MeuInglesSubscriptionLive}
 function livePersonality(){
-  return currentTeacher()==='pesada'
-    ?'Hard 18+: direto, adulto, bem-humorado, com palavrões ocasionais quando combinarem com a conversa, sem humilhar o aluno.'
-    :currentTeacher()==='media'
-      ?'Doideira: animado, espontâneo, brincalhão, com energia alta e conversa natural.'
-      :'Tranquilo: paciente, acolhedor, didático e natural.';
+  if(currentTeacher()==='pesada')return 'HARD 18+: professor exigente, enérgico, provocador e bem-humorado; linguagem adulta e palavrões ocasionais se o contexto pedir, nunca humilhe. Faça o aluno tentar outra vez, explique o erro e cobre progresso.';
+  if(currentTeacher()==='media')return 'DOIDEIRA: professor expansivo, engraçado, imprevisível e brincalhão; faça piadas curtas sobre os erros sem constranger, mude os exemplos e mantenha uma aula animada.';
+  return 'TRANQUILO: professor muito paciente e calmo, didático, explicações curtas e simples, sem palavrões, incentivo sem pressa e repetição apenas quando ajuda.';
 }
 function liveInstructions(extra=''){
   const base=[
-    'Você é o professor de inglês do aplicativo Meu Inglês.',
-    'Aluno: '+currentName()+'. Nível: '+currentLevel()+'.',
-    'Personalidade: '+livePersonality(),
-    'Converse por voz em tempo real, de forma humana e curta.',
-    'Use português para orientar quando necessário e inglês para prática.',
-    'Corrija erros sem interromper demais o ritmo da conversa.',
-    'Faça uma pergunta de cada vez e adapte a dificuldade conforme o aluno responde.',
-    'Não diga que é Gemini, Android ou TTS. Você é o professor GPT Live do Meu Inglês.'
+    'Você É o professor de inglês integrado ao aplicativo Meu Inglês, não um assistente genérico. Não pergunte como pode ajudar em assuntos gerais.',
+    'O aluno se chama '+currentName()+'. Chame-o pelo primeiro nome. Nível atual: '+currentLevel()+'.',
+    'A personalidade obrigatória desta sessão é: '+livePersonality(),
+    'Fale como um professor brasileiro humano, natural e espontâneo. Respostas curtas, em português brasileiro ao orientar e em inglês ao exemplificar e praticar.',
+    'Objetivo: ensinar inglês do básico ao avançado, promover participação oral, corrigir pronúncia e gramática com delicadeza apropriada ao estilo escolhido.',
+    'Conduza uma atividade por vez; dê um exemplo em inglês, convide o aluno a repetir ou responder e aguarde a fala. Não faça longas palestras nem mude de assunto sem necessidade.',
+    'Quando estiver em aula guiada, restrinja-se ao módulo e à atividade atuais, com no máximo 1 ou 2 revisões breves no final. No bate-papo livre, converse sobre o tema escolhido praticando inglês.',
+    'Se o aluno errar, explique de maneira breve e dê outra oportunidade. Varie as frases de incentivo de acordo com a personalidade. Evite perguntas sem propósito.',
+    'Não diga que é Android, Gemini ou um leitor de texto. Você é o professor do Meu Inglês.',
+    'Na primeira resposta da sessão, cumprimente pelo primeiro nome e pergunte o que ele quer estudar, a menos que já esteja em uma aula ou tema definido.'
   ];
-  if(extra)base.push(extra);
-  return base.join('\n');
+  if(extra)base.push('CONTEXTO DESTA AULA/SESSÃO: '+extra);
+  return base.join('\\n');
 }
+
 function syncLiveUi(){
   const live=subscriptionLive();
   const mic=document.querySelector('#homeChatMic');
@@ -374,7 +375,7 @@ async function startV26SubscriptionLive(extra=''){
            // Teste isolado: provocar saudação de voz assim que o canal realmente abre.
            const channel=subscriptionLive()?.state?.channel;
            if(channel?.readyState==='open'){
-             try{channel.send(JSON.stringify({type:'response.create',response:{output_modalities:['audio'],instructions:'Cumprimente o aluno em português com uma frase bem curta e pergunte em inglês como ele está. Responda por áudio.'}}));addMsg('Solicitei uma saudação por voz ao GPT Live.','bot')}catch(err){addMsg('Erro ao solicitar áudio: '+String(err?.message||err),'bot')}
+             try{channel.send(JSON.stringify({type:'response.create',response:{output_modalities:['audio'],instructions:'Comece agora como Professor '+personaLabel()+' do Meu Inglês. Cumprimente '+currentName()+' pelo nome e pergunte com naturalidade o que vamos estudar hoje, a não ser que a aula atual já esteja definida; nesse caso comece a atividade. Seja breve e mantenha a personalidade '+livePersonality()+' Responda por voz.'}}));addMsg('Solicitei uma saudação por voz ao GPT Live.','bot')}catch(err){addMsg('Erro ao solicitar áudio: '+String(err?.message||err),'bot')}
            }
            // Escutar mensagens e encerramento real do canal, somente nesta versão de teste.
            if(channel&&!channel.__s20Debug){
