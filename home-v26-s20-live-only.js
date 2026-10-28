@@ -318,7 +318,7 @@ function liveInstructions(extra=''){
     'Na primeira resposta da sessão, cumprimente pelo primeiro nome e pergunte o que ele quer estudar, a menos que já esteja em uma aula ou tema definido.'
   ];
   if(extra)base.push('CONTEXTO DESTA AULA/SESSÃO: '+extra);
-  return base.join('\\n');
+  return base.join('\n');
 }
 
 function syncLiveUi(){
