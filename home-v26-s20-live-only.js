@@ -371,6 +371,22 @@ async function startV26SubscriptionLive(extra=''){
         }else if(name==='channel-open'){
            const status=document.querySelector('#homeTopicPill');if(status)status.textContent='🟢 Live: canal aberto — fale agora';
            addMsg('Canal de voz aberto. Pode falar normalmente.','bot');
+           // Teste isolado: provocar saudação de voz assim que o canal realmente abre.
+           const channel=subscriptionLive()?.state?.channel;
+           if(channel?.readyState==='open'){
+             try{channel.send(JSON.stringify({type:'response.create',response:{output_modalities:['audio'],instructions:'Cumprimente o aluno em português com uma frase bem curta e pergunte em inglês como ele está. Responda por áudio.'}}));addMsg('Solicitei uma saudação por voz ao GPT Live.','bot')}catch(err){addMsg('Erro ao solicitar áudio: '+String(err?.message||err),'bot')}
+           }
+           // Diagnóstico da captura do microfone, sem trocar para a voz do Android.
+           setTimeout(async()=>{
+             const active=subscriptionLive()?.state;
+             const tr=active?.stream?.getAudioTracks?.()[0];
+             const pc=active?.pc;
+             if(!pc)return;
+             let packets='?';
+             try{const stats=await pc.getStats();stats.forEach(x=>{if(x.type==='outbound-rtp'&&x.kind==='audio')packets=String(x.packetsSent??'?')})}catch{}
+             const status=document.querySelector('#homeTopicPill');
+             if(status&&active?.channel?.readyState==='open')status.textContent='🎙️ Mic '+(tr?.readyState||'ausente')+' · pacotes '+packets+' · WebRTC '+pc.connectionState;
+           },4500);
          }else if(name==='connection'){
            const status=document.querySelector('#homeTopicPill');
            if(status&&detail!=='connected')status.textContent='🟡 Live WebRTC: '+String(detail);
