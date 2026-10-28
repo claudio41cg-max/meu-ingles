@@ -560,41 +560,19 @@ window.v26Send=()=>{
  }
  handleUser(t);
 };
-window.v26Mic=()=>{
+window.v26Mic=async()=>{
   const live=subscriptionLive();
   if(live?.state?.running){
     live.toggleMute?.();
     syncLiveUi();
     return;
   }
-  if(live?.state?.starting)return;
-  if(busy)return;
-  const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
-  if(!SR){
-    addMsg('O reconhecimento de voz não está disponível neste navegador. Você pode digitar normalmente.','bot');
-    return;
-  }
-  const mic=document.querySelector('#homeChatMic');
-  const rec=new SR();
-  rec.lang='pt-BR';
-  rec.interimResults=false;
-  rec.continuous=false;
-  mic?.classList.add('listening');
-  setRobotState('listening');
-  rec.onresult=e=>{
-    mic?.classList.remove('listening');
-    setRobotState('');
-    const text=String(e.results?.[0]?.[0]?.transcript||'').trim();
-    if(text)handleUser(text);
-  };
-  rec.onerror=()=>{
-    mic?.classList.remove('listening');
-    setRobotState('');
-    addMsg('Não consegui entender. Tente falar novamente.','bot');
-  };
-  rec.onend=()=>{mic?.classList.remove('listening');setRobotState('');};
-  try{rec.start()}catch{}
+  if(live?.state?.starting||busy)return;
+  // Na versão S20, nunca usar SpeechRecognition/TTS Android como substituto do GPT Live.
+  // Tentar reconectar diretamente e exibir na conversa o erro verdadeiro se não conectar.
+  await startV26SubscriptionLive(liveExtra);
 };
+
 function hookNav(){
  const goal=document.querySelector('nav button[data-screen="goal"]');
  if(goal&&!goal.dataset.v26){
