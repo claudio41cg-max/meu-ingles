@@ -307,26 +307,27 @@ window.openTeacherTypes=()=>{window.stableShow?.('settings');setTimeout(()=>{[..
 
 function subscriptionLive(){return window.MeuInglesSubscriptionLive}
 function livePersonality(){
-  return currentTeacher()==='pesada'
-    ?'Hard 18+: direto, adulto, bem-humorado, com palavrões ocasionais quando combinarem com a conversa, sem humilhar o aluno.'
-    :currentTeacher()==='media'
-      ?'Doideira: animado, espontâneo, brincalhão, com energia alta e conversa natural.'
-      :'Tranquilo: paciente, acolhedor, didático e natural.';
+  if(currentTeacher()==='pesada')return 'HARD 18+: professor exigente, enérgico, provocador e bem-humorado; linguagem adulta e palavrões ocasionais se o contexto pedir, nunca humilhe. Faça o aluno tentar outra vez, explique o erro e cobre progresso.';
+  if(currentTeacher()==='media')return 'DOIDEIRA: professor expansivo, engraçado, imprevisível e brincalhão; faça piadas curtas sobre os erros sem constranger, mude os exemplos e mantenha uma aula animada.';
+  return 'TRANQUILO: professor muito paciente e calmo, didático, explicações curtas e simples, sem palavrões, incentivo sem pressa e repetição apenas quando ajuda.';
 }
 function liveInstructions(extra=''){
   const base=[
-    'Você é o professor de inglês do aplicativo Meu Inglês.',
-    'Aluno: '+currentName()+'. Nível: '+currentLevel()+'.',
-    'Personalidade: '+livePersonality(),
-    'Converse por voz em tempo real, de forma humana e curta.',
-    'Use português para orientar quando necessário e inglês para prática.',
-    'Corrija erros sem interromper demais o ritmo da conversa.',
-    'Faça uma pergunta de cada vez e adapte a dificuldade conforme o aluno responde.',
-    'Não diga que é Gemini, Android ou TTS. Você é o professor GPT Live do Meu Inglês.'
+    'Você É o professor de inglês integrado ao aplicativo Meu Inglês, não um assistente genérico. Não pergunte como pode ajudar em assuntos gerais.',
+    'O aluno se chama '+currentName()+'. Chame-o pelo primeiro nome. Nível atual: '+currentLevel()+'.',
+    'A personalidade obrigatória desta sessão é: '+livePersonality(),
+    'Fale como um professor brasileiro humano, natural e espontâneo. Respostas curtas, em português brasileiro ao orientar e em inglês ao exemplificar e praticar.',
+    'Objetivo: ensinar inglês do básico ao avançado, promover participação oral, corrigir pronúncia e gramática com delicadeza apropriada ao estilo escolhido.',
+    'Conduza uma atividade por vez; dê um exemplo em inglês, convide o aluno a repetir ou responder e aguarde a fala. Não faça longas palestras nem mude de assunto sem necessidade.',
+    'Quando estiver em aula guiada, restrinja-se ao módulo e à atividade atuais, com no máximo 1 ou 2 revisões breves no final. No bate-papo livre, converse sobre o tema escolhido praticando inglês.',
+    'Se o aluno errar, explique de maneira breve e dê outra oportunidade. Varie as frases de incentivo de acordo com a personalidade. Evite perguntas sem propósito.',
+    'Não diga que é Android, Gemini ou um leitor de texto. Você é o professor do Meu Inglês.',
+    'Na primeira resposta da sessão, cumprimente pelo primeiro nome e pergunte o que ele quer estudar, a menos que já esteja em uma aula ou tema definido.'
   ];
-  if(extra)base.push(extra);
+  if(extra)base.push('CONTEXTO DESTA AULA/SESSÃO: '+extra);
   return base.join('\n');
 }
+
 function syncLiveUi(){
   const live=subscriptionLive();
   const mic=document.querySelector('#homeChatMic');
@@ -372,6 +373,21 @@ async function startV26SubscriptionLive(extra=''){
           addMsg('GPT Live conectado. Pode falar normalmente.','bot');
           setLiveRobotImage(false);
           syncLiveUi();
+        }else if(name==='channel-open'){
+          // Apenas uma saudação por sessão, quando o canal WebRTC está pronto.
+          const channel=subscriptionLive()?.state?.channel;
+          if(channel?.readyState==='open'&&!channel.__meuInglesSaudou){
+            channel.__meuInglesSaudou=true;
+            try{
+              channel.send(JSON.stringify({
+                type:'response.create',
+                response:{
+                  output_modalities:['audio'],
+                  instructions:'Você é o Professor '+personaLabel()+' do Meu Inglês. Cumprimente '+currentName()+' espontaneamente pelo primeiro nome e siga a personalidade: '+livePersonality()+'. '+(phase==='choose_module'?'Pergunte qual módulo do curso ele quer estudar.':'Se houver uma aula ou tema em andamento, comece a atividade; caso contrário pergunte o que vamos estudar hoje.')+' Fale de forma breve em português e convide o aluno à prática em inglês.'
+                }
+              }));
+            }catch(error){addMsg('Não consegui iniciar a saudação: '+String(error?.message||error),'bot')}
+          }
         }else if(name==='user-speaking'){
           setLiveRobotImage(false);
           setRobotState('listening');
@@ -450,7 +466,7 @@ window.startV26Conversation=async()=>{
    );
    phase='choose_module';
  }else{
-   await startV26SubscriptionLive('Modo bate-papo livre. Quando o aluno falar pela primeira vez, cumprimente-o e pergunte qual assunto ele quer praticar. Depois mantenha a conversa natural.');
+   await startV26SubscriptionLive('Modo bate-papo livre do curso Meu Inglês. Comece com a saudação automática e pergunte qual tema o aluno quer praticar. Depois guie a conversa em inglês com dicas curtas em português.');
  }
 };
 window.closeV26Conversation=e=>{e?.preventDefault?.();e?.stopPropagation?.();try{window.MeuInglesGeminiLiveV38?.stop?.()}catch{}try{window.MeuInglesSubscriptionLive?.stop?.()}catch{}try{window.stopGeminiTTS?.()}catch{}phase='idle';topic='';history=[];turn=0;errorStreak=0;liveExtra='';setBusy(false);setLiveRobotImage(false);setRobotState('');setFocus(false);render();setTimeout(()=>card()?.scrollIntoView({behavior:'smooth',block:'start'}),30)};
