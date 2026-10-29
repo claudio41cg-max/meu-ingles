@@ -1,4 +1,4 @@
-const CACHE_NAME='meu-ingles-pwa-v1';
+const CACHE_NAME='meu-ingles-pwa-v2';
 const APP_SHELL=[
   './',
   './index.html',
@@ -34,6 +34,8 @@ self.addEventListener('fetch',event=>{
   if(req.method!=='GET')return;
   const url=new URL(req.url);
   if(url.origin!==self.location.origin)return;
+
+  if(url.pathname.endsWith('/gpt-bridge-s20-v2.js')||url.pathname.endsWith('/gpt-bridge-v1.js')){event.respondWith(fetch(req,{cache:'no-store'}));return;}
 
   if(req.mode==='navigate'){
     event.respondWith((async()=>{
