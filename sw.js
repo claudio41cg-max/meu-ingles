@@ -1,4 +1,4 @@
-const CACHE_NAME='meu-ingles-pwa-v2';
+const CACHE_NAME='meu-ingles-pwa-v3';
 const APP_SHELL=[
   './',
   './index.html',
@@ -10,7 +10,7 @@ const APP_SHELL=[
   './stable.js?v=15',
   './a1-v15.js?v=17',
   './tts-v22.js?v=24',
-  './home-v26.js?v=33'
+  './home-v26.js?v=35'
 ];
 
 self.addEventListener('install',event=>{
