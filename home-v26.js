@@ -307,9 +307,40 @@ window.openTeacherTypes=()=>{window.stableShow?.('settings');setTimeout(()=>{[..
 
 function subscriptionLive(){return window.MeuInglesSubscriptionLive}
 function livePersonality(){
-  if(currentTeacher()==='pesada')return 'HARD 18+: professor exigente, enérgico, provocador e bem-humorado; linguagem adulta e palavrões ocasionais se o contexto pedir, nunca humilhe. Faça o aluno tentar outra vez, explique o erro e cobre progresso.';
-  if(currentTeacher()==='media')return 'DOIDEIRA: professor expansivo, engraçado, imprevisível e brincalhão; faça piadas curtas sobre os erros sem constranger, mude os exemplos e mantenha uma aula animada.';
-  return 'TRANQUILO: professor muito paciente e calmo, didático, explicações curtas e simples, sem palavrões, incentivo sem pressa e repetição apenas quando ajuda.';
+  if(currentTeacher()==='pesada')return 'HARD 18+: você SABE que é o professor Hard 18+ do Meu Inglês. Seja exigente, direto, provocador e bem-humorado. Pode usar linguagem adulta e palavrões ocasionais quando couber, sem humilhar. Não alivie erro: corrija, explique em poucas palavras e faça o aluno tentar novamente.';
+  if(currentTeacher()==='media')return 'DOIDEIRA: você SABE que é o professor Doideira do Meu Inglês. Seja animado, espontâneo, brincalhão e imprevisível, com piadas curtas e energia alta. Corrija sem constranger e varie exemplos, mas nunca abandone o tema da aula.';
+  return 'TRANQUILO: você SABE que é o professor Tranquilo do Meu Inglês. Seja paciente, calmo, acolhedor e muito didático. Explique com palavras simples, dê tempo para o aluno responder, repita quando necessário e nunca use palavrões.';
+}
+function liveModeContract(extra=''){
+  const x=String(extra||'').toUpperCase();
+  if(x.includes('MODO_ATIVO: EXPLORAR_TEMAS')){
+    return [
+      'MODO ATIVO: EXPLORAR TEMAS.',
+      'Fale SOMENTE sobre o tema escolhido e sobre a aula desse tema que foi enviada no contexto.',
+      'Não mude para outro tema, não puxe assunto aleatório e não transforme isso em bate-papo livre.',
+      'Use apenas vocabulário, frases e variações diretamente ligadas ao tema/aula atual.',
+      'Se o aluno tentar mudar de assunto, responda brevemente e traga a conversa de volta para o tema atual.',
+      'Continue a prática do ponto em que a aula parou até o aluno sair ou escolher outro tema.'
+    ].join(' ');
+  }
+  if(x.includes('MODO_ATIVO: INGLES_COM_AI')){
+    return [
+      'MODO ATIVO: INGLÊS COM AI.',
+      'Você está acompanhando o curso principal. Trabalhe SOMENTE o módulo/aula atual informados no contexto.',
+      'Não antecipe matéria de módulos futuros.',
+      'Pode fazer no máximo 1 ou 2 revisões curtas de conteúdo anterior quando isso ajudar a aula atual.',
+      'Depois da revisão, volte imediatamente para o conteúdo atual.',
+      'Continue do ponto atual do curso até o aluno encerrar ou escolher outro módulo.'
+    ].join(' ');
+  }
+  if(x.includes('MODO_ATIVO: BATE_PAPO_LIVRE')){
+    return [
+      'MODO ATIVO: BATE-PAPO LIVRE.',
+      'Aqui o aluno pode escolher qualquer assunto.',
+      'Converse de forma natural, mas mantenha o objetivo de praticar inglês, corrigindo de forma breve e adequada ao nível.'
+    ].join(' ');
+  }
+  return 'Mantenha-se estritamente no contexto recebido nesta sessão.';
 }
 function liveInstructions(extra=''){
   const base=[
@@ -319,7 +350,7 @@ function liveInstructions(extra=''){
     'Fale como um professor brasileiro humano, natural e espontâneo. Respostas curtas, em português brasileiro ao orientar e em inglês ao exemplificar e praticar.',
     'Objetivo: ensinar inglês do básico ao avançado, promover participação oral, corrigir pronúncia e gramática com delicadeza apropriada ao estilo escolhido.',
     'Conduza uma atividade por vez; dê um exemplo em inglês, convide o aluno a repetir ou responder e aguarde a fala. Não faça longas palestras nem mude de assunto sem necessidade.',
-    'Quando estiver em aula guiada, restrinja-se ao módulo e à atividade atuais, com no máximo 1 ou 2 revisões breves no final. No bate-papo livre, converse sobre o tema escolhido praticando inglês.',
+    liveModeContract(extra),
     'Se o aluno errar, explique de maneira breve e dê outra oportunidade. Varie as frases de incentivo de acordo com a personalidade. Evite perguntas sem propósito.',
     'Não diga que é Android, Gemini ou um leitor de texto. Você é o professor do Meu Inglês.',
     'Na primeira resposta da sessão, cumprimente pelo primeiro nome e pergunte o que ele quer estudar, a menos que já esteja em uma aula ou tema definido.'
@@ -361,7 +392,7 @@ async function startV26SubscriptionLive(extra=''){
               const active=subscriptionLive();
               try{await active?.stop?.()}catch{}
               await startV26SubscriptionLive(
-                'Treino guiado do módulo '+m+'. Comece agora pelo exercício oral mais fácil desse módulo. Faça uma pergunta curta em inglês e ajude em português quando necessário.'
+                'MODO_ATIVO: INGLES_COM_AI. Treino guiado do módulo '+m+'. Fique somente neste módulo. Comece agora pelo exercício oral mais fácil desse módulo. Faça uma pergunta curta em inglês e ajude em português quando necessário.'
               );
             },80);
           }
@@ -383,7 +414,7 @@ async function startV26SubscriptionLive(extra=''){
                 type:'response.create',
                 response:{
                   output_modalities:['audio'],
-                  instructions:'Você é o Professor '+personaLabel()+' do Meu Inglês. Cumprimente '+currentName()+' espontaneamente pelo primeiro nome e siga a personalidade: '+livePersonality()+'. '+(phase==='choose_module'?'Pergunte qual módulo do curso ele quer estudar.':'Se houver uma aula ou tema em andamento, comece a atividade; caso contrário pergunte o que vamos estudar hoje.')+' Fale de forma breve em português e convide o aluno à prática em inglês.'
+                  instructions:'Você é o Professor '+personaLabel()+' do Meu Inglês. Você sabe exatamente qual professor é e deve manter essa personalidade durante toda a sessão: '+livePersonality()+'. Cumprimente '+currentName()+' espontaneamente pelo primeiro nome. '+(phase==='choose_module'?'Pergunte somente qual módulo do curso ele quer estudar.':'Se houver uma aula ou tema em andamento, comece diretamente essa atividade sem perguntar por outro assunto; caso contrário pergunte o que vamos estudar hoje.')+' Fale de forma breve em português e convide o aluno à prática em inglês.'
                 }
               }));
             }catch(error){addMsg('Não consegui iniciar a saudação: '+String(error?.message||error),'bot')}
@@ -460,13 +491,13 @@ window.startV26Conversation=async()=>{
    document.querySelector('#homeModulePicker')?.classList.add('open');
    const modules=(LEVEL_MODULES[currentLevel()]||[]).map((m,i)=>(i+1)+'. '+m).join(' | ');
    await startV26SubscriptionLive(
-     'Modo Inglês com AI. O aluno está escolhendo um módulo do nível '+currentLevel()+'. '+
+     'MODO_ATIVO: INGLES_COM_AI. O aluno está escolhendo um módulo do nível '+currentLevel()+'. '+
      'Pergunte qual módulo ele quer praticar e aceite nome ou número. Módulos disponíveis: '+modules+'. '+
      'Enquanto ele escolhe, não comece outra matéria.'
    );
    phase='choose_module';
  }else{
-   await startV26SubscriptionLive('Modo bate-papo livre do curso Meu Inglês. Comece com a saudação automática e pergunte qual tema o aluno quer praticar. Depois guie a conversa em inglês com dicas curtas em português.');
+   await startV26SubscriptionLive('MODO_ATIVO: BATE_PAPO_LIVRE. Comece com a saudação automática e pergunte qual assunto o aluno quer conversar. Depois mantenha a conversa nesse assunto praticando inglês, com correções curtas em português quando necessário.');
  }
 };
 window.closeV26Conversation=e=>{e?.preventDefault?.();e?.stopPropagation?.();try{window.MeuInglesGeminiLiveV38?.stop?.()}catch{}try{window.MeuInglesSubscriptionLive?.stop?.()}catch{}try{window.stopGeminiTTS?.()}catch{}phase='idle';topic='';history=[];turn=0;errorStreak=0;liveExtra='';setBusy(false);setLiveRobotImage(false);setRobotState('');setFocus(false);render();setTimeout(()=>card()?.scrollIntoView({behavior:'smooth',block:'start'}),30)};
@@ -490,7 +521,7 @@ window.startV26LiveContext=async context=>{
    context?.recentTitles?`Aulas recentes: ${context.recentTitles}.`:'',
    context?.lessonMap?`Mapa das aulas: ${context.lessonMap}.`:'',
    context?.instruction?String(context.instruction):'',
-   'Você está no modo Explorar temas do Meu Inglês. Use GPT Live por assinatura e conduza a prática por voz.'
+   'MODO_ATIVO: EXPLORAR_TEMAS. Você está no modo Explorar temas do Meu Inglês. O tema e a aula recebidos acima são obrigatórios. Não saia deles. Use GPT Live por assinatura e conduza a prática por voz.'
  ].filter(Boolean).join('\n');
  await startV26SubscriptionLive(details);
 };
