@@ -237,6 +237,42 @@ async function requestVoice(payload){
   }catch{}
   return d;
 }
+
+/* Voz de reserva gratuita do aparelho, usada apenas se Gemini e o servidor alternativo falharem.
+   Não substitui o cache Gemini nem muda a voz habitual enquanto ela está disponível. */
+async function playDeviceFallback(text,lang,seq){
+  if(!('speechSynthesis' in window)||!window.SpeechSynthesisUtterance)return false;
+  const synth=window.speechSynthesis;
+  const pieces=[];
+  const explanation=String(text||'').match(/^(.+?) significa (.+?)(?:\.)?$/i);
+  if(explanation && String(lang).toLowerCase().startsWith('pt')){
+    pieces.push({text:explanation[1],lang:'en-US'});
+    pieces.push({text:'significa '+explanation[2].replace(/\.$/,'')+'.',lang:'pt-BR'});
+  }else{
+    pieces.push({text,lang:String(lang).toLowerCase().startsWith('en')?'en-US':'pt-BR'});
+  }
+  synth.cancel();
+  for(const piece of pieces){
+    if(seq!==currentSeq)return false;
+    const worked=await new Promise(resolve=>{
+      const utterance=new SpeechSynthesisUtterance(piece.text);
+      utterance.lang=piece.lang;
+      utterance.rate=0.9;
+      utterance.pitch=1;
+      let ended=false;
+      let watchdog;
+      const finish=ok=>{if(ended)return;ended=true;clearTimeout(watchdog);resolve(ok)};
+      utterance.onend=()=>finish(true);
+      utterance.onerror=()=>finish(false);
+      watchdog=setTimeout(()=>finish(false),Math.max(6000,Math.min(30000,piece.text.length*180+2000)));
+      try{synth.speak(utterance)}catch{finish(false)}
+    });
+    if(!worked)return false;
+  }
+  if(seq===currentSeq){status('🔊 Voz de reserva do celular ativa.');return true;}
+  return false;
+}
+
 async function geminiSpeak(text,lang='pt-BR',voice=currentVoice()){
   text=String(text||'').trim();
   if(!text)return false;
@@ -285,11 +321,12 @@ async function geminiSpeak(text,lang='pt-BR',voice=currentVoice()){
     if(seq!==currentSeq)return false;
     return await playPCM(d,voice,seq);
   }catch(e){
-    if(seq===currentSeq){
-      console.error('Gemini TTS frontend',e);
-      status('❌ '+String(e&&e.message||e).slice(0,180),false);
-      document.querySelectorAll('.bot').forEach(b=>b.classList.remove('speaking'));
-    }
+    if(seq!==currentSeq)return false;
+    console.warn('Gemini TTS indisponível: tentando voz de reserva do celular.',e);
+    document.querySelectorAll('.bot').forEach(b=>b.classList.remove('speaking'));
+    const recovered=await playDeviceFallback(text,lang,seq);
+    if(recovered)return true;
+    if(seq===currentSeq)status('⚠️ Voz indisponível. Toque em Ouvir para tentar novamente.',false);
     return false;
   }
 }
