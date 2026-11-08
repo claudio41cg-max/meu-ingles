@@ -502,7 +502,20 @@ function dailyRoutineLesson(n){
  return L[n]||L[0];
 }
 
-function lesson(m,n){if(m===0)return firstContactLesson(n);if(m===1)return secondContactLesson(n);if(m===2)return familyLesson(n);if(m===3)return dailyRoutineLesson(n);const cur=item(m,n),k=known(m,n),op=options(cur,m,n),prev=k.filter(x=>x.en.toLowerCase()!==cur.en.toLowerCase()).slice(-1)[0]||{e:'☕',en:'coffee',pt:'café'};const words=cur.en.trim().split(/\s+/),review=(m===1?[cur,...(M2_DISTRACTORS[n]||[]).map(x=>({e:'🔁',en:x.en,pt:x.pt}))]:[cur,prev,...k.slice(-4).reverse()]).filter((x,i,a)=>a.findIndex(y=>y.en.toLowerCase()===x.en.toLowerCase())===i).slice(0,3);const steps=[
+const HABITS_TITLES=["I like: falando do que gosto","Do you like...?: fazendo perguntas","Yes, I do / No, I don’t","Do you want...?: fazendo pedidos","Where e What: perguntas úteis","Hábitos: What do you do?","Revisão: gostos e hábitos","Missão final: uma conversa sobre mim"];
+const HABITS_CONTENT=[[["g","Good morning! How are you?","I'm fine, thank you.",["My name is Alex.","This is my father."]],["p","❤️","I like music.","Eu gosto de música."],["p","☕","I like coffee.","Eu gosto de café."],["c","O que significa “I like”?","Eu gosto de",["Eu preciso de","Eu não gosto de"],"I like"],["c","Qual frase você ouviu?","I like music.",["I like movies.","I like coffee."],"I like music."],["b","Eu gosto de café.","I like coffee."],["g","What do you like? (música)","I like music.",["I like sleep.","I am music."]],["r",[["❤️","I like","eu gosto de"],["☕","coffee","café"],["🎵","music","música"]]]],[["c","Lembrando: “I like coffee.” significa:","Eu gosto de café.",["Eu quero café.","Eu faço café."],"I like coffee."],["p","❓","Do you like music?","Você gosta de música?"],["p","🎬","Do you like movies?","Você gosta de filmes?"],["c","O que significa “Do you like...?”","Você gosta de...?",["Você tem...?","Você está...?"],"Do you like"],["c","Qual pergunta você ouviu?","Do you like music?",["Do you like movies?","Do you want music?"],"Do you like music?"],["b","Você gosta de música?","Do you like music?"],["g","Do you like movies? (sim)","Yes, I do.",["No, I am.","Yes, I like."]],["r",[["❓","Do you like...?","Você gosta de...?"],["🎵","music","música"],["🎬","movies","filmes"]]]],[["c","Revisão: qual frase é uma pergunta sobre gostos?","Do you like music?",["I like music.","This is my music."],"Do you like music?"],["p","✅","Yes, I do.","Sim, eu gosto."],["p","🙅","No, I don’t.","Não, eu não gosto."],["c","Como responder afirmativamente a “Do you like music?”","Yes, I do.",["Yes, I am.","Yes, I can."],"Yes, I do."],["c","Qual resposta você ouviu?","No, I don’t.",["Yes, I do.","No, I am not."],"No, I don’t."],["b","Não, eu não gosto.","No, I don’t."],["g","Do you like coffee? (não)","No, I don’t.",["Yes, I do.","No, I like coffee."]],["r",[["✅","Yes, I do.","Sim, eu gosto."],["🙅","No, I don’t.","Não, eu não gosto."],["❓","Do you like...?","Você gosta de...?"]]]],[["g","Do you like coffee? (sim)","Yes, I do.",["No, I don’t.","Yes, I am."]],["p","🥛","Do you want water?","Você quer água?"],["p","☕","I want coffee, please.","Eu quero café, por favor."],["c","O que significa “Do you want...?”","Você quer...?",["Você gosta de...?","Você conhece...?"],"Do you want"],["c","Qual frase você ouviu?","I want coffee, please.",["I like coffee, please.","I want water, please."],"I want coffee, please."],["b","Você quer água?","Do you want water?"],["g","Do you want coffee? (sim)","Yes, please.",["No, I am.","I am coffee."]],["r",[["🥛","Do you want water?","Você quer água?"],["☕","I want coffee, please.","Quero café, por favor."],["🙏","please","por favor"]]]],[["c","Lembrando: qual pergunta significa “Você quer água?”","Do you want water?",["Do you like water?","Where is the water?"],"Do you want water?"],["p","📍","Where is the market?","Onde fica o mercado?"],["p","❔","What is this?","O que é isto?"],["c","Qual palavra pergunta por um lugar?","Where",["What","Who"],"Where"],["c","Qual pergunta você ouviu?","What is this?",["Where is this?","Who is this?"],"What is this?"],["b","Onde fica o mercado?","Where is the market?"],["g","What is this? ☕ (coffee)","It is coffee.",["It is a market.","It is my brother."]],["r",[["📍","Where","onde"],["❔","What","o quê / qual"],["🛒","market","mercado"]]]],[["g","Where is the market? (pergunta sobre local)","Where",["What","When"]],["p","💼","What do you do in the morning?","O que você faz de manhã?"],["p","📚","I study English every day.","Eu estudo inglês todos os dias."],["c","Qual frase fala de um hábito diário?","I study English every day.",["I studied English yesterday.","I will study tomorrow."],"I study English every day."],["c","Qual pergunta você ouviu?","What do you do in the morning?",["Where do you work?","Do you like music?"],"What do you do in the morning?"],["b","Eu estudo inglês todos os dias.","I study English every day."],["g","What do you do in the morning? (trabalho)","I work in the morning.",["I go to bed at ten.","I have dinner at seven."]],["r",[["💼","I work in the morning.","Eu trabalho de manhã."],["📚","I study English.","Eu estudo inglês."],["📅","every day","todos os dias"]]]],[["c","Como perguntar se alguém gosta de música?","Do you like music?",["Do you want music?","Where is music?"],"Do you like music?"],["c","Qual resposta negativa combina com “Do you like coffee?”","No, I don’t.",["No, I am not.","No, you are."],"No, I don’t."],["c","Qual pergunta você ouviu?","Where is the market?",["What is the market?","Who is the market?"],"Where is the market?"],["b","Eu gosto de música.","I like music."],["g","Revisão da família: Who is this? 👩","This is my mother.",["This is my father.","This is my brother."]],["c","Qual pergunta é sobre hábitos?","What do you do in the morning?",["Who is your sister?","Where is my coffee?"],"What do you do in the morning?"],["b","Você gosta de filmes?","Do you like movies?"],["r",[["❤️","I like music.","Eu gosto de música."],["❓","Do you like movies?","Você gosta de filmes?"],["📍","Where is the market?","Onde fica o mercado?"]]]],[["p","✨","Let’s talk about you!","Vamos conversar sobre você!"],["g","Hello! What’s your name?","My name is Alex.",["I like coffee.","I work in the morning."]],["g","Do you like music? (sim)","Yes, I do.",["No, I don’t.","Yes, I am."]],["g","What do you like? (café)","I like coffee.",["I want music.","I go home."]],["b","Você gosta de filmes?","Do you like movies?"],["g","What do you do in the morning? (trabalho)","I work in the morning.",["I have dinner at seven.","I go to bed at ten."]],["b","Eu estudo inglês todos os dias.","I study English every day."],["r",[["❓","Do you like...?","Você gosta de...?"],["✅","Yes, I do.","Sim, eu gosto."],["❤️","I like coffee.","Eu gosto de café."],["📚","I study English.","Eu estudo inglês."]]]]];
+function questionsHabitsLesson(n){
+ const lines=HABITS_CONTENT[n]||HABITS_CONTENT[0];
+ const steps=lines.map(s=>{if(s[0]==='p')return {t:'phrase',x:{e:s[1],en:s[2],pt:s[3]}};
+ if(s[0]==='c')return {t:'choice',q:s[1],ans:s[2],op:sh([s[2],...s[3]]),audio:s[4]};
+ if(s[0]==='g')return {t:'guided',q:s[1],ans:s[2],op:sh([s[2],...s[3]])};
+ if(s[0]==='b')return {t:'build',q:'Monte a frase em inglês:',pt:s[1],target:s[2],tokens:sh(s[2].split(/\s+/))};
+ return {t:'review',items:s[1].map(x=>({e:x[0],en:x[1],pt:x[2]}))};
+ });
+ return {title:HABITS_TITLES[n]||HABITS_TITLES[0],steps};
+}
+
+function lesson(m,n){if(m===0)return firstContactLesson(n);if(m===1)return secondContactLesson(n);if(m===2)return familyLesson(n);if(m===3)return dailyRoutineLesson(n);if(m===4)return questionsHabitsLesson(n);const cur=item(m,n),k=known(m,n),op=options(cur,m,n),prev=k.filter(x=>x.en.toLowerCase()!==cur.en.toLowerCase()).slice(-1)[0]||{e:'☕',en:'coffee',pt:'café'};const words=cur.en.trim().split(/\s+/),review=(m===1?[cur,...(M2_DISTRACTORS[n]||[]).map(x=>({e:'🔁',en:x.en,pt:x.pt}))]:[cur,prev,...k.slice(-4).reverse()]).filter((x,i,a)=>a.findIndex(y=>y.en.toLowerCase()===x.en.toLowerCase())===i).slice(0,3);const steps=[
  {t:words.length>1?'phrase':'learn',x:cur},
  {t:'choice',q:`${cur.en} significa:`,ans:cur.pt,op:sh(op.map(x=>x.pt)),audio:cur.en},
  {t:'choice',q:'Qual você ouviu?',ans:cur.en,op:sh(op.map(x=>x.en)),audio:cur.en},
@@ -525,7 +538,7 @@ function shell(inner){
    const screenTitle=document.querySelector('#course > .top h2');
    if(screenTitle)screenTitle.textContent='Tela inicial';
  }
- return `<div class="beginner14 ${run.m===0?'firstContactsLessonScreen':''} ${run.m===1?'moduleTwoLessonScreen':run.m===2?'familyLessonScreen':run.m===3?'routineLessonScreen':''}"><div class="b14Top"><button class="b14Back" onclick="openStableModule('A1',${run.m})">‹</button><div class="b14Progress"><span style="width:${p}%"></span></div></div>${run.m===0?'':top()}<div class="b14Card"><div class="b14Eyebrow">${run.m<=1?'PRÉ-A1':'A1'} · ${run.i+1} de ${run.lesson.steps.length}</div>${inner}<div id="a15Voice" class="b14VoiceWarn"></div></div><div class="lessonStepNav" aria-label="Navegação entre etapas"><button type="button" onclick="a15Jump(-1)" aria-label="Voltar uma etapa" ${run.i<=0?'disabled':''}>‹</button><button type="button" onclick="a15Jump(1)" aria-label="Avançar uma etapa" ${run.i>=run.lesson.steps.length-1?'disabled':''}>›</button></div></div>`;
+ return `<div class="beginner14 ${run.m===0?'firstContactsLessonScreen':''} ${run.m===1?'moduleTwoLessonScreen':run.m===2?'familyLessonScreen':run.m===3?'routineLessonScreen':run.m===4?'habitsLessonScreen':''}"><div class="b14Top"><button class="b14Back" onclick="openStableModule('A1',${run.m})">‹</button><div class="b14Progress"><span style="width:${p}%"></span></div></div>${run.m===0?'':top()}<div class="b14Card"><div class="b14Eyebrow">${run.m<=1?'PRÉ-A1':'A1'} · ${run.i+1} de ${run.lesson.steps.length}</div>${inner}<div id="a15Voice" class="b14VoiceWarn"></div></div><div class="lessonStepNav" aria-label="Navegação entre etapas"><button type="button" onclick="a15Jump(-1)" aria-label="Voltar uma etapa" ${run.i<=0?'disabled':''}>‹</button><button type="button" onclick="a15Jump(1)" aria-label="Avançar uma etapa" ${run.i>=run.lesson.steps.length-1?'disabled':''}>›</button></div></div>`;
 }
 const prevButton=()=>'';
 const next=()=>`<div class="b14Footer"><button class="b14Next" onclick="a15Next()">Continuar</button>${prevButton()}</div>`;
@@ -610,7 +623,7 @@ window.a15Check=async()=>{
 function start(m,n){if(m===1&&!unlocked(m,n))return;const l=lesson(m,n),pct=progress(m,n),i=done(m,n)?0:Math.min(l.steps.length-1,Math.floor(pct/100*l.steps.length));run={m,n,i,lesson:l,built:[],used:[],checked:false,ok:false};render()}
 function finish(){const s=state();s.done=s.done&&typeof s.done==='object'?s.done:{};s.progress=s.progress&&typeof s.progress==='object'?s.progress:{};const k=`A1-${run.m}-${run.n}`;s.progress[k]=100;if(!s.done[k]){s.done[k]=true;s.xp=(Number(s.xp)||0)+30}s.level='A1';save(s);sessionStorage.setItem('a15back',String(run.m));location.reload()}
 window.a15Finish=finish;
-function title(m,n){if(m===0&&START[n])return START[n];if(m===1&&MODULE_TWO_TITLES[n])return MODULE_TWO_TITLES[n];if(m===2&&FAMILY_LESSON_TITLES[n])return FAMILY_LESSON_TITLES[n];if(m===3)return ['Minha manhã: I wake up','Café da manhã e horários','Eu trabalho e estudo','Almoço e tarde','Voltando para casa','Minha noite: I go to bed','Revisão: meu dia em inglês','Missão final: minha rotina'][n]||'Rotina diária';return item(m,n)?.title||`Lição ${n+1}`}
+function title(m,n){if(m===0&&START[n])return START[n];if(m===1&&MODULE_TWO_TITLES[n])return MODULE_TWO_TITLES[n];if(m===2&&FAMILY_LESSON_TITLES[n])return FAMILY_LESSON_TITLES[n];if(m===3)return ['Minha manhã: I wake up','Café da manhã e horários','Eu trabalho e estudo','Almoço e tarde','Voltando para casa','Minha noite: I go to bed','Revisão: meu dia em inglês','Missão final: minha rotina'][n]||'Rotina diária';if(m===4)return HABITS_TITLES[n]||'Perguntas e hábitos';return item(m,n)?.title||`Lição ${n+1}`}
 function done(m,n){return !!state().done?.[`A1-${m}-${n}`]}
 function unlocked(m,n){return n===0||done(m,n-1)||progress(m,n)>0}
 const FIRST_CONTACTS_ART=['👋','🌅','💬','🙂','🙏','👋','🎮','✨'];
@@ -636,12 +649,12 @@ function firstContactsCards(){
 }
 const MODULE_TWO_ART=['🙂','❓','🤝','🗣️','🌎','🔤','🎯','✨'];
 function moduleTwoCards(m=1){
- const icons=m===2?['👨‍👩‍👧','👧','👉','🧑‍🤝‍🧑','❓','💬','🎯','✨']:m===3?['🌅','☕','💼','🍽️','🏠','🌙','🎯','✨']:MODULE_TWO_ART;
+ const icons=m===2?['👨‍👩‍👧','👧','👉','🧑‍🤝‍🧑','❓','💬','🎯','✨']:m===3?['🌅','☕','💼','🍽️','🏠','🌙','🎯','✨']:m===4?['❤️','❓','✅','🥛','📍','📚','🎯','✨']:MODULE_TWO_ART;
  return Array.from({length:8},(_,n)=>{
-  const pct=progress(m,n),isDone=done(m,n),isUnlocked=m===2||m===3?true:unlocked(m,n);
+  const pct=progress(m,n),isDone=done(m,n),isUnlocked=m===2||m===3||m===4?true:unlocked(m,n);
   const icon=icons[n]||'🔤';
   const statusText=isDone?'Concluída · toque para revisar':!isUnlocked?'🔒 Conclua a aula anterior':pct>0?`Em andamento · ${pct}%`:'Toque para começar';
-  return `<div class="moduleTwoLessonCard ${m===2?'familyLessonCard':m===3?'routineLessonCard':''} ${isDone?'done':''} ${!isUnlocked?'locked':''}" role="button" tabindex="${isUnlocked?0:-1}"
+  return `<div class="moduleTwoLessonCard ${m===2?'familyLessonCard':m===3?'routineLessonCard':m===4?'habitsLessonCard':''} ${isDone?'done':''} ${!isUnlocked?'locked':''}" role="button" tabindex="${isUnlocked?0:-1}"
     ${isUnlocked?`onclick="openStableLesson('A1',${m},${n})" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();openStableLesson('A1',${m},${n})}"`:''}>
     <div class="moduleTwoLessonCopy">
       <div class="moduleTwoLessonNumber">AULA ${n+1}</div>
@@ -673,14 +686,14 @@ function moduleView(m){
    window.scrollTo(0,0);
    return;
  }
- if(m===1||m===2||m===3){
-   $('#courseBody').innerHTML=`<div class="moduleTwoView ${m===2?'familyModuleView':m===3?'routineModuleView':''}">
+ if(m===1||m===2||m===3||m===4){
+   $('#courseBody').innerHTML=`<div class="moduleTwoView ${m===2?'familyModuleView':m===3?'routineModuleView':m===4?'habitsModuleView':''}">
      <div class="moduleTwoHead">
        <button class="back moduleTwoBack" onclick="renderStableCourse()">‹</button>
        <div>
-         <div class="moduleTwoEyebrow">${m===2?'A1 · MÓDULO 3':m===3?'A1 · MÓDULO 4':'PRÉ-A1 · MÓDULO 2'}</div>
-         <h2>${m===2?'Família e pessoas':m===3?'Rotina diária':'Meu nome é…'}</h2>
-         <p>${m===2?'Aprenda a apresentar familiares e amigos':m===3?'Fale sobre o seu dia, horários e hábitos':'Apresente-se e conheça alguém'} · 8 aulas progressivas</p>
+         <div class="moduleTwoEyebrow">${m===2?'A1 · MÓDULO 3':m===3?'A1 · MÓDULO 4':m===4?'A1 · MÓDULO 5':'PRÉ-A1 · MÓDULO 2'}</div>
+         <h2>${m===2?'Família e pessoas':m===3?'Rotina diária':m===4?'Perguntas e hábitos':'Meu nome é…'}</h2>
+         <p>${m===2?'Aprenda a apresentar familiares e amigos':m===3?'Fale sobre o seu dia, horários e hábitos':m===4?'Faça perguntas e fale dos seus gostos':'Apresente-se e conheça alguém'} · 8 aulas progressivas</p>
        </div>
      </div>
      <div class="moduleTwoLessons">${moduleTwoCards(m)}</div>
