@@ -249,6 +249,7 @@ async function speak(text,lang='en-US',isTeacher=false){
   try{
    const ok=await window.geminiSpeak(text,lang,voice);
    if(ok)return true;
+   return false;
   }catch{}
  }
  try{
