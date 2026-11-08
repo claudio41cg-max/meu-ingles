@@ -408,7 +408,101 @@ function familyLesson(n){
  return L[n]||L[0];
 }
 
-function lesson(m,n){if(m===0)return firstContactLesson(n);if(m===1)return secondContactLesson(n);if(m===2)return familyLesson(n);const cur=item(m,n),k=known(m,n),op=options(cur,m,n),prev=k.filter(x=>x.en.toLowerCase()!==cur.en.toLowerCase()).slice(-1)[0]||{e:'☕',en:'coffee',pt:'café'};const words=cur.en.trim().split(/\s+/),review=(m===1?[cur,...(M2_DISTRACTORS[n]||[]).map(x=>({e:'🔁',en:x.en,pt:x.pt}))]:[cur,prev,...k.slice(-4).reverse()]).filter((x,i,a)=>a.findIndex(y=>y.en.toLowerCase()===x.en.toLowerCase())===i).slice(0,3);const steps=[
+function dailyRoutineLesson(n){
+ const titles=[
+  'Minha manhã: I wake up','Café da manhã e horários','Eu trabalho e estudo','Almoço e tarde','Voltando para casa','Minha noite: I go to bed','Revisão: meu dia em inglês','Missão final: minha rotina'
+ ];
+ const ph=(e,en,pt)=>({t:'phrase',x:{e,en,pt}});
+ const ch=(q,ans,other,audio)=>({t:'choice',q,ans,op:sh([ans,...other]),...(audio?{audio}:{})});
+ const gd=(q,ans,other)=>({t:'guided',q,ans,op:sh([ans,...other])});
+ const bu=(pt,target)=>({t:'build',q:'Monte a frase em inglês:',pt,target,tokens:sh(target.split(/\s+/))});
+ const re=(...items)=>({t:'review',items:items.map(([e,en,pt])=>({e,en,pt}))});
+ const L=[
+  {title:titles[0],steps:[
+   gd('Hello! How are you?', "I'm fine, thank you.",['My name is Anna.','This is my brother.']),
+   ph('🌅','I wake up in the morning.','Eu acordo de manhã.'),
+   ph('⏰','I wake up at seven.','Eu acordo às sete.'),
+   ch('O que significa “I wake up”?','Eu acordo.',['Eu durmo.','Eu trabalho.'],'I wake up'),
+   ch('Qual frase você ouviu?','I wake up at seven.',['I go to bed at seven.','I work at seven.'],'I wake up at seven.'),
+   bu('Eu acordo às sete.','I wake up at seven.'),
+   gd('What time do you wake up? (às sete)','I wake up at seven.',['I go to bed at seven.','I eat lunch at seven.']),
+   re(['🌅','morning','manhã'],['⏰','I wake up at seven.','Eu acordo às sete.'],['👋','Good morning!','Bom dia!'])
+  ]},
+  {title:titles[1],steps:[
+   ch('Revisão: “I wake up at seven.” significa:','Eu acordo às sete.',['Eu durmo às sete.','Eu almoço às sete.'],'I wake up at seven.'),
+   ph('☕','I have breakfast at eight.','Eu tomo café da manhã às oito.'),
+   ph('🥛','I drink milk in the morning.','Eu bebo leite de manhã.'),
+   ch('O que significa “breakfast”?','café da manhã',['almoço','jantar'],'breakfast'),
+   ch('Qual frase você ouviu?','I have breakfast at eight.',['I have dinner at eight.','I wake up at eight.'],'I have breakfast at eight.'),
+   bu('Eu tomo café da manhã às oito.','I have breakfast at eight.'),
+   gd('What do you have in the morning? (leite)','I drink milk.',['I drink dinner.','I sleep milk.']),
+   re(['☕','breakfast','café da manhã'],['🥛','I drink milk.','Eu bebo leite.'],['⏰','at eight','às oito'])
+  ]},
+  {title:titles[2],steps:[
+   ch('Lembrando a manhã: qual frase fala do café da manhã?','I have breakfast at eight.',['I go to bed at eight.','I get home at eight.'],'I have breakfast at eight.'),
+   ph('💼','I work in the morning.','Eu trabalho de manhã.'),
+   ph('📚','I study English every day.','Eu estudo inglês todos os dias.'),
+   ch('“I study English” significa:','Eu estudo inglês.',['Eu trabalho em inglês.','Eu durmo cedo.'],'I study English'),
+   ch('Qual frase você ouviu?','I work in the morning.',['I study in the morning.','I sleep in the morning.'],'I work in the morning.'),
+   bu('Eu estudo inglês todos os dias.','I study English every day.'),
+   gd('What do you study? (inglês)','I study English.',['I work English.','I sleep English.']),
+   re(['💼','I work.','Eu trabalho.'],['📚','I study English.','Eu estudo inglês.'],['🌅','in the morning','de manhã'])
+  ]},
+  {title:titles[3],steps:[
+   gd('What do you study? (inglês)','I study English.',['I work at home.','I have breakfast.']),
+   ph('🍽️','I have lunch at noon.','Eu almoço ao meio-dia.'),
+   ph('☀️','I work in the afternoon.','Eu trabalho à tarde.'),
+   ch('O que significa “lunch”?','almoço',['café da manhã','jantar'],'lunch'),
+   ch('Qual frase você ouviu?','I work in the afternoon.',['I work in the morning.','I sleep in the afternoon.'],'I work in the afternoon.'),
+   bu('Eu almoço ao meio-dia.','I have lunch at noon.'),
+   gd('What do you do at noon? (almoço)','I have lunch at noon.',['I go to bed at noon.','I wake up at noon.']),
+   re(['🍽️','I have lunch.','Eu almoço.'],['☀️','afternoon','tarde'],['📚','I study English.','Eu estudo inglês.'])
+  ]},
+  {title:titles[4],steps:[
+   ch('Revisão: “I have lunch at noon.” significa:','Eu almoço ao meio-dia.',['Eu tomo café às oito.','Eu janto às nove.'],'I have lunch at noon.'),
+   ph('🏠','I get home at six.','Eu chego em casa às seis.'),
+   ph('🚶','I go home after work.','Eu vou para casa depois do trabalho.'),
+   ch('O que significa “after work”?','depois do trabalho',['antes da escola','durante o almoço'],'after work'),
+   ch('Qual frase você ouviu?','I get home at six.',['I wake up at six.','I go to bed at six.'],'I get home at six.'),
+   bu('Eu chego em casa às seis.','I get home at six.'),
+   gd('What do you do after work? (vou para casa)','I go home.',['I have breakfast.','I wake up.']),
+   re(['🏠','I get home.','Eu chego em casa.'],['💼','after work','depois do trabalho'],['🍽️','I have lunch.','Eu almoço.'])
+  ]},
+  {title:titles[5],steps:[
+   gd('What do you do after work? (vou para casa)','I go home.',['I wake up.','I have breakfast.']),
+   ph('🌙','I have dinner at seven.','Eu janto às sete.'),
+   ph('😴','I go to bed at ten.','Eu vou dormir às dez.'),
+   ch('O que significa “I go to bed”?','Eu vou dormir.',['Eu acordo.','Eu trabalho.'],'I go to bed'),
+   ch('Qual frase você ouviu?','I have dinner at seven.',['I have lunch at seven.','I have breakfast at seven.'],'I have dinner at seven.'),
+   bu('Eu vou dormir às dez.','I go to bed at ten.'),
+   gd('What time do you go to bed? (às dez)','I go to bed at ten.',['I wake up at ten.','I have lunch at ten.']),
+   re(['🌙','dinner','jantar'],['😴','I go to bed.','Eu vou dormir.'],['🏠','I get home.','Eu chego em casa.'])
+  ]},
+  {title:titles[6],steps:[
+   ch('Qual frase significa “Eu acordo às sete”?','I wake up at seven.',['I go to bed at seven.','I have dinner at seven.'],'I wake up at seven.'),
+   ch('Qual palavra significa “almoço”?','lunch',['breakfast','dinner'],'lunch'),
+   ch('Qual frase você ouviu?','I get home at six.',['I wake up at six.','I go to bed at six.'],'I get home at six.'),
+   bu('Eu trabalho de manhã.','I work in the morning.'),
+   gd('Who is this? 👩 (mother)','This is my mother.',['This is my father.','This is my sister.']),
+   ch('Qual expressão é usada para despedida?','Goodbye!',['Good morning!','How are you?'],'Goodbye!'),
+   bu('Eu vou dormir às dez.','I go to bed at ten.'),
+   re(['🌅','I wake up.','Eu acordo.'],['🍽️','I have lunch.','Eu almoço.'],['😴','I go to bed.','Eu vou dormir.'])
+  ]},
+  {title:titles[7],steps:[
+   ph('✨','This is my daily routine.','Esta é minha rotina diária.'),
+   gd('Good morning! How are you?', "I'm fine, thank you.",['I go to bed at ten.','This is my brother.']),
+   gd('What time do you wake up? (às sete)','I wake up at seven.',['I get home at seven.','I go to bed at seven.']),
+   gd('What do you do in the morning? (trabalho)','I work in the morning.',['I have dinner at seven.','I go to bed at ten.']),
+   bu('Eu almoço ao meio-dia.','I have lunch at noon.'),
+   gd('What time do you get home? (às seis)','I get home at six.',['I wake up at six.','I go to bed at six.']),
+   bu('Eu vou dormir às dez.','I go to bed at ten.'),
+   re(['🌅','I wake up at seven.','Eu acordo às sete.'],['🍽️','I have lunch at noon.','Eu almoço ao meio-dia.'],['🏠','I get home at six.','Eu chego em casa às seis.'],['😴','I go to bed at ten.','Eu vou dormir às dez.'])
+  ]}
+ ];
+ return L[n]||L[0];
+}
+
+function lesson(m,n){if(m===0)return firstContactLesson(n);if(m===1)return secondContactLesson(n);if(m===2)return familyLesson(n);if(m===3)return dailyRoutineLesson(n);const cur=item(m,n),k=known(m,n),op=options(cur,m,n),prev=k.filter(x=>x.en.toLowerCase()!==cur.en.toLowerCase()).slice(-1)[0]||{e:'☕',en:'coffee',pt:'café'};const words=cur.en.trim().split(/\s+/),review=(m===1?[cur,...(M2_DISTRACTORS[n]||[]).map(x=>({e:'🔁',en:x.en,pt:x.pt}))]:[cur,prev,...k.slice(-4).reverse()]).filter((x,i,a)=>a.findIndex(y=>y.en.toLowerCase()===x.en.toLowerCase())===i).slice(0,3);const steps=[
  {t:words.length>1?'phrase':'learn',x:cur},
  {t:'choice',q:`${cur.en} significa:`,ans:cur.pt,op:sh(op.map(x=>x.pt)),audio:cur.en},
  {t:'choice',q:'Qual você ouviu?',ans:cur.en,op:sh(op.map(x=>x.en)),audio:cur.en},
@@ -431,7 +525,7 @@ function shell(inner){
    const screenTitle=document.querySelector('#course > .top h2');
    if(screenTitle)screenTitle.textContent='Tela inicial';
  }
- return `<div class="beginner14 ${run.m===0?'firstContactsLessonScreen':''} ${run.m===1?'moduleTwoLessonScreen':run.m===2?'familyLessonScreen':''}"><div class="b14Top"><button class="b14Back" onclick="openStableModule('A1',${run.m})">‹</button><div class="b14Progress"><span style="width:${p}%"></span></div></div>${run.m===0?'':top()}<div class="b14Card"><div class="b14Eyebrow">${run.m<=1?'PRÉ-A1':'A1'} · ${run.i+1} de ${run.lesson.steps.length}</div>${inner}<div id="a15Voice" class="b14VoiceWarn"></div></div><div class="lessonStepNav" aria-label="Navegação entre etapas"><button type="button" onclick="a15Jump(-1)" aria-label="Voltar uma etapa" ${run.i<=0?'disabled':''}>‹</button><button type="button" onclick="a15Jump(1)" aria-label="Avançar uma etapa" ${run.i>=run.lesson.steps.length-1?'disabled':''}>›</button></div></div>`;
+ return `<div class="beginner14 ${run.m===0?'firstContactsLessonScreen':''} ${run.m===1?'moduleTwoLessonScreen':run.m===2?'familyLessonScreen':run.m===3?'routineLessonScreen':''}"><div class="b14Top"><button class="b14Back" onclick="openStableModule('A1',${run.m})">‹</button><div class="b14Progress"><span style="width:${p}%"></span></div></div>${run.m===0?'':top()}<div class="b14Card"><div class="b14Eyebrow">${run.m<=1?'PRÉ-A1':'A1'} · ${run.i+1} de ${run.lesson.steps.length}</div>${inner}<div id="a15Voice" class="b14VoiceWarn"></div></div><div class="lessonStepNav" aria-label="Navegação entre etapas"><button type="button" onclick="a15Jump(-1)" aria-label="Voltar uma etapa" ${run.i<=0?'disabled':''}>‹</button><button type="button" onclick="a15Jump(1)" aria-label="Avançar uma etapa" ${run.i>=run.lesson.steps.length-1?'disabled':''}>›</button></div></div>`;
 }
 const prevButton=()=>'';
 const next=()=>`<div class="b14Footer"><button class="b14Next" onclick="a15Next()">Continuar</button>${prevButton()}</div>`;
@@ -516,7 +610,7 @@ window.a15Check=async()=>{
 function start(m,n){if(m===1&&!unlocked(m,n))return;const l=lesson(m,n),pct=progress(m,n),i=done(m,n)?0:Math.min(l.steps.length-1,Math.floor(pct/100*l.steps.length));run={m,n,i,lesson:l,built:[],used:[],checked:false,ok:false};render()}
 function finish(){const s=state();s.done=s.done&&typeof s.done==='object'?s.done:{};s.progress=s.progress&&typeof s.progress==='object'?s.progress:{};const k=`A1-${run.m}-${run.n}`;s.progress[k]=100;if(!s.done[k]){s.done[k]=true;s.xp=(Number(s.xp)||0)+30}s.level='A1';save(s);sessionStorage.setItem('a15back',String(run.m));location.reload()}
 window.a15Finish=finish;
-function title(m,n){if(m===0&&START[n])return START[n];if(m===1&&MODULE_TWO_TITLES[n])return MODULE_TWO_TITLES[n];if(m===2&&FAMILY_LESSON_TITLES[n])return FAMILY_LESSON_TITLES[n];return item(m,n)?.title||`Lição ${n+1}`}
+function title(m,n){if(m===0&&START[n])return START[n];if(m===1&&MODULE_TWO_TITLES[n])return MODULE_TWO_TITLES[n];if(m===2&&FAMILY_LESSON_TITLES[n])return FAMILY_LESSON_TITLES[n];if(m===3)return ['Minha manhã: I wake up','Café da manhã e horários','Eu trabalho e estudo','Almoço e tarde','Voltando para casa','Minha noite: I go to bed','Revisão: meu dia em inglês','Missão final: minha rotina'][n]||'Rotina diária';return item(m,n)?.title||`Lição ${n+1}`}
 function done(m,n){return !!state().done?.[`A1-${m}-${n}`]}
 function unlocked(m,n){return n===0||done(m,n-1)||progress(m,n)>0}
 const FIRST_CONTACTS_ART=['👋','🌅','💬','🙂','🙏','👋','🎮','✨'];
@@ -542,12 +636,12 @@ function firstContactsCards(){
 }
 const MODULE_TWO_ART=['🙂','❓','🤝','🗣️','🌎','🔤','🎯','✨'];
 function moduleTwoCards(m=1){
- const icons=m===2?['👨‍👩‍👧','👧','👉','🧑‍🤝‍🧑','❓','💬','🎯','✨']:MODULE_TWO_ART;
+ const icons=m===2?['👨‍👩‍👧','👧','👉','🧑‍🤝‍🧑','❓','💬','🎯','✨']:m===3?['🌅','☕','💼','🍽️','🏠','🌙','🎯','✨']:MODULE_TWO_ART;
  return Array.from({length:8},(_,n)=>{
-  const pct=progress(m,n),isDone=done(m,n),isUnlocked=m===2?true:unlocked(m,n);
+  const pct=progress(m,n),isDone=done(m,n),isUnlocked=m===2||m===3?true:unlocked(m,n);
   const icon=icons[n]||'🔤';
   const statusText=isDone?'Concluída · toque para revisar':!isUnlocked?'🔒 Conclua a aula anterior':pct>0?`Em andamento · ${pct}%`:'Toque para começar';
-  return `<div class="moduleTwoLessonCard ${m===2?'familyLessonCard':''} ${isDone?'done':''} ${!isUnlocked?'locked':''}" role="button" tabindex="${isUnlocked?0:-1}"
+  return `<div class="moduleTwoLessonCard ${m===2?'familyLessonCard':m===3?'routineLessonCard':''} ${isDone?'done':''} ${!isUnlocked?'locked':''}" role="button" tabindex="${isUnlocked?0:-1}"
     ${isUnlocked?`onclick="openStableLesson('A1',${m},${n})" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();openStableLesson('A1',${m},${n})}"`:''}>
     <div class="moduleTwoLessonCopy">
       <div class="moduleTwoLessonNumber">AULA ${n+1}</div>
@@ -579,14 +673,14 @@ function moduleView(m){
    window.scrollTo(0,0);
    return;
  }
- if(m===1||m===2){
-   $('#courseBody').innerHTML=`<div class="moduleTwoView ${m===2?'familyModuleView':''}">
+ if(m===1||m===2||m===3){
+   $('#courseBody').innerHTML=`<div class="moduleTwoView ${m===2?'familyModuleView':m===3?'routineModuleView':''}">
      <div class="moduleTwoHead">
        <button class="back moduleTwoBack" onclick="renderStableCourse()">‹</button>
        <div>
-         <div class="moduleTwoEyebrow">${m===2?'A1 · MÓDULO 3':'PRÉ-A1 · MÓDULO 2'}</div>
-         <h2>${m===2?'Família e pessoas':'Meu nome é…'}</h2>
-         <p>${m===2?'Aprenda a apresentar familiares e amigos':'Apresente-se e conheça alguém'} · 8 aulas progressivas</p>
+         <div class="moduleTwoEyebrow">${m===2?'A1 · MÓDULO 3':m===3?'A1 · MÓDULO 4':'PRÉ-A1 · MÓDULO 2'}</div>
+         <h2>${m===2?'Família e pessoas':m===3?'Rotina diária':'Meu nome é…'}</h2>
+         <p>${m===2?'Aprenda a apresentar familiares e amigos':m===3?'Fale sobre o seu dia, horários e hábitos':'Apresente-se e conheça alguém'} · 8 aulas progressivas</p>
        </div>
      </div>
      <div class="moduleTwoLessons">${moduleTwoCards(m)}</div>
