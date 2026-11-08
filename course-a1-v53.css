@@ -493,3 +493,20 @@
 .moduleTwoLessonScreen .b14VoiceWarn{
   color:#c5b9ff !important;
 }
+
+/* A1 Módulo 3: identidade dourada como o card principal */
+.familyModuleView .moduleTwoEyebrow {color:#ffd994 !important}
+.moduleTwoLessonCard.familyLessonCard {background:linear-gradient(135deg,#e99a27 0%,#d47e21 53%,#b75b27 100%) !important;border:2px solid rgba(255,215,142,.52) !important;box-shadow:inset 0 1px 0 rgba(255,255,255,.16),0 14px 30px rgba(48,25,7,.23) !important}
+.familyLessonCard .moduleTwoLessonNumber,.familyLessonCard .moduleTwoLessonStatus {color:#fff0cc !important}
+.familyLessonCard h4 {color:#fff !important}
+.familyLessonCard .lessonCardProgressV118 {background:rgba(91,50,15,.38) !important}
+.familyLessonCard .lessonCardProgressV118 span {background:linear-gradient(90deg,#fff1cb,#ffd17c) !important}
+.familyLessonCard .moduleTwoArtGlow {background:radial-gradient(circle,rgba(255,235,175,.26),transparent 72%) !important}
+.familyLessonScreen .b14Card {border-color:rgba(234,173,85,.52) !important;background:radial-gradient(circle at 87% 8%,rgba(241,166,48,.16),transparent 30%),linear-gradient(180deg,#352616,#241a12 65%,#1d1713) !important;box-shadow:0 16px 32px rgba(0,0,0,.25) !important}
+.familyLessonScreen .b14Progress span {background:linear-gradient(90deg,#ffe1a1,#e8a02d,#c67819) !important}
+.familyLessonScreen .b14Listen,.familyLessonScreen .b14Next,.familyLessonScreen .b14Next.blue,.familyLessonScreen .b14Check,.familyLessonScreen .b14Clear,.familyLessonScreen .b14Teacher button,.familyLessonScreen .b14TeacherMenu button {background:linear-gradient(180deg,#e6a034,#b86b18) !important;border-color:rgba(255,222,164,.5) !important;color:#fff !important;box-shadow:0 6px 0 #77430f,inset 0 1px 0 rgba(255,255,255,.15) !important}
+.familyLessonScreen .b14Choice,.familyLessonScreen .b14Conversation button,.familyLessonScreen .b14Bank button {background:linear-gradient(180deg,#49321b,#342414) !important;border:2px solid rgba(236,175,85,.48) !important;color:#fff !important}
+.familyLessonScreen .b14Choice.correct,.familyLessonScreen .b14Conversation button.correct,.familyLessonScreen .b14Token.correct,.familyLessonScreen .b14Feedback.good {background:linear-gradient(180deg,#9b671c,#7f5119) !important;border-color:#ffd78a !important;color:#fff !important}
+.familyLessonScreen .b14Choice.wrong,.familyLessonScreen .b14Conversation button.wrong,.familyLessonScreen .b14Token.wrong,.familyLessonScreen .b14Feedback.bad {background:rgba(155,38,55,.34) !important;border-color:#e35c70 !important;color:#ffe9ed !important}
+.familyLessonScreen .b14Answer,.familyLessonScreen .b14CorrectOrder,.familyLessonScreen .b14Token {background:#382617 !important;border-color:rgba(235,177,90,.4) !important;color:#fff !important}
+.familyLessonScreen .b14Eyebrow,.familyLessonScreen .b14VoiceWarn {color:#ffd99c !important}
