@@ -237,17 +237,15 @@ const FEEDBACK_BANK={
  }
 };
 const lastFeedback={};
-function feedback(ok){
- const teacher=state().teacher||'media';
- const mode=FEEDBACK_BANK[teacher]?teacher:'media';
- const kind=ok?'ok':'no';
- const list=FEEDBACK_BANK[mode][kind];
- const key=mode+'-'+kind;
- let choices=list.map((_,i)=>i).filter(i=>i!==lastFeedback[key]);
- if(!choices.length)choices=list.map((_,i)=>i);
- const idx=choices[Math.floor(Math.random()*choices.length)];
- lastFeedback[key]=idx;
- return list[idx];
+function a2TeachingFeedback(step,ok,gameItem){
+ const clean=v=>String(v||'').replace(/[\u{1F300}-\u{1FAFF}\u2600-\u27BF]/gu,' ').trim();
+ const key=v=>clean(v).toLowerCase().replace(/[.!?]+$/g,'').trim();
+ const current=gameItem||item(run.m,run.n);
+ const english=clean(step.t==='build'?step.target:(step.audio||step.ans||current.en));
+ let translation=step.t==='build'?step.pt:key(english)===key(current.en)?current.pt:'';
+ if(!translation)for(const module of RAW){for(const raw of module){const record=parse(raw);if(key(record.en)===key(english)){translation=record.pt;break;}}if(translation)break;}
+ const explanation=translation?english+' significa '+String(translation).replace(/[.!]+$/,'')+'.':'A resposta correta é: '+clean(step.ans||step.target||current.en)+'.';
+ return (ok?'':'Ainda não. ')+explanation+(ok?'':' Tente novamente.');
 }
 function speakFeedback(text){
  try{window.geminiSpeak?.(text,'pt-BR',state().voice||'Aoede')}catch{}
@@ -313,11 +311,11 @@ window.a2SpeakLang=(e,lang='en-US')=>speak(decodeURIComponent(e),lang);
 window.a2ExitLesson=()=>{try{window.stopGeminiTTS?.()}catch{};try{window.speechSynthesis?.cancel?.()}catch{};if(run)openStableModule('A2',run.m)};
 window.a2Next=()=>{run.i++;if(run.i>=run.lesson.steps.length)return finish();saveProgress(run.m,run.n,Math.round(run.i/run.lesson.steps.length*100));run.built=[];run.used=[];run.checked=false;run.ok=false;run.gameIndex=0;run.gameScore=0;render()};
 window.a2Jump=delta=>{if(!run)return;const d=Number(delta)||0,ni=Math.max(0,Math.min(run.lesson.steps.length-1,run.i+d));if(ni===run.i)return;run.i=ni;if(d>0)saveProgress(run.m,run.n,Math.round(run.i/run.lesson.steps.length*100));run.built=[];run.used=[];run.checked=false;run.ok=false;run.gameIndex=0;run.gameScore=0;render(false)};
-window.a2Answer=e=>{const s=run.lesson.steps[run.i],v=decodeURIComponent(e),ok=norm(v)===norm(s.ans),msg=feedback(ok);document.querySelectorAll('[data-a2-choice]').forEach(b=>{const x=decodeURIComponent(b.dataset.a2Choice);if(norm(x)===norm(v))b.classList.add(ok?'correct':'wrong');if(!ok&&norm(x)===norm(s.ans))b.classList.add('correct');b.disabled=true});const f=$('#a2Feedback');if(f)f.innerHTML=`<div class="b14Feedback ${ok?'good':'bad'}"><b>${msg}</b></div>${next()}`;speakFeedback(msg);};
+window.a2Answer=e=>{const s=run.lesson.steps[run.i],v=decodeURIComponent(e),ok=norm(v)===norm(s.ans),msg=a2TeachingFeedback(s,ok);document.querySelectorAll('[data-a2-choice]').forEach(b=>{const x=decodeURIComponent(b.dataset.a2Choice);if(norm(x)===norm(v))b.classList.add(ok?'correct':'wrong');if(!ok&&norm(x)===norm(s.ans))b.classList.add('correct');b.disabled=true});const f=$('#a2Feedback');if(f)f.innerHTML=`<div class="b14Feedback ${ok?'good':'bad'}"><b>${msg}</b></div>${next()}`;speakFeedback(msg);};
 window.a2Pick=i=>{if(run.checked||run.used.includes(i))return;run.used.push(i);run.built.push(run.lesson.steps[run.i].tokens[i]);render(true)};
 window.a2Clear=()=>{run.built=[];run.used=[];run.checked=false;run.ok=false;render(true)};
-window.a2Check=()=>{const s=run.lesson.steps[run.i];run.checked=true;run.ok=norm(run.built.join(' '))===norm(s.target);const msg=feedback(run.ok);render(true);const f=$('#a2Feedback');if(f)f.innerHTML=`<div class="b14Feedback ${run.ok?'good':'bad'}"><b>${msg}</b></div>`;speakFeedback(msg);};
-window.a2GameAnswer=e=>{const s=run.lesson.steps[run.i],q=s.items[run.gameIndex||0],v=decodeURIComponent(e),ok=norm(v)===norm(q.pt),msg=feedback(ok);if(ok)run.gameScore=(run.gameScore||0)+1;document.querySelectorAll('[data-a2-game]').forEach(b=>{const x=decodeURIComponent(b.dataset.a2Game);if(norm(x)===norm(v))b.classList.add(ok?'correct':'wrong');if(!ok&&norm(x)===norm(q.pt))b.classList.add('correct');b.disabled=true});const f=$('#a2Feedback');if(f)f.innerHTML=`<div class="b14Feedback ${ok?'good':'bad'}"><b>${msg}</b></div><div class="b14Footer"><button class="b14Next blue" onclick="a2GameNext()">Próxima rodada</button></div>`;speakFeedback(msg);};
+window.a2Check=()=>{const s=run.lesson.steps[run.i];run.checked=true;run.ok=norm(run.built.join(' '))===norm(s.target);const msg=a2TeachingFeedback(s,run.ok);render(true);const f=$('#a2Feedback');if(f)f.innerHTML=`<div class="b14Feedback ${run.ok?'good':'bad'}"><b>${msg}</b></div>`;speakFeedback(msg);};
+window.a2GameAnswer=e=>{const s=run.lesson.steps[run.i],q=s.items[run.gameIndex||0],v=decodeURIComponent(e),ok=norm(v)===norm(q.pt),msg=a2TeachingFeedback({t:'choice',ans:q.en,audio:q.en},ok,q);if(ok)run.gameScore=(run.gameScore||0)+1;document.querySelectorAll('[data-a2-game]').forEach(b=>{const x=decodeURIComponent(b.dataset.a2Game);if(norm(x)===norm(v))b.classList.add(ok?'correct':'wrong');if(!ok&&norm(x)===norm(q.pt))b.classList.add('correct');b.disabled=true});const f=$('#a2Feedback');if(f)f.innerHTML=`<div class="b14Feedback ${ok?'good':'bad'}"><b>${msg}</b></div><div class="b14Footer"><button class="b14Next blue" onclick="a2GameNext()">Próxima rodada</button></div>`;speakFeedback(msg);};
 window.a2GameNext=()=>{run.gameIndex=(run.gameIndex||0)+1;render(true)};
 
 function validateLesson(l){
