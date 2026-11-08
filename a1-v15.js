@@ -431,7 +431,7 @@ function shell(inner){
    const screenTitle=document.querySelector('#course > .top h2');
    if(screenTitle)screenTitle.textContent='Tela inicial';
  }
- return `<div class="beginner14 ${run.m===0?'firstContactsLessonScreen':''} ${run.m===1?'moduleTwoLessonScreen':''}"><div class="b14Top"><button class="b14Back" onclick="openStableModule('A1',${run.m})">‹</button><div class="b14Progress"><span style="width:${p}%"></span></div></div>${run.m===0?'':top()}<div class="b14Card"><div class="b14Eyebrow">${run.m<=1?'PRÉ-A1':'A1'} · ${run.i+1} de ${run.lesson.steps.length}</div>${inner}<div id="a15Voice" class="b14VoiceWarn"></div></div><div class="lessonStepNav" aria-label="Navegação entre etapas"><button type="button" onclick="a15Jump(-1)" aria-label="Voltar uma etapa" ${run.i<=0?'disabled':''}>‹</button><button type="button" onclick="a15Jump(1)" aria-label="Avançar uma etapa" ${run.i>=run.lesson.steps.length-1?'disabled':''}>›</button></div></div>`;
+ return `<div class="beginner14 ${run.m===0?'firstContactsLessonScreen':''} ${run.m===1||run.m===2?'moduleTwoLessonScreen':''}"><div class="b14Top"><button class="b14Back" onclick="openStableModule('A1',${run.m})">‹</button><div class="b14Progress"><span style="width:${p}%"></span></div></div>${run.m===0?'':top()}<div class="b14Card"><div class="b14Eyebrow">${run.m<=1?'PRÉ-A1':'A1'} · ${run.i+1} de ${run.lesson.steps.length}</div>${inner}<div id="a15Voice" class="b14VoiceWarn"></div></div><div class="lessonStepNav" aria-label="Navegação entre etapas"><button type="button" onclick="a15Jump(-1)" aria-label="Voltar uma etapa" ${run.i<=0?'disabled':''}>‹</button><button type="button" onclick="a15Jump(1)" aria-label="Avançar uma etapa" ${run.i>=run.lesson.steps.length-1?'disabled':''}>›</button></div></div>`;
 }
 const prevButton=()=>'';
 const next=()=>`<div class="b14Footer"><button class="b14Next" onclick="a15Next()">Continuar</button>${prevButton()}</div>`;
@@ -541,16 +541,17 @@ function firstContactsCards(){
  }).join('');
 }
 const MODULE_TWO_ART=['🙂','❓','🤝','🗣️','🌎','🔤','🎯','✨'];
-function moduleTwoCards(){
+function moduleTwoCards(m=1){
+ const icons=m===2?['👨‍👩‍👧','👧','👉','🧑‍🤝‍🧑','❓','💬','🎯','✨']:MODULE_TWO_ART;
  return Array.from({length:8},(_,n)=>{
-  const pct=progress(1,n),isDone=done(1,n),isUnlocked=unlocked(1,n);
-  const icon=MODULE_TWO_ART[n]||'🔤';
+  const pct=progress(m,n),isDone=done(m,n),isUnlocked=m===2?true:unlocked(m,n);
+  const icon=icons[n]||'🔤';
   const statusText=isDone?'Concluída · toque para revisar':!isUnlocked?'🔒 Conclua a aula anterior':pct>0?`Em andamento · ${pct}%`:'Toque para começar';
   return `<div class="moduleTwoLessonCard ${isDone?'done':''} ${!isUnlocked?'locked':''}" role="button" tabindex="${isUnlocked?0:-1}"
-    ${isUnlocked?`onclick="openStableLesson('A1',1,${n})" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();openStableLesson('A1',1,${n})}"`:''}>
+    ${isUnlocked?`onclick="openStableLesson('A1',${m},${n})" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();openStableLesson('A1',${m},${n})}"`:''}>
     <div class="moduleTwoLessonCopy">
       <div class="moduleTwoLessonNumber">AULA ${n+1}</div>
-      <h4>${esc(title(1,n))}</h4>
+      <h4>${esc(title(m,n))}</h4>
       <div class="moduleTwoLessonStatus">${statusText}</div>
       <div class="lessonCardProgressV118"><span style="width:${pct}%"></span></div>
     </div>
@@ -578,17 +579,17 @@ function moduleView(m){
    window.scrollTo(0,0);
    return;
  }
- if(m===1){
+ if(m===1||m===2){
    $('#courseBody').innerHTML=`<div class="moduleTwoView">
      <div class="moduleTwoHead">
        <button class="back moduleTwoBack" onclick="renderStableCourse()">‹</button>
        <div>
-         <div class="moduleTwoEyebrow">PRÉ-A1 · MÓDULO 2</div>
-         <h2>Meu nome é…</h2>
-         <p>Apresente-se e conheça alguém · 8 aulas progressivas</p>
+         <div class="moduleTwoEyebrow">${m===2?'A1 · MÓDULO 3':'PRÉ-A1 · MÓDULO 2'}</div>
+         <h2>${m===2?'Família e pessoas':'Meu nome é…'}</h2>
+         <p>${m===2?'Aprenda a apresentar familiares e amigos':'Apresente-se e conheça alguém'} · 8 aulas progressivas</p>
        </div>
      </div>
-     <div class="moduleTwoLessons">${moduleTwoCards()}</div>
+     <div class="moduleTwoLessons">${moduleTwoCards(m)}</div>
    </div>`;
    window.scrollTo(0,0);
    return;
