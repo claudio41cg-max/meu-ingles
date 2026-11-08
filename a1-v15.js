@@ -262,25 +262,28 @@ function speakBuildToken(text){
  if(!word)return;
  wordSpeakChain=wordSpeakChain.catch(()=>{}).then(()=>speak(word,'en-US',false));
 }
-function quickReaction(ok){
- const mode=state().teacher||'media';
- const lines={
-  leve:{ok:['Muito bem!','Isso mesmo!','Perfeito, acertou!','Ótimo, pode continuar.'],bad:['Quase. Tenta outra vez.','Ainda não. Olha com calma.','Por pouco. Vamos de novo.']},
-  media:{ok:['Boa! Mandou bem 😄','Aí sim! Acertou.','Boa, essa entrou na cabeça!','Perfeito! Bora pra próxima.'],bad:['Ih, escapou 😂 tenta de novo.','Quase, meu amigo.','Por pouco! Olha a certa e tenta outra.']},
-  pesada:{ok:['Aí, porra! Agora sim 😄','Boa! Acertou bonito.','Agora sim, cacete. Mandou bem!','Isso! Sem enrolar, acertou.'],bad:['Porra, quase 😂 tenta de novo.','Aí não, cacete 😂 olha a certa.','Quase. Presta atenção e manda outra.']}
- };
- const arr=(ok?lines[mode]?.ok:lines[mode]?.bad)||(ok?lines.media.ok:lines.media.bad);
- return arr[Math.floor(Math.random()*arr.length)];
-}
-function react(ok,heard,target){
- const txt=quickReaction(ok);
- const b=$('#a15Feedback');
- if(b){
-   b.className='b14Feedback '+(ok?'good':'bad');
-   b.innerHTML='<b>'+esc(txt)+'</b>';
+function meaningKey(v){return String(v||'').replace(/[\u{1F300}-\u{1FAFF}\u2600-\u27BF]/gu,' ').toLowerCase().replace(/[.!?…]+$/g,'').trim();}
+function teachingMeaning(english){
+ const key=meaningKey(english);
+ const common={'hello':'olá','hi':'oi','good morning':'bom dia','good afternoon':'boa tarde','good evening':'boa noite','goodbye':'até logo','bye':'tchau','see you':'até mais','how are you':'como você está','thank you':'obrigado','and you':'e você','mother':'mãe','father':'pai','brother':'irmão','sister':'irmã','friend':'amigo ou amiga','family':'família','nice to meet you':'prazer em conhecer você','yes, i do':'sim, eu gosto','no, i don’t':'não, eu não gosto'};
+ if(common[key])return common[key];
+ for(const module of RAW)for(const raw of module){if(!raw)continue;const parts=raw.split('|');if(meaningKey(parts[1])===key)return parts[2];}
+ for(let n=0;n<8;n++)for(const lesson of [firstContactLesson(n),secondContactLesson(n),familyLesson(n),dailyRoutineLesson(n),questionsHabitsLesson(n)])for(const step of lesson.steps){
+  if((step.t==='phrase'||step.t==='learn')&&meaningKey(step.x?.en)===key)return String(step.x.pt).split(' · ')[0];
+  if(step.t==='review')for(const item of step.items)if(meaningKey(item.en)===key)return item.pt;
  }
- /* Aulas fixas: uma única reação. O texto mostrado é exatamente o texto falado.
-    Não chama IA extra para não sobrescrever a mensagem nem gastar tokens sem necessidade. */
+ return '';
+}
+function teachingFeedback(step,ok){
+ const en=cleanOptionAudio(step.t==='build'?step.target:(step.audio||step.ans||''));
+ const translation=step.t==='build'?step.pt:teachingMeaning(en);
+ const explain=translation?en+' significa '+String(translation).replace(/[.!]+$/,'')+'.':'A resposta correta é: '+cleanOptionAudio(step.ans||step.target||'')+'.';
+ return (ok?'':'Ainda não. ')+explain+(ok?'':' Tente novamente.');
+}
+function react(ok,heard,target,step){
+ const txt=teachingFeedback(step,ok);
+ const b=$('#a15Feedback');
+ if(b){b.className='b14Feedback '+(ok?'good':'bad');b.innerHTML='<b>'+esc(txt)+'</b>';}
  speak(txt,'pt-BR',true);
 }
 
@@ -597,7 +600,7 @@ window.a15Answer=async e=>{
  const f=$('#a15Feedback');
  if(f)f.insertAdjacentHTML('afterend',ok?next():`<div class="b14Footer"><button class="b14Next blue" onclick="a15Retry()">Tentar de novo</button>${prevButton()}</div>`);
  await speakChosenOption(s,v);
- react(ok,v,s.ans);
+ react(ok,v,s.ans,s);
 };
 window.a15Retry=()=>render(true);
 window.a15Pick=i=>{if(run.checked)return;run.used=run.used||[];if(run.used.includes(i))return;const token=run.lesson.steps[run.i].tokens[i];run.used.push(i);run.built.push(token);render(true);speakBuildToken(token)};
@@ -608,15 +611,15 @@ window.a15Check=async()=>{
  run.ok=v===s.target;
  render(true);
  if(run.ok){
-   const txt=quickReaction(true);
+   const txt=teachingFeedback(s,true);
    const b=$('#a15Feedback');
    if(b){
      b.className='b14Feedback good';
-     b.innerHTML='<b>'+esc(txt)+'</b><br><span>🔊 '+esc(s.target)+'</span>';
+     b.innerHTML='<b>'+esc(txt)+'</b>';
    }
-   await speak(s.target,'en-US',false);
+   await speak(txt,'pt-BR',true);
  }else{
-   react(false,v,s.target);
+   react(false,v,s.target,s);
  }
 };
 
