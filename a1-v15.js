@@ -304,7 +304,111 @@ function numberLesson(){
  ]};
 }
 
-function lesson(m,n){if(m===0)return firstContactLesson(n);if(m===1)return secondContactLesson(n);const cur=item(m,n),k=known(m,n),op=options(cur,m,n),prev=k.filter(x=>x.en.toLowerCase()!==cur.en.toLowerCase()).slice(-1)[0]||{e:'☕',en:'coffee',pt:'café'};const words=cur.en.trim().split(/\s+/),review=(m===1?[cur,...(M2_DISTRACTORS[n]||[]).map(x=>({e:'🔁',en:x.en,pt:x.pt}))]:[cur,prev,...k.slice(-4).reverse()]).filter((x,i,a)=>a.findIndex(y=>y.en.toLowerCase()===x.en.toLowerCase())===i).slice(0,3);const steps=[
+
+/* A1 · Módulo 3: Família e pessoas.
+   Segue a progressão do currículo mestre sem modificar os módulos anteriores. */
+const FAMILY_LESSON_TITLES=[
+ 'Minha família: mother e father',
+ 'Irmãos e irmãs: brother e sister',
+ 'This is my...: apresentando pessoas',
+ 'Amigos e pessoas importantes',
+ 'Who is this?: perguntando sobre pessoas',
+ 'My family: construindo frases',
+ 'Revisão: família e apresentações',
+ 'Missão final: apresente sua família'
+];
+function familyLesson(n){
+ const p=(e,en,pt)=>({t:'phrase',x:{e,en,pt}});
+ const c=(q,ans,alternatives,audio)=>({t:'choice',q,ans,op:sh([ans,...alternatives]),...(audio?{audio}:{})});
+ const g=(q,ans,alternatives)=>({t:'guided',q,ans,op:sh([ans,...alternatives])});
+ const b=(pt,target)=>({t:'build',q:'Monte a frase em inglês:',pt,target,tokens:sh(target.split(/\s+/))});
+ const rev=(...items)=>({t:'review',items:items.map(([e,en,pt])=>({e,en,pt}))});
+ const L=[
+  {title:FAMILY_LESSON_TITLES[0],steps:[
+   g('Revisão: Hello! My name is Anna. Como responder?', 'Hello! My name is Alex.', ['Goodbye!','I am fine, thank you.']),
+   p('👨‍👩‍👧','This is my family.','Esta é minha família.'),
+   p('👩','This is my mother.','Esta é minha mãe.'),
+   p('👨','This is my father.','Este é meu pai.'),
+   c('O que significa “mother”?','mãe',['pai','irmã'],'mother'),
+   c('O que você ouviu?','father',['mother','family'],'father'),
+   b('Esta é minha mãe.','This is my mother.'),
+   rev(['👨‍👩‍👧','This is my family.','Esta é minha família.'],['👩','mother','mãe'],['👨','father','pai'])
+  ]},
+  {title:FAMILY_LESSON_TITLES[1],steps:[
+   c('Revisando: qual palavra significa “pai”?','father',['mother','brother'],'father'),
+   p('👦','This is my brother.','Este é meu irmão.'),
+   p('👧','This is my sister.','Esta é minha irmã.'),
+   c('Qual palavra significa “irmã”?','sister',['brother','mother'],'sister'),
+   c('Qual frase você ouviu?','This is my brother.',['This is my sister.','This is my father.'],'This is my brother.'),
+   b('Esta é minha irmã.','This is my sister.'),
+   g('This is my brother. Qual frase fala da sua irmã?','This is my sister.',['This is my mother.','This is my father.']),
+   rev(['👦','brother','irmão'],['👧','sister','irmã'],['👩','mother','mãe'])
+  ]},
+  {title:FAMILY_LESSON_TITLES[2],steps:[
+   c('Revisão: “This is my sister.” significa:','Esta é minha irmã.',['Este é meu irmão.','Esta é minha mãe.'],'This is my sister.'),
+   p('👉','This is my...','Este é meu... / Esta é minha...'),
+   p('👨','This is my father.','Este é meu pai.'),
+   p('👧','This is my sister.','Esta é minha irmã.'),
+   c('Qual expressão usamos para apresentar uma pessoa?','This is my...',['Where are you from?','How old are you?'],'This is my father.'),
+   b('Este é meu pai.','This is my father.'),
+   g('Hello, Anna! This is my sister. Como apresentar sua mãe?','This is my mother.',['This is my brother.','This is my father.']),
+   rev(['👉','This is my...','Este é meu / Esta é minha'],['👨','father','pai'],['👧','sister','irmã'])
+  ]},
+  {title:FAMILY_LESSON_TITLES[3],steps:[
+   g('This is my father. Como apresentar sua irmã?','This is my sister.',['This is my mother.','This is my brother.']),
+   p('🧑‍🤝‍🧑','This is my friend.','Este é meu amigo / Esta é minha amiga.'),
+   p('🙂','My friend is Alex.','Meu amigo se chama Alex.'),
+   c('O que significa “friend”?','amigo ou amiga',['irmão ou irmã','pai ou mãe'],'friend'),
+   c('Qual frase você ouviu?','This is my friend.',['This is my father.','This is my brother.'],'This is my friend.'),
+   b('Este é meu amigo.','This is my friend.'),
+   c('Qual frase apresenta uma pessoa pelo nome?','My friend is Alex.',['My father is a friend.','My sister is a father.']),
+   rev(['🧑‍🤝‍🧑','friend','amigo / amiga'],['🙂','My friend is Alex.','Meu amigo se chama Alex.'],['👨','father','pai'])
+  ]},
+  {title:FAMILY_LESSON_TITLES[4],steps:[
+   c('Revisão: “This is my friend.” significa:','Este é meu amigo.',['Este é meu pai.','Este é meu irmão.'],'This is my friend.'),
+   p('❓','Who is this?','Quem é esta pessoa?'),
+   p('👩','This is my mother.','Esta é minha mãe.'),
+   c('Qual pergunta você ouviu?','Who is this?',['What is your name?','Where are you from?'],'Who is this?'),
+   g('Who is this? 👧 (sister)','This is my sister.',['This is my mother.','This is my father.']),
+   b('Quem é esta pessoa?','Who is this?'),
+   g('Who is this? 👨 (father)','This is my father.',['This is my brother.','This is my friend.']),
+   rev(['❓','Who is this?','Quem é esta pessoa?'],['👧','This is my sister.','Esta é minha irmã.'],['👨','This is my father.','Este é meu pai.'])
+  ]},
+  {title:FAMILY_LESSON_TITLES[5],steps:[
+   g('Who is this? 👩 (mother)','This is my mother.',['This is my sister.','This is my friend.']),
+   p('👨‍👩‍👧','My family is important to me.','Minha família é importante para mim.'),
+   p('👦','I have a brother.','Eu tenho um irmão.'),
+   c('“I have a brother.” significa:','Eu tenho um irmão.',['Eu tenho uma irmã.','Este é meu irmão.'],'I have a brother.'),
+   b('Eu tenho um irmão.','I have a brother.'),
+   c('Como dizer “Esta é minha família” em inglês?','This is my family.',['This is my friend.','This is my sister.']),
+   g('Who is this? 👦 (brother)','This is my brother.',['This is my father.','This is my friend.']),
+   rev(['👦','I have a brother.','Eu tenho um irmão.'],['👨‍👩‍👧','This is my family.','Esta é minha família.'],['❓','Who is this?','Quem é esta pessoa?'])
+  ]},
+  {title:FAMILY_LESSON_TITLES[6],steps:[
+   c('Qual cumprimento usamos ao conhecer alguém?','Nice to meet you.',['Goodbye.','See you later.'],'Nice to meet you.'),
+   c('O que você ouviu?','This is my sister.',['This is my brother.','This is my mother.'],'This is my sister.'),
+   c('Qual palavra significa “amigo”?','friend',['father','brother'],'friend'),
+   b('Esta é minha família.','This is my family.'),
+   g('Who is this? 👨 (father)','This is my father.',['This is my friend.','This is my brother.']),
+   c('De volta ao Módulo 2: qual pergunta pede o nome?',"What's your name?",['Who is this?','How are you?'],"What's your name?"),
+   b('Eu tenho um irmão.','I have a brother.'),
+   rev(['🤝','Nice to meet you.','Prazer em conhecer você.'],['👨‍👩‍👧','This is my family.','Esta é minha família.'],['👦','I have a brother.','Eu tenho um irmão.'])
+  ]},
+  {title:FAMILY_LESSON_TITLES[7],steps:[
+   p('✨','Hello! This is my family.','Missão: apresente pessoas da sua família em inglês.'),
+   g('Hello! What is your name?','My name is Alex.',['I am from Brazil.','This is my father.']),
+   g('Who is this? 👩 (mother)','This is my mother.',['This is my sister.','This is my friend.']),
+   g('Who is this? 👦 (brother)','This is my brother.',['This is my father.','This is my friend.']),
+   b('Este é meu amigo.','This is my friend.'),
+   c('Qual sequência forma uma apresentação coerente?','Hello! → This is my mother. → Nice to meet you.',['Goodbye! → Who is this? → Hello!','Nice to meet you. → Goodbye! → Who is this?']),
+   b('Esta é minha família.','This is my family.'),
+   rev(['👨‍👩‍👧','This is my family.','Esta é minha família.'],['👩','This is my mother.','Esta é minha mãe.'],['👦','This is my brother.','Este é meu irmão.'],['🧑‍🤝‍🧑','This is my friend.','Este é meu amigo.'])
+  ]}
+ ];
+ return L[n]||L[0];
+}
+
+function lesson(m,n){if(m===0)return firstContactLesson(n);if(m===1)return secondContactLesson(n);if(m===2)return familyLesson(n);const cur=item(m,n),k=known(m,n),op=options(cur,m,n),prev=k.filter(x=>x.en.toLowerCase()!==cur.en.toLowerCase()).slice(-1)[0]||{e:'☕',en:'coffee',pt:'café'};const words=cur.en.trim().split(/\s+/),review=(m===1?[cur,...(M2_DISTRACTORS[n]||[]).map(x=>({e:'🔁',en:x.en,pt:x.pt}))]:[cur,prev,...k.slice(-4).reverse()]).filter((x,i,a)=>a.findIndex(y=>y.en.toLowerCase()===x.en.toLowerCase())===i).slice(0,3);const steps=[
  {t:words.length>1?'phrase':'learn',x:cur},
  {t:'choice',q:`${cur.en} significa:`,ans:cur.pt,op:sh(op.map(x=>x.pt)),audio:cur.en},
  {t:'choice',q:'Qual você ouviu?',ans:cur.en,op:sh(op.map(x=>x.en)),audio:cur.en},
@@ -412,7 +516,7 @@ window.a15Check=async()=>{
 function start(m,n){if(m===1&&!unlocked(m,n))return;const l=lesson(m,n),pct=progress(m,n),i=done(m,n)?0:Math.min(l.steps.length-1,Math.floor(pct/100*l.steps.length));run={m,n,i,lesson:l,built:[],used:[],checked:false,ok:false};render()}
 function finish(){const s=state();s.done=s.done&&typeof s.done==='object'?s.done:{};s.progress=s.progress&&typeof s.progress==='object'?s.progress:{};const k=`A1-${run.m}-${run.n}`;s.progress[k]=100;if(!s.done[k]){s.done[k]=true;s.xp=(Number(s.xp)||0)+30}s.level='A1';save(s);sessionStorage.setItem('a15back',String(run.m));location.reload()}
 window.a15Finish=finish;
-function title(m,n){if(m===0&&START[n])return START[n];if(m===1&&MODULE_TWO_TITLES[n])return MODULE_TWO_TITLES[n];return item(m,n)?.title||`Lição ${n+1}`}
+function title(m,n){if(m===0&&START[n])return START[n];if(m===1&&MODULE_TWO_TITLES[n])return MODULE_TWO_TITLES[n];if(m===2&&FAMILY_LESSON_TITLES[n])return FAMILY_LESSON_TITLES[n];return item(m,n)?.title||`Lição ${n+1}`}
 function done(m,n){return !!state().done?.[`A1-${m}-${n}`]}
 function unlocked(m,n){return n===0||done(m,n-1)||progress(m,n)>0}
 const FIRST_CONTACTS_ART=['👋','🌅','💬','🙂','🙏','👋','🎮','✨'];
