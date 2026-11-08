@@ -585,3 +585,34 @@
   .familyLessonCard .moduleTwoArtIcon,
   .routineLessonCard .moduleTwoArtIcon{font-size:43px}
 }
+
+/* A1 · Módulo 5: azul dos cards principais. Mantém dimensões dos módulos anteriores. */
+.habitsModuleView .moduleTwoEyebrow{color:#8dd7ff !important}
+.habitsModuleView .moduleTwoBack{background:linear-gradient(145deg,#2997df,#1557a8) !important;border-color:rgba(142,215,255,.38) !important}
+.moduleTwoLessonCard.habitsLessonCard{
+  background:linear-gradient(135deg,#2997df 0%,#1878c9 58%,#1557a8 100%) !important;
+  border:2px solid rgba(156,220,255,.38) !important;
+  box-shadow:0 15px 28px rgba(10,48,97,.24),inset 0 1px 0 rgba(255,255,255,.12) !important;
+  height:154px;min-height:154px;padding-top:16px;padding-bottom:16px;
+}
+.habitsLessonCard h4{color:#fff !important;font-size:20px;line-height:1.1;display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;overflow:hidden}
+.habitsLessonCard .moduleTwoLessonNumber,.habitsLessonCard .moduleTwoLessonStatus{color:#e6f7ff !important}
+.habitsLessonCard .lessonCardProgressV118{background:rgba(9,46,101,.42) !important}
+.habitsLessonCard .lessonCardProgressV118 span{background:linear-gradient(90deg,#eaffff,#a6dcff,#6bbdf5) !important}
+.habitsLessonCard .moduleTwoArtGlow{background:radial-gradient(circle,rgba(195,234,255,.3),rgba(142,203,255,.12) 48%,transparent 70%) !important}
+.habitsLessonScreen .b14Card{background:radial-gradient(circle at 87% 8%,rgba(53,153,225,.17),transparent 30%),linear-gradient(180deg,#172c4b,#14243c 65%,#111b2e) !important;border-color:rgba(115,199,255,.48) !important}
+.habitsLessonScreen .b14Progress span{background:linear-gradient(90deg,#bdeaff,#52afea,#2376bb) !important}
+.habitsLessonScreen .b14Listen,.habitsLessonScreen .b14Next,.habitsLessonScreen .b14Next.blue,.habitsLessonScreen .b14Check,.habitsLessonScreen .b14Clear,.habitsLessonScreen .b14Teacher button,.habitsLessonScreen .b14TeacherMenu button{background:linear-gradient(180deg,#2999e2,#1462b4) !important;border-color:rgba(173,228,255,.44) !important;color:#fff !important;box-shadow:0 6px 0 #12417a,inset 0 1px 0 rgba(255,255,255,.12) !important}
+.habitsLessonScreen .b14Choice,.habitsLessonScreen .b14Conversation button,.habitsLessonScreen .b14Bank button{background:linear-gradient(180deg,#173e62,#122c4c) !important;border:2px solid rgba(123,195,243,.48) !important;color:#fff !important}
+.habitsLessonScreen .b14Choice.correct,.habitsLessonScreen .b14Conversation button.correct,.habitsLessonScreen .b14Token.correct,.habitsLessonScreen .b14Feedback.good{background:linear-gradient(180deg,#236caa,#18548a) !important;border-color:#b5e6ff !important;color:#fff !important}
+.habitsLessonScreen .b14Choice.wrong,.habitsLessonScreen .b14Conversation button.wrong,.habitsLessonScreen .b14Token.wrong,.habitsLessonScreen .b14Feedback.bad{background:rgba(155,38,55,.34) !important;border-color:#e35c70 !important;color:#ffe9ed !important}
+.habitsLessonScreen .b14Answer,.habitsLessonScreen .b14CorrectOrder,.habitsLessonScreen .b14Token{background:#152d4a !important;border-color:rgba(123,195,243,.4) !important;color:#fff !important}
+.habitsLessonScreen .b14Eyebrow,.habitsLessonScreen .b14VoiceWarn{color:#a7dfff !important}
+@media(max-width:430px){
+  .moduleTwoLessonCard.habitsLessonCard{height:142px;min-height:142px;max-height:142px;padding:14px 16px 14px 18px}
+  .habitsLessonCard h4{font-size:18px;line-height:1.1;margin:5px 0 6px}
+  .habitsLessonCard .moduleTwoLessonNumber{font-size:11px}
+  .habitsLessonCard .moduleTwoLessonStatus{font-size:12px}
+  .habitsLessonCard .lessonCardProgressV118{margin-top:9px}
+  .habitsLessonCard .moduleTwoArtIcon{font-size:43px}
+}
