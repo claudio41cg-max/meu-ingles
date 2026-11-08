@@ -510,3 +510,78 @@
 .familyLessonScreen .b14Choice.wrong,.familyLessonScreen .b14Conversation button.wrong,.familyLessonScreen .b14Token.wrong,.familyLessonScreen .b14Feedback.bad {background:rgba(155,38,55,.34) !important;border-color:#e35c70 !important;color:#ffe9ed !important}
 .familyLessonScreen .b14Answer,.familyLessonScreen .b14CorrectOrder,.familyLessonScreen .b14Token {background:#382617 !important;border-color:rgba(235,177,90,.4) !important;color:#fff !important}
 .familyLessonScreen .b14Eyebrow,.familyLessonScreen .b14VoiceWarn {color:#ffd99c !important}
+
+/* Same card geometry across modules 2, 3 and 4. Long titles use at most two lines. */
+.moduleTwoLessonCard.familyLessonCard,
+.moduleTwoLessonCard.routineLessonCard{
+  height:154px;min-height:154px;
+  padding-top:16px;padding-bottom:16px;
+}
+.moduleTwoLessonCard.familyLessonCard h4,
+.moduleTwoLessonCard.routineLessonCard h4{
+  font-size:20px;line-height:1.1;
+  display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;
+  overflow:hidden;
+}
+.familyModuleView .moduleTwoBack{
+  background:linear-gradient(145deg,#e39a2f,#b95f24) !important;
+  border-color:rgba(255,219,147,.38) !important;
+}
+.routineModuleView .moduleTwoEyebrow{color:#ffb0d0 !important}
+.routineModuleView .moduleTwoBack{
+  background:linear-gradient(145deg,#cd4d84,#8f3069) !important;
+  border-color:rgba(255,172,211,.38) !important;
+}
+.moduleTwoLessonCard.routineLessonCard{
+  background:linear-gradient(135deg,#d44e86 0%,#a93874 58%,#742f68 100%) !important;
+  border:2px solid rgba(255,188,222,.38) !important;
+  box-shadow:0 15px 28px rgba(65,14,48,.24),inset 0 1px 0 rgba(255,255,255,.1) !important;
+}
+.routineLessonCard .moduleTwoLessonNumber,.routineLessonCard .moduleTwoLessonStatus{color:#ffe3f1 !important}
+.routineLessonCard h4{color:#fff !important}
+.routineLessonCard .lessonCardProgressV118{background:rgba(75,22,62,.42) !important}
+.routineLessonCard .lessonCardProgressV118 span{background:linear-gradient(90deg,#fff0f7,#ffb7d8,#f48cbc) !important}
+.routineLessonCard .moduleTwoArtGlow{background:radial-gradient(circle,rgba(255,195,225,.3),rgba(241,154,199,.12) 48%,transparent 70%) !important}
+.routineLessonScreen .b14Card{
+  border-color:rgba(230,129,183,.5) !important;
+  background:radial-gradient(circle at 87% 8%,rgba(226,97,166,.17),transparent 30%),linear-gradient(180deg,#342032,#261a2b 65%,#1d1624) !important;
+}
+.routineLessonScreen .b14Progress span{background:linear-gradient(90deg,#ffcee5,#e66aa8,#b64485) !important}
+.routineLessonScreen .b14Listen,.routineLessonScreen .b14Next,.routineLessonScreen .b14Next.blue,.routineLessonScreen .b14Check,.routineLessonScreen .b14Clear,.routineLessonScreen .b14Teacher button,.routineLessonScreen .b14TeacherMenu button{
+  background:linear-gradient(180deg,#d95293,#94386f) !important;
+  border-color:rgba(255,192,224,.42) !important;
+  color:#fff !important;box-shadow:0 6px 0 #682349,inset 0 1px 0 rgba(255,255,255,.12) !important;
+}
+.routineLessonScreen .b14Choice,.routineLessonScreen .b14Conversation button,.routineLessonScreen .b14Bank button{
+  background:linear-gradient(180deg,#4c2649,#341d37) !important;
+  border:2px solid rgba(225,136,190,.46) !important;color:#fff !important;
+}
+.routineLessonScreen .b14Choice.correct,.routineLessonScreen .b14Conversation button.correct,.routineLessonScreen .b14Token.correct,.routineLessonScreen .b14Feedback.good{
+  background:linear-gradient(180deg,#a74681,#772c65) !important;
+  border-color:#ffb6db !important;color:#fff !important;
+}
+.routineLessonScreen .b14Choice.wrong,.routineLessonScreen .b14Conversation button.wrong,.routineLessonScreen .b14Token.wrong,.routineLessonScreen .b14Feedback.bad{
+  background:rgba(155,38,55,.34) !important;
+  border-color:#e35c70 !important;color:#ffe9ed !important;
+}
+.routineLessonScreen .b14Answer,.routineLessonScreen .b14CorrectOrder,.routineLessonScreen .b14Token{
+  background:#371e35 !important;border-color:rgba(225,136,190,.4) !important;color:#fff !important;
+}
+.routineLessonScreen .b14Eyebrow,.routineLessonScreen .b14VoiceWarn{color:#ffc2e0 !important}
+@media(max-width:430px){
+  .moduleTwoLessonCard.familyLessonCard,
+  .moduleTwoLessonCard.routineLessonCard{
+    height:142px;min-height:142px;max-height:142px;
+    padding:14px 16px 14px 18px;
+  }
+  .moduleTwoLessonCard.familyLessonCard h4,
+  .moduleTwoLessonCard.routineLessonCard h4{font-size:18px;line-height:1.1;margin:5px 0 6px}
+  .familyLessonCard .moduleTwoLessonNumber,
+  .routineLessonCard .moduleTwoLessonNumber{font-size:11px}
+  .familyLessonCard .moduleTwoLessonStatus,
+  .routineLessonCard .moduleTwoLessonStatus{font-size:12px}
+  .familyLessonCard .lessonCardProgressV118,
+  .routineLessonCard .lessonCardProgressV118{margin-top:9px}
+  .familyLessonCard .moduleTwoArtIcon,
+  .routineLessonCard .moduleTwoArtIcon{font-size:43px}
+}
