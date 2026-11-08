@@ -431,7 +431,7 @@ function shell(inner){
    const screenTitle=document.querySelector('#course > .top h2');
    if(screenTitle)screenTitle.textContent='Tela inicial';
  }
- return `<div class="beginner14 ${run.m===0?'firstContactsLessonScreen':''} ${run.m===1||run.m===2?'moduleTwoLessonScreen':''}"><div class="b14Top"><button class="b14Back" onclick="openStableModule('A1',${run.m})">‹</button><div class="b14Progress"><span style="width:${p}%"></span></div></div>${run.m===0?'':top()}<div class="b14Card"><div class="b14Eyebrow">${run.m<=1?'PRÉ-A1':'A1'} · ${run.i+1} de ${run.lesson.steps.length}</div>${inner}<div id="a15Voice" class="b14VoiceWarn"></div></div><div class="lessonStepNav" aria-label="Navegação entre etapas"><button type="button" onclick="a15Jump(-1)" aria-label="Voltar uma etapa" ${run.i<=0?'disabled':''}>‹</button><button type="button" onclick="a15Jump(1)" aria-label="Avançar uma etapa" ${run.i>=run.lesson.steps.length-1?'disabled':''}>›</button></div></div>`;
+ return `<div class="beginner14 ${run.m===0?'firstContactsLessonScreen':''} ${run.m===1?'moduleTwoLessonScreen':run.m===2?'familyLessonScreen':''}"><div class="b14Top"><button class="b14Back" onclick="openStableModule('A1',${run.m})">‹</button><div class="b14Progress"><span style="width:${p}%"></span></div></div>${run.m===0?'':top()}<div class="b14Card"><div class="b14Eyebrow">${run.m<=1?'PRÉ-A1':'A1'} · ${run.i+1} de ${run.lesson.steps.length}</div>${inner}<div id="a15Voice" class="b14VoiceWarn"></div></div><div class="lessonStepNav" aria-label="Navegação entre etapas"><button type="button" onclick="a15Jump(-1)" aria-label="Voltar uma etapa" ${run.i<=0?'disabled':''}>‹</button><button type="button" onclick="a15Jump(1)" aria-label="Avançar uma etapa" ${run.i>=run.lesson.steps.length-1?'disabled':''}>›</button></div></div>`;
 }
 const prevButton=()=>'';
 const next=()=>`<div class="b14Footer"><button class="b14Next" onclick="a15Next()">Continuar</button>${prevButton()}</div>`;
@@ -547,7 +547,7 @@ function moduleTwoCards(m=1){
   const pct=progress(m,n),isDone=done(m,n),isUnlocked=m===2?true:unlocked(m,n);
   const icon=icons[n]||'🔤';
   const statusText=isDone?'Concluída · toque para revisar':!isUnlocked?'🔒 Conclua a aula anterior':pct>0?`Em andamento · ${pct}%`:'Toque para começar';
-  return `<div class="moduleTwoLessonCard ${isDone?'done':''} ${!isUnlocked?'locked':''}" role="button" tabindex="${isUnlocked?0:-1}"
+  return `<div class="moduleTwoLessonCard ${m===2?'familyLessonCard':''} ${isDone?'done':''} ${!isUnlocked?'locked':''}" role="button" tabindex="${isUnlocked?0:-1}"
     ${isUnlocked?`onclick="openStableLesson('A1',${m},${n})" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();openStableLesson('A1',${m},${n})}"`:''}>
     <div class="moduleTwoLessonCopy">
       <div class="moduleTwoLessonNumber">AULA ${n+1}</div>
@@ -580,7 +580,7 @@ function moduleView(m){
    return;
  }
  if(m===1||m===2){
-   $('#courseBody').innerHTML=`<div class="moduleTwoView">
+   $('#courseBody').innerHTML=`<div class="moduleTwoView ${m===2?'familyModuleView':''}">
      <div class="moduleTwoHead">
        <button class="back moduleTwoBack" onclick="renderStableCourse()">‹</button>
        <div>
