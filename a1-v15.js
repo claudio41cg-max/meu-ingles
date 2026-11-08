@@ -26,13 +26,21 @@ const START=['Hello / Hi','Bom dia, boa tarde e boa noite','How are you?','Como 
 function firstContactLesson(n){
  const L=[
   {title:'Hello / Hi',steps:[
-   {t:'phrase',x:{e:'👋',en:'Hello!',pt:'Olá! · Ouça e repita em voz alta.'}},
-   {t:'phrase',x:{e:'🙂',en:'Hi!',pt:'Oi! · Forma curta e informal.'}},
-   {t:'choice',q:'“Hello!” significa:',ans:'Olá!',op:['Olá!','Obrigado.','Até logo.'],audio:'Hello!'},
-   {t:'choice',q:'Qual figura combina com uma saudação?',ans:'👋 Hello!',op:['👋 Hello!','☕ Coffee','🚗 Car']},
-   {t:'choice',q:'Qual expressão você ouviu?',ans:'Hello!',op:['Hello!','Goodbye!','Thank you.'],audio:'Hello!'},
-   {t:'guided',q:'Uma pessoa disse “Hello!”. O que combina como resposta?',ans:'Hi!',op:['Hi!','Goodbye!','No, thank you.']},
-   {t:'review',items:[{e:'👋',en:'Hello!',pt:'Olá!'},{e:'🙂',en:'Hi!',pt:'Oi!'}]}
+   {t:'phrase',x:{e:'👋',en:'Hello!',pt:'Olá! · Cumprimento simples para várias situações.'}},
+   {t:'phrase',x:{e:'🙂',en:'Hi!',pt:'Oi! · Jeito informal de cumprimentar.'}},
+   {t:'phrase',x:{e:'😄',en:'Hey!',pt:'Oi! / Ei! · Muito informal, comum entre amigos.'}},
+   {t:'choice',q:'Uma pessoa chegou e disse “Hello!”. O que significa?',ans:'Olá!',op:['Olá!','Obrigado.','Até logo.'],audio:'Hello!'},
+   {t:'choice',q:'Escute e escolha a expressão.',ans:'Hi!',op:['Hi!','Hey!','Hello!'],audio:'Hi!'},
+   {t:'choice',q:'Você encontrou um amigo. Qual cumprimento informal pode usar?',ans:'Hey!',op:['Hey!','Goodbye!','Thank you.'],audio:'Hey!'},
+   {t:'guided',q:'Alguém diz “Hello!”. Escolha uma resposta amigável.',ans:'Hi!',op:['Hi!','Goodbye!','No, thank you.']},
+   {t:'review',items:[
+     {e:'👋',en:'Hello!',pt:'Olá!'},
+     {e:'🙂',en:'Hi!',pt:'Oi!'},
+     {e:'😄',en:'Hey!',pt:'Oi! / Ei!'},
+     {e:'🌅',en:'Good morning!',pt:'Bom dia! · Você vai praticar na próxima aula.'},
+     {e:'☀️',en:'Good afternoon!',pt:'Boa tarde! · Você vai praticar na próxima aula.'},
+     {e:'🌙',en:'Good evening!',pt:'Boa noite! · Você vai praticar na próxima aula.'}
+   ]}
   ]},
   {title:'Bom dia, boa tarde e boa noite',steps:[
    {t:'phrase',x:{e:'🌅',en:'Good morning!',pt:'Bom dia! · Ouça e repita.'}},
