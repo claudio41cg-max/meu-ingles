@@ -285,9 +285,27 @@ function teachingMeaning(english){
 }
 function teachingFeedback(step,ok){
  const en=cleanOptionAudio(step.t==='build'?step.target:(step.audio||step.ans||''));
- const translation=step.t==='build'?step.pt:teachingMeaning(en);
- const explain=translation?en+' significa '+String(translation).replace(/[.!]+$/,'')+'.':'A resposta correta é: '+cleanOptionAudio(step.ans||step.target||'')+'.';
- return (ok?'':'Ainda não. ')+explain+(ok?'':' Tente novamente.');
+ if(step.t==='build'){
+  const meaning=String(step.pt||'').replace(/[.!]+$/,'');
+  return (ok?'':'Ainda não. ')+(meaning?en+' significa '+meaning+'.':'A frase correta é: '+en+'.')+(ok?'':' Tente novamente.');
+ }
+ // Explica somente expressões inglesas conhecidas, sem ler as alternativas erradas.
+ // Primeiro a expressão apresentada na pergunta, depois a resposta correta.
+ const pairs=[];
+ const addMeaning=value=>{
+  const english=cleanOptionAudio(value);
+  const pt=teachingMeaning(english);
+  if(!english||!pt||pairs.some(x=>meaningKey(x.en)===meaningKey(english)))return;
+  pairs.push({en:english,pt:String(pt).replace(/[.!]+$/,'')});
+ };
+ const quoted=String(step.q||'').matchAll(/[“"]([^”"]+)[”"]/g);
+ for(const match of quoted)addMeaning(match[1]);
+ if(step.audio)addMeaning(step.audio);
+ addMeaning(step.ans);
+ const explanation=pairs.length
+  ?pairs.map(x=>x.en+' significa '+x.pt+'.').join(' ')
+  :'A resposta correta é: '+cleanOptionAudio(step.ans||'')+'.';
+ return (ok?'':'Ainda não. ')+explanation+(ok?'':' Tente novamente.');
 }
 function react(ok,heard,target,step){
  const txt=teachingFeedback(step,ok);
