@@ -1,4 +1,4 @@
-const CACHE_NAME='meu-ingles-pwa-v12';
+const CACHE_NAME='meu-ingles-pwa-v13';
 const APP_SHELL=[
   './',
   './index.html',
@@ -8,7 +8,7 @@ const APP_SHELL=[
   './home-v65.css?v=16',
   './ai-cost-v1.css?v=3',
   './stable.js?v=15',
-  './a1-v15.js?v=33',
+  './a1-v15.js?v=34',
   './tts-v22.js?v=25',
   './home-v26.js?v=36'
 ];
