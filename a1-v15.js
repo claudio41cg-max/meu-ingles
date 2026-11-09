@@ -294,6 +294,8 @@ function teachingFeedback(step,ok){
  const pairs=[];
  const addMeaning=value=>{
   const english=cleanOptionAudio(value);
+  // Opções escritas em português são respostas, não vocabulário a traduzir.
+  if(!english||looksPortugueseText(english))return;
   const pt=teachingMeaning(english);
   if(!english||!pt||pairs.some(x=>meaningKey(x.en)===meaningKey(english)))return;
   pairs.push({en:english,pt:String(pt).replace(/[.!]+$/,'')});
@@ -302,9 +304,11 @@ function teachingFeedback(step,ok){
  for(const match of quoted)addMeaning(match[1]);
  if(step.audio)addMeaning(step.audio);
  addMeaning(step.ans);
+ const portugueseAnswer=looksPortugueseText(cleanOptionAudio(step.ans||''));
  const explanation=pairs.length
   ?pairs.map(x=>x.en+' significa '+x.pt+'.').join(' ')
-  :'A resposta correta é: '+cleanOptionAudio(step.ans||'')+'.';
+  :portugueseAnswer?'':('A resposta correta é: '+cleanOptionAudio(step.ans||'')+'.');
+ if(!explanation)return ok?'': 'Ainda não. Tente novamente.';
  return (ok?'':'Ainda não. ')+explanation+(ok?'':' Tente novamente.');
 }
 function react(ok,heard,target,step){
