@@ -944,3 +944,71 @@
   #home .gameCardCopy small{font-size:12px !important}
   #home .gameCardArrow{font-size:27px}
 }
+
+/* Home mobile v123: cards de conversa completos e horizontais dentro de cada card.
+   Evita as duas colunas estreitas e o recorte na visualizacao PWA do Android. */
+@media (max-width:600px){
+  #home,
+  #home .professorPanel.homeTalkCard,
+  #home .homeConversationChoices{
+    min-width:0;
+    max-width:100%;
+  }
+  #home .homeConversationTop{
+    flex-wrap:wrap;
+    min-width:0;
+    gap:10px;
+  }
+  #home .homeConversationTop h2{
+    min-width:0;
+    max-width:100%;
+    overflow-wrap:break-word;
+  }
+  #home .homeConversationChoices{
+    display:grid !important;
+    grid-template-columns:minmax(0,1fr) !important;
+    width:100%;
+    gap:12px;
+  }
+  #home .homeConversationChoice{
+    box-sizing:border-box;
+    width:100%;
+    max-width:100%;
+    min-width:0;
+    min-height:108px;
+    display:flex !important;
+    flex-direction:row !important;
+    align-items:center;
+    gap:12px;
+    padding:14px !important;
+    text-align:left;
+  }
+  #home .homeConversationChoice .ico{
+    flex:0 0 64px;
+    width:64px;
+    min-width:0;
+  }
+  #home .homeConversationChoice .exploreChoiceVisual{
+    flex:0 0 64px;
+    width:64px;
+    max-width:64px;
+  }
+  #home .homeConversationChoice .choiceCopy{
+    flex:1 1 0;
+    min-width:0;
+    overflow-wrap:break-word;
+  }
+  #home .homeConversationChoice .choiceCopy b{
+    font-size:18px !important;
+    line-height:1.18;
+  }
+  #home .homeConversationChoice .choiceCopy small{
+    font-size:14px !important;
+    line-height:1.3;
+    white-space:normal;
+  }
+  #home .homeConversationChoice .cardAiMark{
+    flex:0 0 32px;
+    margin-left:0;
+  }
+}
