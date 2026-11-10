@@ -1,11 +1,11 @@
-const CACHE_NAME='meu-ingles-pwa-v13';
+const CACHE_NAME='meu-ingles-pwa-v14';
 const APP_SHELL=[
   './',
   './index.html',
   './icon.svg',
   './manifest.webmanifest',
   './stable.css?v=8',
-  './home-v65.css?v=16',
+  './home-v65.css?v=17',
   './ai-cost-v1.css?v=3',
   './stable.js?v=15',
   './a1-v15.js?v=34',
