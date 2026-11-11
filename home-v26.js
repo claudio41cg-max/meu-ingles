@@ -15,6 +15,13 @@ const LEVEL_MODULES={
 let mode='module',phase='idle',topic='',history=[],turn=0,errorStreak=0,busy=false,liveExtra='';
 const LIVE_VOICE_KEY='meuIngles.liveVoice.v1';
 const ROBOT_LIVE_VOICE_KEY='meuIngles.robotLiveVoice.v1';
+const LIVE_PROVIDER_KEY='meuIngles.liveProvider.v1';
+function currentLiveProvider(){return localStorage.getItem(LIVE_PROVIDER_KEY)==='gemini'?'gemini':'gpt'}
+window.changeV26LiveProvider=value=>{
+ if(phase!=='idle')return;
+ localStorage.setItem(LIVE_PROVIDER_KEY,value==='gemini'?'gemini':'gpt');
+ render();
+};
 function st(){try{return JSON.parse(localStorage.getItem(KEY)||'{}')||{}}catch{return {}}}
 function norm(s){return String(s||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().replace(/[^a-z0-9 ]/g,' ').replace(/\s+/g,' ').trim()}
 function currentLevel(){return (st().level||'A1').toUpperCase()}
@@ -271,6 +278,14 @@ function render(){
      <select class="homeRobotVoiceSelect" onchange="changeRobotLiveVoice(this.value)">${robotLiveVoiceOptions()}</select>
    </label>
  </div>
+ <div class="homeConversationProvider" style="margin:12px 0;padding:11px 13px;border:1px solid rgba(111,180,235,.38);border-radius:14px;background:rgba(16,38,60,.72);color:#dceeff" onclick="event.stopPropagation()">
+   <label style="display:flex;gap:10px;align-items:center;justify-content:space-between;flex-wrap:wrap;font-size:14px;font-weight:700">Professor ao vivo
+   <select id="homeLiveProvider" style="min-width:190px;max-width:100%;border-radius:9px;padding:9px;background:#102c4b;color:white;border:1px solid #416a8d" onchange="changeV26LiveProvider(this.value)">
+    <option value="gpt" ${currentLiveProvider()==="gpt"?"selected":""}>GPT Live • S20</option>
+    <option value="gemini" ${currentLiveProvider()==="gemini"?"selected":""}>Gemini Live • ShardCloud</option>
+   </select></label>
+   <small style="display:block;margin-top:6px;color:#bbccde">${currentLiveProvider()==="gemini"?"Usa créditos Google. Senha exclusiva solicitada ao conectar. Limite de 2 minutos por sessão.":"Mantém a conexão GPT já configurada no S20."}</small>
+ </div>
  <div class="homeConversationChoices">
    <button class="homeConversationChoice methodsCard" data-v26mode="methods" onclick="openMethodsRobot(event)">${exploreVisual()}<span class="choiceCopy"><b>Explorar temas</b><small>Escolha um tema entre família, viagens, comida, hotel e muito mais.</small></span>${aiMark()}</button>
    <button class="homeConversationChoice ${mode==='module'?'active':''}" data-v26mode="module" onclick="startV26FromCard('module')">${courseVisual()}<span class="choiceCopy"><b>Inglês com AI</b><small>Siga aulas guiadas e avance com a IA</small></span>${aiMark()}</button>
@@ -305,7 +320,7 @@ window.startV26RobotLive=async()=>{
 
 window.openTeacherTypes=()=>{window.stableShow?.('settings');setTimeout(()=>{[...document.querySelectorAll('#settings h3')].find(x=>/Personalidade do professor/i.test(x.textContent||''))?.scrollIntoView({behavior:'smooth',block:'start'})},120)};
 
-function subscriptionLive(){return window.MeuInglesSubscriptionLive}
+function subscriptionLive(){return currentLiveProvider()==='gemini'?window.MeuInglesShardGeminiLive:window.MeuInglesSubscriptionLive}
 function livePersonality(){
   if(currentTeacher()==='pesada')return 'HARD 18+: você SABE que é o professor Hard 18+ do Meu Inglês. Seja exigente, direto, provocador e bem-humorado. Pode usar linguagem adulta e palavrões ocasionais quando couber, sem humilhar. Não alivie erro: corrija, explique em poucas palavras e faça o aluno tentar novamente.';
   if(currentTeacher()==='media')return 'DOIDEIRA: você SABE que é o professor Doideira do Meu Inglês. Seja animado, espontâneo, brincalhão e imprevisível, com piadas curtas e energia alta. Corrija sem constranger e varie exemplos, mas nunca abandone o tema da aula.';
@@ -372,7 +387,7 @@ async function startV26SubscriptionLive(extra=''){
   liveExtra=String(extra||liveExtra||'');
   if(!live?.start)throw new Error('GPT Live por assinatura indisponível.');
   setBusy(true);
-  addMsg('🎙️ Conectando ao GPT Live...','bot');
+  addMsg('🎙️ Conectando ao '+(currentLiveProvider()==='gemini'?'Gemini Live na ShardCloud':'GPT Live')+'...','bot');
   try{
     await live.start({
       voice:currentLiveVoice(),
@@ -401,7 +416,7 @@ async function startV26SubscriptionLive(extra=''){
       onState:(name,detail)=>{
         if(name==='live'){
           setBusy(false);
-          addMsg('GPT Live conectado. Pode falar normalmente.','bot');
+          addMsg((currentLiveProvider()==='gemini'?'Gemini Live':'GPT Live')+' conectado. Pode falar normalmente.','bot');
           setLiveRobotImage(false);
           syncLiveUi();
         }else if(name==='channel-open'){
@@ -440,7 +455,7 @@ async function startV26SubscriptionLive(extra=''){
         }else if(name==='error'){
           setBusy(false);
           setLiveRobotImage(false);
-          addMsg('Não consegui abrir o GPT Live: '+String(detail||'erro desconhecido'),'bot');
+          addMsg('Falha na conexão ao vivo: '+String(detail||'erro desconhecido'),'bot');
           setRobotState('oops');
         }else if(name==='stopped'){
           setBusy(false);
@@ -456,12 +471,13 @@ async function startV26SubscriptionLive(extra=''){
   }catch(error){
     setBusy(false);
     setRobotState('oops');
-    addMsg('Não consegui abrir o GPT Live. Tente novamente.','bot');
+    addMsg('Não consegui abrir o professor ao vivo: '+String(error?.message||'Erro de conexão'),'bot');
     return false;
   }
 }
 
 window.changeV26LiveVoice=async value=>{
+  if(currentLiveProvider()==='gemini'){addMsg('A voz escolhida aqui é do GPT. O Gemini Live utiliza a voz configurada pelo Google.','bot');return;}
   const allowed=new Set(['cove','juniper','maple','spruce','ember','vale','breeze','arbor','sol']);
   const voice=String(value||'');
   if(!allowed.has(voice))return;
@@ -521,7 +537,7 @@ window.startV26LiveContext=async context=>{
    context?.recentTitles?`Aulas recentes: ${context.recentTitles}.`:'',
    context?.lessonMap?`Mapa das aulas: ${context.lessonMap}.`:'',
    context?.instruction?String(context.instruction):'',
-   'MODO_ATIVO: EXPLORAR_TEMAS. Você está no modo Explorar temas do Meu Inglês. O tema e a aula recebidos acima são obrigatórios. Não saia deles. Use GPT Live por assinatura e conduza a prática por voz.'
+   'MODO_ATIVO: EXPLORAR_TEMAS. Você está no modo Explorar temas do Meu Inglês. O tema e a aula recebidos acima são obrigatórios. Não saia deles. Conduza a prática por voz no motor ao vivo selecionado.'
  ].filter(Boolean).join('\n');
  await startV26SubscriptionLive(details);
 };
@@ -552,7 +568,7 @@ window.pickV26Module=async i=>{
  const live=subscriptionLive();
  try{await live?.stop?.()}catch{}
  await startV26SubscriptionLive(
-   'Treino guiado do módulo '+m+'. Comece agora pelo exercício oral mais fácil desse módulo. Faça uma pergunta curta em inglês e ajude em português quando necessário.'
+   'MODO_ATIVO: INGLES_COM_AI. Treino guiado do módulo '+m+'. Comece agora pelo exercício oral mais fácil desse módulo. Faça uma pergunta curta em inglês e ajude em português quando necessário.'
  );
 };
 function matchModule(text){
@@ -609,7 +625,8 @@ window.v26Send=()=>{
  const live=subscriptionLive();
  if(live?.state?.running){
    addMsg(t,'user');
-   addMsg('No modo GPT Live, fale pelo microfone para continuar a conversa em tempo real.','bot');
+   if(currentLiveProvider()==='gemini')live.sendText?.(t);
+   else addMsg('No modo GPT Live, fale pelo microfone para continuar a conversa em tempo real.','bot');
    return;
  }
  handleUser(t);
