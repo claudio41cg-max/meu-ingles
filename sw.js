@@ -1,4 +1,4 @@
-const CACHE_NAME='meu-ingles-pwa-v14';
+const CACHE_NAME='meu-ingles-pwa-v15';
 const APP_SHELL=[
   './',
   './index.html',
@@ -10,7 +10,8 @@ const APP_SHELL=[
   './stable.js?v=15',
   './a1-v15.js?v=34',
   './tts-v22.js?v=25',
-  './home-v26.js?v=36'
+  './home-v26.js?v=37',
+  './gemini-shardcloud-live-v1.js?v=1'
 ];
 
 self.addEventListener('install',event=>{
